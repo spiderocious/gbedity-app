@@ -48,3 +48,9 @@ export type { GameTileProps } from './game-tile/index.ts';
 
 export { LobbyRow, RankedRow } from './player-row/index.ts';
 export type { LobbyRowProps, RankedRowProps } from './player-row/index.ts';
+
+export { Slider } from './slider/index.ts';
+export type { SliderProps } from './slider/index.ts';
+
+export { PreviewRail, PreviewStat } from './preview-rail/index.ts';
+export type { PreviewRailProps, PreviewStatProps } from './preview-rail/index.ts';

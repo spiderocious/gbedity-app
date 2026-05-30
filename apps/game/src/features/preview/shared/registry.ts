@@ -70,6 +70,14 @@ export const PARTS: readonly PreviewPart[] = [
     ),
   },
   {
+    id: 'slider',
+    label: 'Slider',
+    group: 'Primitives',
+    Component: lazy(() =>
+      import('../screen/parts/15-slider.tsx').then((m) => ({ default: m.SliderPart })),
+    ),
+  },
+  {
     id: 'pill',
     label: 'Pill · CategoryChip',
     group: 'Display',
@@ -123,6 +131,14 @@ export const PARTS: readonly PreviewPart[] = [
     group: 'Display',
     Component: lazy(() =>
       import('../screen/parts/26-player-row.tsx').then((m) => ({ default: m.PlayerRowPart })),
+    ),
+  },
+  {
+    id: 'preview-rail',
+    label: 'PreviewRail · PreviewStat',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/27-preview-rail.tsx').then((m) => ({ default: m.PreviewRailPart })),
     ),
   },
 ];
