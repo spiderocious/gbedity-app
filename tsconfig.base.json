@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@gbedity/ui": ["./packages/ui/src/index.ts"],
+      "@gbedity/ui/*": ["./packages/ui/src/*"],
+      "@gbedity/icons": ["./packages/icons/src/index.ts"],
+      "@icons": ["./packages/icons/src/index.ts"]
+    }
+  }
+}

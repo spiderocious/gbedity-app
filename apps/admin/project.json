@@ -1,0 +1,44 @@
+{
+  "name": "admin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/admin/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm dev", "cwd": "apps/admin" }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm dev", "cwd": "apps/admin" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm build", "cwd": "apps/admin" },
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm start", "cwd": "apps/admin" }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm preview", "cwd": "apps/admin" }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm typecheck", "cwd": "apps/admin" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm lint", "cwd": "apps/admin" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm test", "cwd": "apps/admin" }
+    }
+  },
+  "tags": ["scope:admin", "type:app"],
+  "implicitDependencies": ["ui"]
+}

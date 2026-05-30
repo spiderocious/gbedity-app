@@ -1,0 +1,31 @@
+{
+  "name": "@gbedity/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "start": "vite preview --port 4174",
+    "preview": "vite preview --port 4174",
+    "typecheck": "tsc -b --noEmit",
+    "lint": "eslint --config ../../eslint.config.mjs 'src/**/*.{ts,tsx}'",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@gbedity/ui": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.5"
+  }
+}

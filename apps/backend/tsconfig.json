@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2022"],
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "./src",
+    "types": ["node", "jest"],
+    "paths": {
+      "@features/*": ["features/*"],
+      "@lib/*": ["lib/*"],
+      "@db/*": ["db/*"],
+      "@middlewares/*": ["middlewares/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

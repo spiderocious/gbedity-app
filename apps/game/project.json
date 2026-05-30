@@ -1,0 +1,44 @@
+{
+  "name": "game",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/game/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm dev", "cwd": "apps/game" }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm dev", "cwd": "apps/game" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm build", "cwd": "apps/game" },
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm start", "cwd": "apps/game" }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm preview", "cwd": "apps/game" }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm typecheck", "cwd": "apps/game" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm lint", "cwd": "apps/game" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm test", "cwd": "apps/game" }
+    }
+  },
+  "tags": ["scope:game", "type:app"],
+  "implicitDependencies": ["ui"]
+}

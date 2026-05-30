@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "exactOptionalPropertyTypes": false,
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "paths": {
+      "@app/*": ["./src/*"],
+      "@gbedity/ui": ["../../packages/ui/src/index.ts"],
+      "@gbedity/ui/*": ["../../packages/ui/src/*"],
+      "@gbedity/icons": ["../../packages/icons/src/index.ts"],
+      "@icons": ["../../packages/icons/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}
