@@ -10,7 +10,8 @@ body,
 
 body {
   margin: 0;
-  background: #f9fafb;
+  background: theme('colors.canvas.DEFAULT');
   color: theme('colors.ink.DEFAULT');
   font-family: theme('fontFamily.sans');
+  font-variant-numeric: tabular-nums;
 }

@@ -1,9 +1,29 @@
 /*
- * Gbedity UI — shared component styles.
+ * Gbedity UI — bright-room game-night.
  *
- * Components (e.g. Button) are styled with Tailwind utility classes that the consuming
- * apps compile (their tailwind content globs include packages/ui/src). This file is the
- * place for any non-utility, component-specific CSS the library needs to ship. It's kept
- * as the public `@gbedity/ui/styles.css` entry so apps have a single import to pull in
- * library styles as the design system grows.
+ * Imported once by each consuming app via `import '@gbedity/ui/styles.css'`.
+ * Loads the type system (Fraunces + Nunito via @fontsource), turns tabular
+ * numerals on by default (every score and timer needs them), and sets the
+ * Forest Ink colour token as the body default.
+ *
+ * Components in this package style themselves with Tailwind utility classes
+ * that resolve against the shared theme tokens defined in tailwind.preset.ts.
+ * Consuming apps compile those classes because their tailwind content globs
+ * include packages/ui/src/**.
  */
+
+@import '@fontsource-variable/fraunces/index.css';
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/500.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+@import '@fontsource/nunito/800.css';
+
+:root {
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: #1F6B4A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

@@ -19,6 +19,18 @@ the structure is in place; the game itself is not built yet.
 - Icons: `import { Home } from '@icons'` — `@icons` is aliased to `packages/icons`
   (a proxy for `lucide-react`), so any lucide icon is available by its original name.
 
+## Component preview gallery
+
+`apps/game` hosts a dev-facing gallery for `@gbedity/ui` components at **`/preview`**
+(react-router; the landing page is at `/`).
+
+- `apps/game/src/features/preview/shared/registry.ts` — the single source of truth.
+  The sidebar nav and the canvas router both derive from `PARTS`.
+- **To add a component to the gallery:** create a part under
+  `apps/game/src/features/preview/screen/parts/` (follow `10-buttons.tsx`, composing the
+  `PageHead` / `RefBlock` / `RefRow` primitives from `preview-canvas.tsx`), then add one
+  entry to `PARTS` in `registry.ts`. Nothing else to wire up.
+
 ## Commands (run from the repo root)
 
 - `pnpm install` — install all workspace deps (pnpm only; `npm`/`yarn` are blocked).

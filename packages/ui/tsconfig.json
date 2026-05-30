@@ -9,6 +9,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "exactOptionalPropertyTypes": false,
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },

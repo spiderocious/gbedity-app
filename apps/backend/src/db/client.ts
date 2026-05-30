@@ -12,7 +12,6 @@ export const connectDb = async (): Promise<Db> => {
   if (db) return db;
   client = new MongoClient(env.MONGO_URL, {
     ignoreUndefined: true,
-    // Standalone Mongo (dev/CI) rejects retryable writes; disable so single-node dev works.
     retryWrites: false,
   });
   await client.connect();
