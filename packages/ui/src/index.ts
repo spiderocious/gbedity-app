@@ -34,6 +34,9 @@ export type { PillProps, PillTone, CategoryChipProps, CategoryKey } from './pill
 export { Avatar, AvatarStack } from './avatar/index.ts';
 export type { AvatarProps, AvatarStackProps, AvatarSize, SeatIndex } from './avatar/index.ts';
 
+export { GameAvatar } from './avatar/index.ts';
+export type { GameAvatarProps } from './avatar/index.ts';
+
 export { Card } from './card/index.ts';
 export type { CardProps, CardSize, CardTone } from './card/index.ts';
 

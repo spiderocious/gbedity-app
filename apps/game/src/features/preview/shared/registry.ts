@@ -141,6 +141,14 @@ export const PARTS: readonly PreviewPart[] = [
       import('../screen/parts/27-preview-rail.tsx').then((m) => ({ default: m.PreviewRailPart })),
     ),
   },
+  {
+    id: 'feedback',
+    label: 'Toast · Banner · InlineAlert',
+    group: 'Feedback',
+    Component: lazy(() =>
+      import('../screen/parts/30-feedback.tsx').then((m) => ({ default: m.FeedbackPart })),
+    ),
+  },
 ];
 
 export const DEFAULT_PART_ID = PARTS[0]?.id ?? '';
