@@ -77,6 +77,54 @@ export const PARTS: readonly PreviewPart[] = [
       import('../screen/parts/20-pill.tsx').then((m) => ({ default: m.PillPart })),
     ),
   },
+  {
+    id: 'avatar',
+    label: 'Avatar · AvatarStack',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/21-avatar.tsx').then((m) => ({ default: m.AvatarPart })),
+    ),
+  },
+  {
+    id: 'card',
+    label: 'Card',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/22-card.tsx').then((m) => ({ default: m.CardPart })),
+    ),
+  },
+  {
+    id: 'score',
+    label: 'Score',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/23-score.tsx').then((m) => ({ default: m.ScorePart })),
+    ),
+  },
+  {
+    id: 'game-id',
+    label: 'GameId',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/24-game-id.tsx').then((m) => ({ default: m.GameIdPart })),
+    ),
+  },
+  {
+    id: 'game-tile',
+    label: 'GameTile',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/25-game-tile.tsx').then((m) => ({ default: m.GameTilePart })),
+    ),
+  },
+  {
+    id: 'player-row',
+    label: 'LobbyRow · RankedRow',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/26-player-row.tsx').then((m) => ({ default: m.PlayerRowPart })),
+    ),
+  },
 ];
 
 export const DEFAULT_PART_ID = PARTS[0]?.id ?? '';

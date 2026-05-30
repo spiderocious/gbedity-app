@@ -33,3 +33,18 @@ export type { PillProps, PillTone, CategoryChipProps, CategoryKey } from './pill
 
 export { Avatar, AvatarStack } from './avatar/index.ts';
 export type { AvatarProps, AvatarStackProps, AvatarSize, SeatIndex } from './avatar/index.ts';
+
+export { Card } from './card/index.ts';
+export type { CardProps, CardSize, CardTone } from './card/index.ts';
+
+export { Score } from './score/index.ts';
+export type { ScoreProps, ScoreSize, ScoreTone } from './score/index.ts';
+
+export { GameId } from './game-id/index.ts';
+export type { GameIdProps, GameIdSize } from './game-id/index.ts';
+
+export { GameTile } from './game-tile/index.ts';
+export type { GameTileProps } from './game-tile/index.ts';
+
+export { LobbyRow, RankedRow } from './player-row/index.ts';
+export type { LobbyRowProps, RankedRowProps } from './player-row/index.ts';
