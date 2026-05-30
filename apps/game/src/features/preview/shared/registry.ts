@@ -61,6 +61,22 @@ export const PARTS: readonly PreviewPart[] = [
       import('../screen/parts/13-switch.tsx').then((m) => ({ default: m.SwitchPart })),
     ),
   },
+  {
+    id: 'checkbox',
+    label: 'Checkbox',
+    group: 'Primitives',
+    Component: lazy(() =>
+      import('../screen/parts/14-checkbox.tsx').then((m) => ({ default: m.CheckboxPart })),
+    ),
+  },
+  {
+    id: 'pill',
+    label: 'Pill · CategoryChip',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/20-pill.tsx').then((m) => ({ default: m.PillPart })),
+    ),
+  },
 ];
 
 export const DEFAULT_PART_ID = PARTS[0]?.id ?? '';

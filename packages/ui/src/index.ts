@@ -23,3 +23,13 @@ export type { SegmentedProps, SegmentedOption } from './segmented/index.ts';
 
 export { Switch } from './switch/index.ts';
 export type { SwitchProps } from './switch/index.ts';
+
+export { Checkbox } from './checkbox/index.ts';
+export type { CheckboxProps } from './checkbox/index.ts';
+
+// Data display
+export { Pill, CategoryChip } from './pill/index.ts';
+export type { PillProps, PillTone, CategoryChipProps, CategoryKey } from './pill/index.ts';
+
+export { Avatar, AvatarStack } from './avatar/index.ts';
+export type { AvatarProps, AvatarStackProps, AvatarSize, SeatIndex } from './avatar/index.ts';
