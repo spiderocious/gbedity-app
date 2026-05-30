@@ -16,8 +16,8 @@ describe('Button', () => {
     expect(button).toHaveTextContent('Loading…');
   });
 
-  it('applies the variant class', () => {
+  it('applies variant utility classes', () => {
     render(<Button variant="ghost">Ghost</Button>);
-    expect(screen.getByRole('button')).toHaveClass('gb-button--ghost');
+    expect(screen.getByRole('button')).toHaveClass('text-ink-secondary');
   });
 });

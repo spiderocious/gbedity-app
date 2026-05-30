@@ -8,7 +8,16 @@ the structure is in place; the game itself is not built yet.
 - `apps/backend` — Node + TypeScript + Express API. MongoDB for persistence. Tests via **Jest**.
 - `apps/admin` — Vite + React + TypeScript admin dashboard. Tests via **Vitest**.
 - `apps/game` — Vite + React + TypeScript game client. Tests via **Vitest**.
-- `packages/ui` — Shared React component library. Exports `Button`. Tests via **Vitest**.
+- `packages/ui` — Shared React component library. Exports `Button` (styled with Tailwind). Tests via **Vitest**.
+- `packages/icons` — Icon proxy. Wildcard re-exports `lucide-react`. Imported via the `@icons` alias.
+
+## Styling
+
+- **Tailwind CSS v3** in `apps/admin`, `apps/game`, and for `packages/ui`'s components.
+- Shared theme tokens live in `tailwind.preset.ts` at the root; each app's `tailwind.config.ts`
+  pulls it in via `presets` and scans `packages/ui/src` so library classes get compiled.
+- Icons: `import { Home } from '@icons'` — `@icons` is aliased to `packages/icons`
+  (a proxy for `lucide-react`), so any lucide icon is available by its original name.
 
 ## Commands (run from the repo root)
 

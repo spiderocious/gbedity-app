@@ -1,19 +1,16 @@
-:root {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #1f2937;
-  background: #f9fafb;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-}
-
-.app {
-  max-width: 640px;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: flex-start;
+  background: #f9fafb;
+  color: theme('colors.ink.DEFAULT');
+  font-family: theme('fontFamily.sans');
 }

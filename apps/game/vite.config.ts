@@ -19,6 +19,14 @@ export default defineConfig({
         find: '@gbedity/ui/styles.css',
         replacement: path.resolve(__dirname, '../../packages/ui/src/styles.css'),
       },
+      {
+        find: /^@icons$/,
+        replacement: path.resolve(__dirname, '../../packages/icons/src/index.ts'),
+      },
+      {
+        find: /^@gbedity\/icons$/,
+        replacement: path.resolve(__dirname, '../../packages/icons/src/index.ts'),
+      },
     ],
   },
   server: {

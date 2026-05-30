@@ -1,80 +1,9 @@
-/* Gbedity UI — base styles for shared primitives. Plain CSS, no framework dependency. */
-
-.gb-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-  border-radius: 0.375rem;
-  border: 1px solid transparent;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.gb-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.gb-button__icon {
-  display: inline-flex;
-}
-
-/* Sizes */
-.gb-button--sm {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 0.8125rem;
-}
-
-.gb-button--md {
-  height: 36px;
-  padding: 0 14px;
-  font-size: 0.875rem;
-}
-
-.gb-button--lg {
-  height: 44px;
-  padding: 0 18px;
-  font-size: 1rem;
-}
-
-/* Variants */
-.gb-button--primary {
-  background-color: #4f46e5;
-  border-color: #4f46e5;
-  color: #ffffff;
-}
-
-.gb-button--primary:hover:not(:disabled) {
-  background-color: #4338ca;
-  border-color: #4338ca;
-}
-
-.gb-button--secondary {
-  background-color: transparent;
-  border-color: #1f2937;
-  color: #1f2937;
-}
-
-.gb-button--secondary:hover:not(:disabled) {
-  background-color: #1f2937;
-  color: #ffffff;
-}
-
-.gb-button--ghost {
-  background-color: transparent;
-  border-color: transparent;
-  color: #4b5563;
-}
-
-.gb-button--ghost:hover:not(:disabled) {
-  background-color: rgba(31, 41, 55, 0.06);
-  color: #1f2937;
-}
+/*
+ * Gbedity UI — shared component styles.
+ *
+ * Components (e.g. Button) are styled with Tailwind utility classes that the consuming
+ * apps compile (their tailwind content globs include packages/ui/src). This file is the
+ * place for any non-utility, component-specific CSS the library needs to ship. It's kept
+ * as the public `@gbedity/ui/styles.css` entry so apps have a single import to pull in
+ * library styles as the design system grows.
+ */
