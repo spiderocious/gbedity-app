@@ -54,3 +54,12 @@ export type { SliderProps } from './slider/index.ts';
 
 export { PreviewRail, PreviewStat } from './preview-rail/index.ts';
 export type { PreviewRailProps, PreviewStatProps } from './preview-rail/index.ts';
+
+// Feedback
+export { Toast, Banner, InlineAlert } from './feedback/index.ts';
+export type {
+  ToastProps,
+  BannerProps,
+  InlineAlertProps,
+  FeedbackTone,
+} from './feedback/index.ts';

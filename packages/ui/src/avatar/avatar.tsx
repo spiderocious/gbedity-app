@@ -20,7 +20,7 @@ export interface AvatarProps {
 //
 // Eight seat colours rotate from the brand secondary palette. Never duplicated
 // within a single room. Initials in Nunito 800. Full-pill always.
-const SIZE_CLASSES: Record<AvatarSize, string> = {
+export const SIZE_CLASSES: Record<AvatarSize, string> = {
   sm: 'h-7 w-7 text-[11px]',
   md: 'h-10 w-10 text-[15px]',
   lg: 'h-14 w-14 text-[22px]',
