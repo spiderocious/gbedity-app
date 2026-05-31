@@ -24,10 +24,13 @@ const Phase = { TURN: 'turn', AWAIT_VALIDATION: 'await_validation', DONE: 'done'
 type Phase = (typeof Phase)[keyof typeof Phase];
 
 const ActionType = { SUBMIT: 'test_rr.submit' } as const;
-const TimerKey = { TURN: 'turn' } as const;
+// TURN = the holder's answer window; VALIDATION = the bounded wait for the validation verdict so a
+// stalled/never-returning service can't hang the turn forever.
+const TimerKey = { TURN: 'turn', VALIDATION: 'validation' } as const;
 
 const configSchema = z.object({
   turnSeconds: z.number().int().positive().default(10),
+  validationSeconds: z.number().int().positive().default(5),
 });
 type Config = z.infer<typeof configSchema>;
 
@@ -46,6 +49,7 @@ interface State {
   phase: Phase;
   prompt: string;
   turnSeconds: number;
+  validationSeconds: number;
   order: string[]; // playerIds in rotation
   turnIdx: number;
   turnStartedAt: EpochMs;
@@ -77,6 +81,7 @@ export const roundRobinTestGame: GamePlugin<Config, State, Action, Content> = {
       phase: Phase.TURN,
       prompt: input.content.prompt,
       turnSeconds: input.config.turnSeconds,
+      validationSeconds: input.config.validationSeconds,
       order,
       turnIdx: 0,
       turnStartedAt: input.startedAt,
@@ -113,17 +118,33 @@ export const roundRobinTestGame: GamePlugin<Config, State, Action, Content> = {
       return { state, effects: [] };
     }
     const ref = `val_${state.turnIdx}_${ctx.actor.id}`;
-    const next: State = { ...state, phase: Phase.AWAIT_VALIDATION, pendingRef: ref, pendingPlayerId: ctx.actor.id };
+    const validationDeadline = ctx.now + state.validationSeconds * 1000;
+    const next: State = {
+      ...state,
+      phase: Phase.AWAIT_VALIDATION,
+      pendingRef: ref,
+      pendingPlayerId: ctx.actor.id,
+      deadline: validationDeadline,
+    };
+    // Stop the turn clock and bound the validation wait — if the verdict never arrives the
+    // VALIDATION timer fires onTick and the turn advances rather than hanging forever (P2).
     return {
       state: next,
-      effects: [{ kind: EffectKind.REQUEST_VALIDATION, ref, payload: { text: action.text } }],
+      effects: [
+        { kind: EffectKind.CLEAR_TIMER, key: TimerKey.TURN },
+        { kind: EffectKind.START_TIMER, key: TimerKey.VALIDATION, fireAt: validationDeadline },
+        { kind: EffectKind.REQUEST_VALIDATION, ref, payload: { text: action.text } },
+      ],
     };
   },
 
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
-    if (state.phase !== Phase.TURN) return { state, effects: [] };
-    // Holder timed out → score 0, advance.
-    return advanceTurn(state, nowMs);
+    // Both the turn-timeout (holder didn't submit) and the validation-timeout (verdict never
+    // returned) resolve the same way: the turn scores nothing and we advance.
+    if (state.phase === Phase.TURN || state.phase === Phase.AWAIT_VALIDATION) {
+      return advanceTurn({ ...state, pendingRef: null, pendingPlayerId: null }, nowMs);
+    }
+    return { state, effects: [] };
   },
 
   view(state: State, audience: Audience): ViewPatch {
@@ -149,16 +170,27 @@ export const roundRobinTestGame: GamePlugin<Config, State, Action, Content> = {
   },
 };
 
-// One full rotation = one round; after everyone has had a turn the game ends.
+// One full rotation = one round; after everyone has had a turn the game ends. Clears BOTH timers
+// (turn + validation) so no stale timer survives a transition.
 const advanceTurn = (state: State, nowMs: EpochMs): StepResult<State> => {
   const nextIdx = state.turnIdx + 1;
   if (nextIdx >= state.order.length) {
-    return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.CLEAR_TIMER, key: TimerKey.TURN }, { kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.GAME_ENDED }] };
+    return {
+      state: { ...state, phase: Phase.DONE },
+      effects: [
+        { kind: EffectKind.CLEAR_TIMER, key: TimerKey.TURN },
+        { kind: EffectKind.CLEAR_TIMER, key: TimerKey.VALIDATION },
+        { kind: EffectKind.BROADCAST },
+        { kind: EffectKind.ROUND_ENDED },
+        { kind: EffectKind.GAME_ENDED },
+      ],
+    };
   }
   const deadline = nowMs + state.turnSeconds * 1000;
   return {
     state: { ...state, phase: Phase.TURN, turnIdx: nextIdx, turnStartedAt: nowMs, deadline },
     effects: [
+      { kind: EffectKind.CLEAR_TIMER, key: TimerKey.VALIDATION },
       { kind: EffectKind.CLEAR_TIMER, key: TimerKey.TURN },
       { kind: EffectKind.START_TIMER, key: TimerKey.TURN, fireAt: deadline },
       { kind: EffectKind.BROADCAST },

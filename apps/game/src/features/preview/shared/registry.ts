@@ -30,6 +30,14 @@ export const PREVIEW_GROUPS: readonly PreviewGroup[] = [
 
 export const PARTS: readonly PreviewPart[] = [
   {
+    id: 'logo',
+    label: 'Logo',
+    group: 'Foundation',
+    Component: lazy(() =>
+      import('../screen/parts/09-logo.tsx').then((m) => ({ default: m.LogoPart })),
+    ),
+  },
+  {
     id: 'buttons',
     label: 'Buttons',
     group: 'Primitives',

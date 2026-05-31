@@ -15,3 +15,23 @@ body {
   font-family: theme('fontFamily.sans');
   font-variant-numeric: tabular-nums;
 }
+
+/* Idle bob for the perching monkeys — a gentle up/down so they feel alive while sitting.
+   Squashed to nothing under reduced-motion by the rule below. */
+@keyframes monkey-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

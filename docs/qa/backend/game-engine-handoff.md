@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-31
 **Branch:** main
-**Build:** Typecheck ✅ · Lint ✅ · Tests ✅ (7/7, 4 suites)
+**Build:** Typecheck ✅ · Lint ✅ · Tests ✅ (10/10, 6 suites) · QA round-1 fixes applied (see qa-report "Dev response")
 **Base URL:** `http://localhost:8090/api/v1`
 **WebSocket:** Socket.IO on the same origin/port (`http://localhost:8090`)
 **Implements:** [`docs/backend/game-engine.md`](../../backend/game-engine.md) end-to-end + the Block 0
@@ -28,7 +28,9 @@ foundations it sits on. Tracker: [`docs/backend/build-phases.md`](../../backend/
 | Async seams (validation/AI) — **stubs only**, re-enter as synthetic actions | ✅ (abstract) |
 | Observability: per-session event log (size-not-contents) + metric hooks | ✅ |
 | Socket.IO gateway: join/reconnect, roles, per-player rate limit, view fanout | ✅ |
-| Room HTTP edge: create / join / lobby | ✅ |
+| Room HTTP edge: create / join / lobby / **start** | ✅ |
+| **SessionManager** (engine layer) owns sessions + boot-time `recoverAll()` | ✅ |
+| **Server-restart recovery**: rooms + in-flight games rebuilt from Redis on boot | ✅ |
 
 ---
 
@@ -41,8 +43,9 @@ nx dev backend            # http://localhost:8090
 
 - **MongoDB** at `MONGO_URL` — needed at boot (existing scaffold behaviour). Not exercised by this
   slice's logic (content/history persistence is later), but the server connects on start.
-- **Redis** at `REDIS_URL` is **optional**. If down, the server still boots; snapshots become
-  best-effort and log a warning. To test recovery, run Redis (`redis://127.0.0.1:6379`).
+- **Redis** at `REDIS_URL` is **optional for play** but **required to test recovery**. If down, the
+  server still boots and games still run; snapshots become best-effort (logged warning). With Redis
+  up (`redis://127.0.0.1:6379`), rooms + in-flight games are written through and rebuilt on restart.
 - No seed script — players are created on the fly via the join endpoint (no accounts in v1).
 
 ---
@@ -154,6 +157,8 @@ re-enters to score by hold-time.
 | Start with fewer than the game's min players | 409 `not_enough_players` |
 | Start while a game is already running | 409 `game_already_running` |
 | Player answers after the question deadline / out of turn | ignored (no score, no error) |
+| **Restart server mid-game (Redis up)** | room + in-flight game recovered on boot; timers re-armed from absolute deadlines; missed deadlines fire immediately; clients re-broadcast on reconnect (PRD §12) |
+| Restart server mid-game (Redis down) | room/game not recovered (best-effort) — expected without Redis |
 
 ---
 
@@ -181,8 +186,11 @@ Not exercised in this slice (no list endpoints yet). The cursor codec exists
 
 > ⚠️ **These are deliberately NOT done — do not file as bugs.**
 
-- [x] ~~No "start game" endpoint~~ — **DONE.** `POST /rooms/:code/start` now creates the session and
-      drives the live gateway, so QA can play a full game over the socket end-to-end.
+- [x] ~~No "start game" endpoint~~ — **DONE.** `POST /rooms/:code/start` creates the session via the
+      `SessionManager`, so QA can play a full game over the socket end-to-end.
+- [x] ~~Server-restart recovery gap~~ — **DONE.** Rooms + in-flight games are written through to Redis
+      and rebuilt on boot by `SessionManager.recoverAll()` (snapshots are self-sufficient — they
+      carry seed + players + state). Closes the PRD §12 hole.
 - [ ] **Validation & AI are stubs.** `REQUEST_VALIDATION` always returns ok; `REQUEST_AI` is a
       no-op unless `OPENAI_API_KEY` is set. Concrete payloads/logic are a later block.
 - [ ] **No persistence of game plays** to Mongo yet (`PERSIST_EVENT` currently logs only).
@@ -195,10 +203,13 @@ Not exercised in this slice (no list endpoints yet). The cursor codec exists
 
 ## Notes / deviations from the design doc (intentional, flagged)
 
-- **`init` now returns `StepResult<State>`** (state + initial effects), not bare `State`. The doc's
-  §2 signature showed `: State` but its §8 example emitted effects from init; the test games
-  surfaced the gap. `StepResult` reconciles them so initial timers/broadcasts flow through the same
-  executor. **The design doc should be updated to match** (flagging for the doc owner).
+- **`init` returns `StepResult<State>`** (state + initial effects), not bare `State` — reconciles the
+  doc's §2 signature with its §8 "init emits startTimer + broadcast" example. Design doc updated.
+- **Layering:** game-session lifecycle lives in a dedicated **`SessionManager`** (engine layer,
+  imports no socket transport). The **gateway is pure transport** — it injects its `OutputSink`
+  into the SessionManager and looks sessions up there. The **rooms service depends on the
+  SessionManager**, not the gateway, so business logic never touches the socket layer. This is the
+  consistent registry pattern (sibling to `roomRegistry`).
 - Repo conventions followed over persona doctrine where they differ: **CommonJS + Node resolution**
   (no `.js` import extensions), **Jest** (not Vitest), **Mongo** (not Postgres) — all per the
   scaffold and PRD, as agreed.

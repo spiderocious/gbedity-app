@@ -15,6 +15,8 @@ export const ServerEvent = {
   JOINED: 'server.joined',
   VIEW: 'server.view', // a projected view patch
   ERROR: 'server.error',
+  ROOM_SUSPENDED: 'server.room_suspended', // host left; grace countdown started (PRD §10)
+  ROOM_ENDED: 'server.room_ended', // room closed (host didn't return / ended)
 } as const;
 export type ServerEvent = (typeof ServerEvent)[keyof typeof ServerEvent];
 

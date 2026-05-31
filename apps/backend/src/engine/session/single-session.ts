@@ -30,29 +30,26 @@ export interface RecoverSessionOptions {
   onEnded?: () => void;
 }
 
+interface BuildArgs {
+  roomCode: string;
+  plugin: AnyGamePlugin;
+  players: PlayerRef[];
+  seed?: string;
+  instanceId?: string;
+  ratingFilter?: RatingFilter;
+  sink?: OutputSink;
+  onEnded?: () => void;
+}
+
 export class SingleSession {
   readonly runtime: GameRuntime;
   private readonly board = new Leaderboard();
   private ended = false;
 
-  private constructor(runtime: GameRuntime) {
-    this.runtime = runtime;
-  }
-
-  // Build the runtime + wire the shared callbacks. Shared by start() and recover().
-  private static build(args: {
-    roomCode: string;
-    plugin: AnyGamePlugin;
-    players: PlayerRef[];
-    seed?: string;
-    instanceId?: string;
-    ratingFilter?: RatingFilter;
-    sink?: OutputSink;
-    onEnded?: () => void;
-  }): SingleSession {
-    // SingleSession needs `this` for the callbacks, so build a placeholder, then the runtime.
-    let session: SingleSession;
-    const runtime = new GameRuntime({
+  // Constructing the runtime inside the constructor lets its callbacks close over `this` directly
+  // (no forward-declared `let`). Shared by start() and recover() via the static factories.
+  private constructor(args: BuildArgs) {
+    this.runtime = new GameRuntime({
       roomCode: args.roomCode,
       plugin: args.plugin,
       players: args.players,
@@ -60,19 +57,17 @@ export class SingleSession {
       ...(args.instanceId !== undefined && { instanceId: args.instanceId }),
       ...(args.ratingFilter !== undefined && { ratingFilter: args.ratingFilter }),
       ...(args.sink !== undefined && { sink: args.sink }),
-      onRoundEnded: (score: RoundScore): void => session.board.apply(score),
+      onRoundEnded: (score: RoundScore): void => this.board.apply(score),
       onGameEnded: (): void => {
-        session.ended = true;
+        this.ended = true;
         args.onEnded?.();
       },
     });
-    session = new SingleSession(runtime);
-    return session;
   }
 
   // Start a brand-new game.
   static start(opts: SingleSessionOptions): SingleSession {
-    const session = SingleSession.build({
+    const session = new SingleSession({
       roomCode: opts.roomCode,
       plugin: opts.plugin,
       players: opts.players,
@@ -87,7 +82,7 @@ export class SingleSession {
   // Rebuild a session from a snapshot on boot, then rehydrate the runtime (re-arm timers, fire
   // missed deadlines, re-broadcast). The snapshot is self-sufficient (carries seed + players).
   static recover(opts: RecoverSessionOptions): SingleSession {
-    const session = SingleSession.build({
+    const session = new SingleSession({
       roomCode: opts.snapshot.roomCode,
       plugin: opts.plugin,
       players: opts.snapshot.players,

@@ -4,7 +4,8 @@ import { cn } from '../utils/cn.ts';
 import type { CategoryKey } from '../pill/pill.tsx';
 
 export interface GameTileProps {
-  /** Numeric ID 1–19. Renders as a two-digit zero-padded Fraunces watermark in the tile top. */
+  /** Numeric ID 1–19. Without `icon` it's the Fraunces watermark anchor; with `icon` it
+   *  demotes to a faint corner reference. */
   id: number;
   category: CategoryKey;
   /** Short category tag in the tile top — e.g. "Quick", "Brain", "Party", "Immersive". */
@@ -15,6 +16,9 @@ export interface GameTileProps {
   meta: string;
   /** Plain-English description, Nunito Regular 13 Deep Mist. */
   description: string;
+  /** Optional signature glyph (e.g. a lucide icon). When set it becomes the tile-top
+   *  anchor and the numeric ID demotes to a faint corner reference. */
+  icon?: ReactNode;
   /** Optional trailing slot in the body — typically a small Pill (e.g. "Default"). */
   trailing?: ReactNode;
   onClick?: () => void;
@@ -41,6 +45,7 @@ export function GameTile({
   title,
   meta,
   description,
+  icon,
   trailing,
   onClick,
   className,
@@ -48,6 +53,7 @@ export function GameTile({
   const isInteractive = onClick !== undefined;
   const Wrapper = isInteractive ? 'button' : 'div';
   const padded = id.toString().padStart(2, '0');
+  const hasIcon = icon !== undefined && icon !== null;
 
   return (
     <Wrapper
@@ -61,14 +67,33 @@ export function GameTile({
         className,
       )}
     >
-      <div className={cn('px-[18px] pb-[14px] pt-[18px] text-white', CATEGORY_TOP[category])}>
-        <p
-          className="m-0 mb-2 font-serif text-[32px] font-semibold leading-none tracking-[-0.02em] tabular-nums opacity-55"
-          style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144' }}
-          aria-hidden="true"
-        >
-          {padded}
-        </p>
+      <div className={cn('relative px-[18px] pb-[14px] pt-[18px] text-white', CATEGORY_TOP[category])}>
+        {hasIcon ? (
+          <>
+            {/* Number demotes to a faint corner reference when a signature icon is present. */}
+            <span
+              className="absolute right-[14px] top-[12px] font-serif text-[13px] font-semibold leading-none tabular-nums opacity-40"
+              style={{ fontVariationSettings: '"SOFT" 100, "opsz" 48' }}
+              aria-hidden="true"
+            >
+              {padded}
+            </span>
+            <span
+              aria-hidden="true"
+              className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/20"
+            >
+              {icon}
+            </span>
+          </>
+        ) : (
+          <p
+            className="m-0 mb-2 font-serif text-[32px] font-semibold leading-none tracking-[-0.02em] tabular-nums opacity-55"
+            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144' }}
+            aria-hidden="true"
+          >
+            {padded}
+          </p>
+        )}
         <p className="m-0 mb-1 font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] opacity-85">
           {tag}
         </p>

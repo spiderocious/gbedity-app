@@ -27,7 +27,7 @@ const TOAST_TONE: Record<FeedbackTone, string> = {
   success: 'bg-action text-white',
   warn: 'bg-warn text-ink',
   danger: 'bg-danger text-white',
-  info: 'bg-info text-ink',
+  info: 'bg-info text-white',
 };
 
 export function Toast({ tone = 'default', children, action, className }: ToastProps) {

@@ -46,13 +46,13 @@ The HTTP/infra primitives every later block depends on. No game logic.
 
 | # | Item | Description | Status |
 |---|---|---|---|
-| 0.1 | Response contract | Replace scaffold's flat `{error,message}` with `ResponseUtil` envelope (`{data}` / `{error:{code,message,field_errors}}`), `ServiceResult<T>`, `ERROR_CODES`, `asyncHandler`, global error middleware. | `todo` |
-| 0.2 | Message-key registry | Central message catalog sliced per feature; no inline response strings. | `todo` |
-| 0.3 | Request context | `AsyncLocalStorage` request context (request_id, role, etc.); services never see `req`. | `todo` |
-| 0.4 | Redis client | Single Redis client for room snapshots + pub/sub; `REDIS_URL` env. | `todo` |
-| 0.5 | Mongo confirm | Confirm existing Mongo client/`Db` access pattern; collection naming convention. | `todo` |
-| 0.6 | IDs + time + cursor | ULID prefixes (`r_` room, `pl_` player, `gi_` game-instance…), UTC time helpers, base64url cursor codec. | `todo` |
-| 0.7 | Logger upgrade | Structured logger with PII redaction; replace console shim. | `todo` |
+| 0.1 | Response contract | Replace scaffold's flat `{error,message}` with `ResponseUtil` envelope (`{data}` / `{error:{code,message,field_errors}}`), `ServiceResult<T>`, `ERROR_CODES`, `asyncHandler`, global error middleware. | `qa_testing` |
+| 0.2 | Message-key registry | Central message catalog sliced per feature; no inline response strings. | `qa_testing` |
+| 0.3 | Request context | `AsyncLocalStorage` request context (request_id, role, etc.); services never see `req`. | `qa_testing` |
+| 0.4 | Redis client | Single Redis client for room snapshots + pub/sub; `REDIS_URL` env. | `qa_testing` |
+| 0.5 | Mongo confirm | Confirm existing Mongo client/`Db` access pattern; collection naming convention. | `qa_testing` |
+| 0.6 | IDs + time + cursor | ULID prefixes (`r_` room, `pl_` player, `gi_` game-instance…), UTC time helpers, base64url cursor codec. | `qa_testing` |
+| 0.7 | Logger upgrade | Structured logger with PII redaction; replace console shim. | `qa_testing` |
 
 ---
 
@@ -62,43 +62,74 @@ Builds the full design doc end-to-end. **No real games** — closed with two tes
 
 | # | Item | Description | Status |
 |---|---|---|---|
-| 1.1 | Engine constants | `GameCategory`, `GameMode`, `EffectKind`, `AudienceKind`, `SystemActionType`, `GameId` as-const POJOs (doc §0.5). | `doc_written` |
-| 1.2 | Room state model | In-memory `Room`: lifecycle (lobby → in_game → lobby), players, spectators, host, reconnect tokens, idle clock (PRD §4). | `todo` |
-| 1.3 | Room registry | Create/get/GC rooms, 6-char collision-safe code generation, 30-min idle teardown (PRD §4). | `todo` |
-| 1.4 | Redis snapshots + recovery | Debounced snapshot of `{pluginId,state,timers,pendingRefs}`; rehydrate on restart, re-arm future timers, fire missed deadlines (doc §6, PRD §12 "≤30s"). | `todo` |
-| 1.5 | Socket.IO server | Namespaced room sockets, three roles (host/player/display), Zod-validated typed protocol, reconnect-into-seat. | `todo` |
-| 1.6 | Per-player rate limit | Token-bucket per player; runtime gate before plugin dispatch (PRD §14). | `todo` |
-| 1.7 | GamePlugin contract | The `GamePlugin<Config,State,Action,Content>` interface, `InitInput`, contexts (doc §2). | `doc_written` |
-| 1.8 | Effects + execution | `Effect` union + runtime executor (broadcast/toPlayer/toDisplay, timers, persist, request*, lifecycle); capability gating (doc §3). | `doc_written` |
-| 1.9 | GameRuntime loop | The action/tick → onAction/onTick → effects → view → fanout → snapshot loop (doc §7). | `todo` |
-| 1.10 | Timer subsystem | Runtime-owned clock keyed by absolute `fireAt`; `onTick` dispatch; recovery-safe (doc §0,§6). | `todo` |
-| 1.11 | view() fanout | Audience-projected views (host/display/player/spectator), server-side answer-secrecy + rating gating (doc §2.3). | `todo` |
-| 1.12 | Scoring + RoundScore | `scoreRound → RoundScore{deltas,maxPoints}`; raw leaderboard (doc §4). | `doc_written` |
-| 1.13 | Single session | Lobby↔game lifecycle, one raw board, replay/pick-another/end (doc §1, PRD §4). | `todo` |
-| 1.14 | League session | Game queue, percent-of-max normalization, weighted aggregate (sum/avg/top-3), auto-advance (doc §4, PRD §7.3). | `todo` |
-| 1.15 | Config system | Universal + per-game config schema mechanism, defaults so host "next→start" (PRD §7). | `todo` |
-| 1.16 | Content service | Mongo-backed decks/words/questions/cases; tagging (rating tier + tags); server-side rating filter that clients can't bypass (PRD §8/§12). | `todo` |
-| 1.17 | Validation seam | Abstract `REQUEST_VALIDATION` Effect + runtime execution stub; concrete payload deferred (doc §10 item 2). | `spec_needed` |
-| 1.18 | AI seam | Abstract `REQUEST_AI` Effect + runtime execution stub; rubric=Mongo, prompt=env; concrete payload deferred (doc §10 item 2). | `spec_needed` |
-| 1.19 | Game-play persistence | Persist game plays to Mongo via `PERSIST_EVENT` (for admin history, PRD §9). | `todo` |
-| 1.20 | Observability | Structured per-session event log (size-not-contents), metrics (snapshot rate, timer drift, AI/validation latency, recovery-overtake ratio) (doc §9). | `todo` |
-| 1.21 | Room HTTP edge | `POST /rooms` create-room + display-URL surfacing; join/lobby end-to-end (PRD §4/§10). | `todo` |
-| 1.22 | Test game A (simultaneous) | Spec doc + plugin: a simultaneous-answer game to prove the contract (doc §8). | `spec_needed` |
-| 1.23 | Test game B (round-robin) | Spec doc + plugin: a round-robin game with a re-armed timer + async validation to prove the contract (doc §8). | `spec_needed` |
-| 1.24 | Block 1 closure | Both test games pass E2E through the runtime (single + league); contract declared closed. | `blocked` |
+| 1.1 | Engine constants | `GameCategory`, `GameMode`, `EffectKind`, `AudienceKind`, `SystemActionType`, `GameId`, `SessionEventKind` as-const POJOs (doc §0.5). | `qa_testing` |
+| 1.2 | Room state model | In-memory `Room`: lifecycle (lobby → in_game → lobby), players, spectators, host, reconnect tokens, idle clock (PRD §4). | `qa_testing` |
+| 1.3 | Room registry | Create/get/GC rooms, 6-char collision-safe code generation, 30-min idle teardown; Redis write-through (PRD §4). | `qa_testing` |
+| 1.4 | Redis snapshots + recovery | Self-sufficient snapshot (`gameId,seed,players,state,timers,pendingRefs`) + room snapshot; **`SessionManager.recoverAll()`** rebuilds rooms + in-flight games on boot (doc §6, PRD §12 "≤30s"). | `qa_testing` |
+| 1.5 | Socket.IO gateway | Pure-transport gateway: three roles (host/player/display), Zod-validated protocol, reconnect-into-seat; injects sink into SessionManager. | `qa_testing` |
+| 1.6 | Per-player rate limit | Token-bucket per player; gate before dispatch (PRD §14). | `qa_testing` |
+| 1.7 | GamePlugin contract | The `GamePlugin<Config,State,Action,Content>` interface, `InitInput`, contexts; `init` returns `StepResult` (doc §2). | `qa_testing` |
+| 1.8 | Effects + execution | `Effect` union + runtime executor (broadcast/toPlayer/toDisplay, timers, persist, request*, lifecycle); capability gating (doc §3). | `qa_testing` |
+| 1.9 | GameRuntime loop | The action/tick → onAction/onTick → effects → view → fanout → snapshot loop (doc §7). | `qa_testing` |
+| 1.10 | Timer subsystem | Runtime-owned clock keyed by absolute `fireAt`; `onTick` dispatch; recovery-safe (doc §0,§6). | `qa_testing` |
+| 1.11 | view() fanout | Audience-projected views (host/display/player/spectator), server-side answer-secrecy + rating gating (doc §2.3). | `qa_testing` |
+| 1.12 | Scoring + RoundScore | `scoreRound → RoundScore{deltas,maxPoints}`; raw leaderboard (doc §4). | `qa_testing` |
+| 1.13 | Single + Session mgr | `SingleSession` lifecycle + `SessionManager` (engine layer, owns sessions, create/get/end, recoverAll) (doc §1, §4). | `qa_testing` |
+| 1.14 | League session | Game queue, percent-of-max normalization, weighted aggregate (sum/avg/top-3), auto-advance (doc §4, PRD §7.3). | `qa_testing` |
+| 1.15 | Config system | Per-game config schema mechanism via Zod `.default()` (host `{}` → full defaults, partial merges) — built per-game with each game spec (PRD §7). | `qa_testing` |
+| 1.16 | Content service | **DEFERRED — blocked on game design.** Content schemas can't be invented before games exist; building them would design games through the back door. Built alongside the first game specs. | `blocked` |
+| 1.17 | Validation seam | Abstract `REQUEST_VALIDATION` Effect + runtime execution **stub** that re-enters as a synthetic action; concrete payload deferred (doc §5,§10). | `qa_testing` |
+| 1.18 | AI seam | Abstract `REQUEST_AI` Effect + runtime execution **stub**; rubric=Mongo, prompt=env; concrete payload deferred (doc §5,§10). | `qa_testing` |
+| 1.19 | Game-play persistence | **NEXT PHASE.** Persist game plays to Mongo via `PERSIST_EVENT` + a game-play record (for admin history, PRD §9). Game-agnostic. | `todo` |
+| 1.20 | Observability | Structured per-session event log (size-not-contents), metric hooks (snapshot rate, timer drift, AI/validation latency, recovery-overtake ratio) (doc §9). | `qa_testing` |
+| 1.21 | Room HTTP edge | `POST /rooms` create + display/join URLs; join/lobby; **`POST /rooms/:code/start`** via SessionManager (PRD §4/§10). | `qa_testing` |
+| 1.22 | Test game A (simultaneous) | `test_simultaneous` plugin — proves the contract (doc §8). | `qa_testing` |
+| 1.23 | Test game B (round-robin) | `test_round_robin` plugin — re-armed timer + async validation re-entry (doc §8). | `qa_testing` |
+| 1.24 | Block 1 closure | Both test games run E2E through the runtime; contract closed. **Recovery + SessionManager layering added post-review.** | `qa_testing` |
 
 ---
 
 ## Block 2 — Admin
 
-Needs Block 1 persistence + content + observability. First-class product surface (PRD §9).
+First-class product surface (PRD §9). **Split: half is game-agnostic and buildable now; half is
+blocked on game design** (you can't author content / tune rubrics for games that don't exist).
 
 | # | Item | Description | Status |
 |---|---|---|---|
-| 2.1 | Admin auth | Admin login (separate from host accounts). | `todo` |
-| 2.2 | Game-play history | View persisted game plays; per-session event timeline (doc §9.2). | `todo` |
-| 2.3 | Content authoring | CRUD per game for decks/words/questions/cases with rating tags (PRD §8). | `todo` |
-| 2.4 | Rubric recalibration | Edit AI scoring rubric (criteria + weights) in Mongo; prompt shell stays env (doc §0, PRD §8). | `todo` |
+| 2.1 | Admin auth | JWT access+refresh (refresh-reuse revokes). One-shot idempotent `POST /admin/seed`, env-gated (`CAN_SEED_ADMIN`), server-generated password returned once, 409 thereafter. Game-agnostic. | `todo` |
+| 2.2 | Game-play history + viewer | Admin-only cursor-paginated read over persisted plays + per-session event timeline (doc §9.2). Game-agnostic (consumes 1.19 + observability). | `todo` |
+| 2.3 | Content authoring | **DEFERRED — blocked on game design.** CRUD per game for decks/words/questions/cases needs the per-game content schemas, which only exist once games are specced. | `blocked` |
+| 2.4 | Rubric recalibration | **DEFERRED — blocked on the AI game.** Edit AI scoring rubric in Mongo; only meaningful once Plead Your Case exists (doc §0, PRD §8). | `blocked` |
+
+---
+
+## ▶ NEXT PHASE — Game-Agnostic Admin Slice
+
+**Strategy (decided with the user):** keep building **infra until forced to touch games** — exhaust
+everything buildable *without* inventing game content schemas, then games become the unavoidable
+next step on a complete base. Building content/authoring now would design games through the back
+door, so those wait for spec-first game design (one game at a time, reviewed hard).
+
+**In scope (game-agnostic only):**
+
+| # | Item | Sub-items | Decisions locked | Status |
+|---|---|---|---|---|
+| 1.19 | Game-play persistence | `PERSIST_EVENT` → Mongo `session_events` (size-not-contents); on game-end write a `game_plays` record (room, gameId, players[id+nick], startedAt/endedAt, finalBoard). Cursor-paginated reads. | Persist **record + event stream** | `todo` |
+| 2.1 | Admin auth | `Admin` model (email, password hash); `POST /admin/seed` (idempotent, env-gated `CAN_SEED_ADMIN`, returns server-generated password once, 409 after); `POST /admin/login` → JWT access+refresh; refresh rotation + reuse-revoke; admin auth middleware. | **JWT** + **one-shot seed endpoint** | `todo` |
+| 2.2 | History + event viewer | `GET /admin/game-plays` (cursor list), `GET /admin/game-plays/:id`, `GET /admin/sessions/:instanceId/events` (timeline). Admin-auth gated. | Built on 1.19 + §9 stream | `todo` |
+
+**Explicitly deferred (NOT omissions — blocked on games):** Content service (1.16), content
+authoring (2.3), rubric recalibration (2.4). All wait for the first game spec to define real
+schemas.
+
+**Exit condition:** with this slice done, nothing meaningful remains buildable game-agnostically →
+**the forced next step is spec-first game design** (Block 3), on a base with engine + recovery +
+persistence + admin auth + history all real.
+
+**New env:** `CAN_SEED_ADMIN`, `JWT_SECRET`, `JWT_REFRESH_SECRET`.
+**New Mongo collections:** `admins`, `game_plays`, `session_events`.
+**Open confirm:** seed endpoint returns a server-generated password in the response body (the one
+place we don't redact it in the response; logs still redact). Confirm before build.
 
 ---
 

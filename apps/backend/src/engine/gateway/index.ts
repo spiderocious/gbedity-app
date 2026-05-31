@@ -6,7 +6,7 @@ import { logger } from '@lib/logger';
 
 import { bootstrapEngine } from '../index';
 import { roomRegistry } from '../room/room-registry';
-import { RoomMemberRole, type RoomPlayer } from '../room/room.types';
+import { HOST_LEAVE_GRACE_MS, RoomMemberRole, RoomPhase, type RoomPlayer } from '../room/room.types';
 import type { Audience, PlayerRef, ViewPatch } from '../types';
 import { AudienceKind } from '../constants';
 import type { OutputSink } from '../output-sink';
@@ -38,6 +38,10 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
   const limiter = new RateLimiter();
 
+  // Host-leave grace timers, keyed by room code (PRD §10). Set when the host disconnects; cleared
+  // if the host returns within the grace window; on expiry the room ends.
+  const suspensionTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
   // Sink: route a projected view to the sockets matching the audience. Handed to the
   // SessionManager so every session (new or recovered) fans out through this transport.
   const sink: OutputSink = {
@@ -68,7 +72,7 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
         socket.emit(ServerEvent.ERROR, { code: 'rate_limited' });
         return;
       }
-      const session = sessions.get(data.roomCode);
+      const session = sessionManager.get(data.roomCode);
       if (!session) {
         socket.emit(ServerEvent.ERROR, { code: 'no_active_game' });
         return;
@@ -84,13 +88,58 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
 
     socket.on('disconnect', () => {
       const data = socket.data as SocketData;
+      if (data.player) limiter.reset(data.player.id); // evict the player's rate bucket (P2)
       if (data.roomCode && data.player) {
         const room = roomRegistry.get(data.roomCode);
         const p = room?.players.find((rp) => rp.id === data.player?.id);
         if (p) p.connected = false;
+        // Host left → start the grace countdown (PRD §10).
+        if (room && data.role === RoomMemberRole.HOST && room.phase !== RoomPhase.CLOSED) {
+          suspendRoom(data.roomCode);
+        }
       }
     });
   });
+
+  // Host disconnected: suspend the room and arm a grace timer. If the host doesn't return within
+  // HOST_LEAVE_GRACE_MS, end the room (PRD §10).
+  const suspendRoom = (code: string): void => {
+    const room = roomRegistry.get(code);
+    if (!room || suspensionTimers.has(code)) return;
+    room.phase = RoomPhase.SUSPENDED;
+    roomRegistry.touch(room);
+    io.to(displayChannel(code)).emit(ServerEvent.ROOM_SUSPENDED, { roomCode: code });
+    const timer = setTimeout(() => {
+      suspensionTimers.delete(code);
+      void endRoom(code);
+    }, HOST_LEAVE_GRACE_MS);
+    suspensionTimers.set(code, timer);
+    logger.info({ code }, 'room suspended — host left');
+  };
+
+  // Host returned within the grace window: cancel the countdown and resume.
+  const resumeRoom = (code: string): void => {
+    const timer = suspensionTimers.get(code);
+    if (timer) {
+      clearTimeout(timer);
+      suspensionTimers.delete(code);
+    }
+    const room = roomRegistry.get(code);
+    if (room && room.phase === RoomPhase.SUSPENDED) {
+      // Resume to whatever it was doing: in a game if one is active, else lobby.
+      room.phase = sessionManager.has(code) ? RoomPhase.IN_GAME : RoomPhase.LOBBY;
+      roomRegistry.touch(room);
+      logger.info({ code }, 'room resumed — host returned');
+    }
+  };
+
+  // End a room: notify, dispose any session, close the room (clears snapshots).
+  const endRoom = async (code: string): Promise<void> => {
+    io.to(displayChannel(code)).emit(ServerEvent.ROOM_ENDED, { roomCode: code });
+    await sessionManager.end(code);
+    roomRegistry.close(code);
+    logger.info({ code }, 'room ended');
+  };
 
   const handleJoin = (
     socket: Socket,
@@ -113,9 +162,16 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
     if (role === RoomMemberRole.DISPLAY) {
       void socket.join(displayChannel(roomCode));
     } else if (role === RoomMemberRole.HOST) {
-      void socket.join(hostChannel(roomCode));
+      // Host must prove identity with the hostToken issued at room creation — `role:'host'` is
+      // otherwise client-asserted and any client knowing the code could bind as host (BUG-05).
       const host = room.players.find((p) => p.id === room.hostId);
-      if (host) bindPlayer(socket, data, roomCode, host);
+      if (!host || reconnectToken === undefined || host.reconnectToken !== reconnectToken) {
+        socket.emit(ServerEvent.ERROR, { code: 'host_auth_failed' });
+        return;
+      }
+      void socket.join(hostChannel(roomCode));
+      bindPlayer(socket, data, roomCode, host);
+      resumeRoom(roomCode); // host returned — cancel any grace countdown (PRD §10)
     } else {
       // PLAYER — reconnect into an existing seat by token, else they must have been added via HTTP.
       const seat = resolvePlayer(roomCode, reconnectToken, playerId);
@@ -166,18 +222,25 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
     }
   };
 
-  // Expose the sink + session map so the HTTP edge (start-game) can create sessions.
-  gatewayHandle = { sink, sessions };
+  // Periodic maintenance (PRD §4): reap idle rooms — ending their sessions and clearing any
+  // lingering suspension timer — and evict stale rate-limiter buckets. setInterval is unref'd so
+  // it never keeps the process alive on its own.
+  const sweeper = setInterval(() => {
+    for (const code of roomRegistry.sweepIdle()) {
+      const timer = suspensionTimers.get(code);
+      if (timer) {
+        clearTimeout(timer);
+        suspensionTimers.delete(code);
+      }
+      void sessionManager.end(code);
+    }
+    limiter.sweepStale();
+  }, SWEEP_INTERVAL_MS);
+  sweeper.unref();
+  io.on('close', () => clearInterval(sweeper));
 
   logger.info({}, 'room gateway attached');
   return io;
 };
 
-// A small handle the HTTP edge uses to start games against the live gateway. Set on attach.
-export interface GatewayHandle {
-  sink: OutputSink;
-  sessions: Map<string, SingleSession>;
-}
-let gatewayHandle: GatewayHandle | null = null;
-
-export const getGatewayHandle = (): GatewayHandle | null => gatewayHandle;
+const SWEEP_INTERVAL_MS = 60 * 1000; // reap idle rooms once a minute

@@ -115,15 +115,22 @@ every game. So those concerns are pulled **out** of the game and into a **Runtim
 ```
 GamePlugin            knows ONLY: one instance of itself (its rules, its state, its scoring math)
    ▲ called by
-GameRuntime           owns: the clock, socket I/O, roster, effect execution, snapshots, persistence
-   ▲ driven by
+GameRuntime           owns: the clock, effect execution, view fanout (via an injected sink),
+   ▲ driven by              roster, snapshots
 Session (Single|League)   owns: lifecycle, which plugin(s) run, leaderboard policy, aggregation
+   ▲ held by
+SessionManager        owns: the live sessions map, create/get/end, boot-time recoverAll().
+   ▲ used by                ENGINE layer — imports NO transport; the OutputSink is injected.
+Gateway (transport)   pure Socket.IO ↔ rooms/sessions bridge: provides the sink to the
+                            SessionManager, looks sessions up there. Owns no game lifecycle.
 ```
 
-Calls only ever go **down** (Session → Runtime → Plugin). A plugin never calls up, never imports
-a socket, never imports Mongo. The seam that makes league "free": the plugin reports a
-`RoundScore` (raw points + max attainable); a *Single* session shows the raw board, a *League*
-session converts each game to percent-of-max and aggregates (§4). Same plugin output, two consumers.
+Calls only ever go **down**. A plugin never calls up, never imports a socket, never imports Mongo.
+The **gateway** (transport) and the **SessionManager** (engine) are separated so business logic
+(the rooms service) depends on the SessionManager — never on the socket layer. The seam that makes
+league "free": the plugin reports a `RoundScore` (raw points + max attainable); a *Single* session
+shows the raw board, a *League* session converts each game to percent-of-max and aggregates (§4).
+Same plugin output, two consumers.
 
 ---
 
@@ -362,11 +369,18 @@ surface synchronous and pure even though real work is async, and it means a verd
   recovery are reproducible; tests are deterministic.
 - **Time**: `now` is always passed in. No plugin reads the clock. → `onTick` is a pure function of
   `(state, now)`.
-- **Snapshot**: runtime serializes `{ pluginId, state, timers, pendingRefs }` to Redis on a
-  debounced cadence. `State` being plain JSON is what makes this trivial.
-- **Rehydrate**: on restart, runtime reloads, re-arms future timers, fires any missed deadlines,
-  and re-emits `view()` to reconnecting clients with a "reconnecting" → "live" transition
-  (PRD §10/§12).
+- **Snapshot**: the runtime serializes a **self-sufficient** snapshot to Redis on a debounced
+  cadence — `{ gameId, seed, players, state, timers, pendingRefs }`. It carries everything needed to
+  *reconstruct* a runtime on a cold boot (not merely refill a live one): `gameId` → plugin lookup,
+  `seed` → identical PRNG, `players` → the view/scoring roster. `State` being plain JSON makes this
+  trivial. The **room** is snapshotted separately (`gbedity:room:*`) so the room that owns a
+  recovered game also survives.
+- **Rehydrate (boot-time recovery)**: a `SessionManager.recoverAll()` runs once at startup (after
+  Redis connects, before accepting traffic). It rebuilds rooms from their snapshots, then for each
+  in-flight game snapshot reconstructs the runtime (same `instanceId` + `seed`), re-arms future
+  timers, fires any deadline that passed during downtime, and re-broadcasts `view()` to reconnecting
+  clients (PRD §10/§12 — "lose ≤30s"). Active room codes live in Redis sets so recovery enumerates
+  without a `KEYS` scan.
 
 ---
 

@@ -25,11 +25,14 @@ type Phase = (typeof Phase)[keyof typeof Phase];
 
 const ActionType = { ANSWER: 'test_sim.answer' } as const;
 
-const TimerKey = { QUESTION: 'question' } as const;
+// Both phases use a runtime-owned timer: QUESTION → REVEAL (answer window), then REVEAL →
+// next/DONE (the reveal beat). Without the reveal timer the game hangs in REVEAL forever.
+const TimerKey = { QUESTION: 'question', REVEAL: 'reveal' } as const;
 
 const configSchema = z.object({
   rounds: z.number().int().positive().default(1),
   secondsPerQuestion: z.number().int().positive().default(20),
+  revealSeconds: z.number().int().positive().default(3),
 });
 type Config = z.infer<typeof configSchema>;
 
@@ -58,6 +61,7 @@ interface State {
   qIndex: number;
   rounds: number;
   secondsPerQuestion: number;
+  revealSeconds: number;
   questions: Content['questions'];
   deadline: EpochMs;
   answers: Answer[]; // for the current question only
@@ -85,6 +89,7 @@ export const simultaneousTestGame: GamePlugin<Config, State, Action, Content> = 
       qIndex: 0,
       rounds: input.config.rounds,
       secondsPerQuestion: input.config.secondsPerQuestion,
+      revealSeconds: input.config.revealSeconds,
       questions: input.content.questions,
       deadline,
       answers: [],
@@ -110,19 +115,37 @@ export const simultaneousTestGame: GamePlugin<Config, State, Action, Content> = 
     return { state: next, effects: [{ kind: EffectKind.TO_PLAYER, playerId: ctx.actor.id }] };
   },
 
-  onTick(state: State, _now: EpochMs, _ctx: TickCtx): StepResult<State> {
+  onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.QUESTION) {
-      return { state: { ...state, phase: Phase.REVEAL }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }] };
+      // Question window closed → reveal. Arm a REVEAL timer so onTick fires again to advance;
+      // without it the game would hang in reveal forever (BUG-01).
+      const revealDeadline = nowMs + state.revealSeconds * 1000;
+      return {
+        state: { ...state, phase: Phase.REVEAL, deadline: revealDeadline },
+        effects: [
+          { kind: EffectKind.BROADCAST },
+          { kind: EffectKind.ROUND_ENDED },
+          { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: revealDeadline },
+        ],
+      };
     }
-    // advance from REVEAL → next question or DONE
-    const nextIndex = state.qIndex + 1;
-    if (nextIndex >= state.rounds || nextIndex >= state.questions.length) {
-      return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
+    if (state.phase === Phase.REVEAL) {
+      // Reveal beat elapsed → next question or DONE.
+      const nextIndex = state.qIndex + 1;
+      if (nextIndex >= state.rounds || nextIndex >= state.questions.length) {
+        return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
+      }
+      const nextDeadline = nowMs + state.secondsPerQuestion * 1000;
+      return {
+        state: { ...state, phase: Phase.QUESTION, qIndex: nextIndex, answers: [], deadline: nextDeadline },
+        effects: [
+          { kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: nextDeadline },
+          { kind: EffectKind.BROADCAST },
+        ],
+      };
     }
-    return {
-      state: { ...state, phase: Phase.QUESTION, qIndex: nextIndex, answers: [], deadline: _now + state.secondsPerQuestion * 1000 },
-      effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: _now + state.secondsPerQuestion * 1000 }, { kind: EffectKind.BROADCAST }],
-    };
+    // DONE — terminal, nothing to do.
+    return { state, effects: [] };
   },
 
   view(state: State, audience: Audience): ViewPatch {

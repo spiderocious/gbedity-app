@@ -8,9 +8,12 @@ import type { GameId } from '../constants';
 export const RoomPhase = {
   LOBBY: 'lobby',
   IN_GAME: 'in_game',
+  SUSPENDED: 'suspended', // host left; 60s grace before the room ends (PRD §10)
   CLOSED: 'closed',
 } as const;
 export type RoomPhase = (typeof RoomPhase)[keyof typeof RoomPhase];
+
+export const HOST_LEAVE_GRACE_MS = 60 * 1000; // PRD §10 — host has 60s to return
 
 export const RoomMemberRole = {
   HOST: 'host',

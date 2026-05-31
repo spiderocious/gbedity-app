@@ -112,18 +112,30 @@ export class GameRuntime {
     this.applyStep(this.plugin.onAction(this.requireState(), action, ctx));
   }
 
-  // Fire a timer's onTick. Called by the runtime's own clock.
+  // Fire a timer's onTick. Called by the runtime's own clock — guards on map membership so a
+  // cleared/already-fired timer is a no-op.
   private fireTimer(key: string): void {
     const timer = this.timers.get(key);
     if (!timer) return;
     metrics.timerDrift(key, now() - timer.fireAt);
     this.timers.delete(key);
+    this.runTick();
+  }
+
+  // Apply a single onTick. Shared by fireTimer (live clock) and rehydrate (missed deadlines on
+  // recovery) — recovery calls this directly, so it does NOT depend on the timer being in the map.
+  private runTick(): void {
     this.applyStep(this.plugin.onTick(this.requireState(), now(), { random: this.random }));
   }
 
   // ── Effect execution (§3) ───────────────────────────────────────────────────
 
   private applyStep(step: StepResult<unknown>): void {
+    // Pre-flight: reject the whole step if any effect is capability-illegal, BEFORE committing
+    // state — otherwise a throw mid-effect-loop leaves the runtime in a half-applied state with
+    // earlier effects already fired and no rollback (P2). A mis-declared plugin fails cleanly.
+    this.assertEffectsAllowed(step.effects);
+
     this.state = step.state;
     sessionLog.emit({
       roomCode: this.roomCode,
@@ -133,6 +145,20 @@ export class GameRuntime {
     });
     for (const effect of step.effects) this.execute(effect);
     this.scheduleSnapshot();
+  }
+
+  // Verify every effect is permitted by the plugin's declared capabilities. Throws before any
+  // state mutation if not — capability gating moved here so it's all-or-nothing.
+  private assertEffectsAllowed(effects: Effect[]): void {
+    const caps = this.plugin.manifest.capabilities;
+    for (const effect of effects) {
+      if (effect.kind === EffectKind.REQUEST_VALIDATION && caps.needsValidation !== true) {
+        throw new Error(`plugin ${this.plugin.manifest.id} emitted REQUEST_VALIDATION without the capability`);
+      }
+      if (effect.kind === EffectKind.REQUEST_AI && caps.needsAI !== true) {
+        throw new Error(`plugin ${this.plugin.manifest.id} emitted REQUEST_AI without the capability`);
+      }
+    }
   }
 
   private execute(effect: Effect): void {
@@ -160,11 +186,10 @@ export class GameRuntime {
         this.clearTimer(effect.key);
         return;
       case EffectKind.REQUEST_VALIDATION:
-        this.guardCapability(this.plugin.manifest.capabilities.needsValidation, EffectKind.REQUEST_VALIDATION);
+        // capability already verified in assertEffectsAllowed() before state was committed
         this.dispatchService(effect.ref, runValidation(effect.payload));
         return;
       case EffectKind.REQUEST_AI:
-        this.guardCapability(this.plugin.manifest.capabilities.needsAI, EffectKind.REQUEST_AI);
         this.dispatchService(effect.ref, runAI(effect.payload));
         return;
       case EffectKind.PERSIST_EVENT:
@@ -183,12 +208,6 @@ export class GameRuntime {
         const _never: never = effect;
         return _never;
       }
-    }
-  }
-
-  private guardCapability(allowed: boolean | undefined, kind: string): void {
-    if (allowed !== true) {
-      throw new Error(`plugin ${this.plugin.manifest.id} emitted ${kind} without the capability`);
     }
   }
 
@@ -299,8 +318,14 @@ export class GameRuntime {
     });
     const current = now();
     for (const t of snapshot.timers) {
-      if (t.fireAt <= current) this.fireTimer(t.key);
-      else this.startTimer(t.key, t.fireAt);
+      if (t.fireAt <= current) {
+        // Deadline elapsed while we were down — fire the missed tick directly (the timer was
+        // never re-inserted into the map, so fireTimer() would no-op; runTick() doesn't guard).
+        metrics.timerDrift(t.key, current - t.fireAt);
+        this.runTick();
+      } else {
+        this.startTimer(t.key, t.fireAt);
+      }
     }
     this.broadcast();
     this.recovering = false;

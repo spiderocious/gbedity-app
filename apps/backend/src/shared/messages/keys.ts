@@ -16,6 +16,7 @@ export const MESSAGE_KEYS = {
     CLOSED: 'rooms.closed',
     JOINED: 'rooms.joined',
     NICKNAME_TAKEN: 'rooms.nickname_taken',
+    NOT_IN_LOBBY: 'rooms.not_in_lobby',
   },
   games: {
     STARTED: 'games.started',
@@ -23,7 +24,6 @@ export const MESSAGE_KEYS = {
     NOT_HOST: 'games.not_host',
     NOT_ENOUGH_PLAYERS: 'games.not_enough_players',
     ALREADY_RUNNING: 'games.already_running',
-    UNAVAILABLE: 'games.unavailable',
   },
 } as const;
 

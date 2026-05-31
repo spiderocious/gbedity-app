@@ -5,6 +5,7 @@ import { closeDb, connectDb } from './db/client';
 import { env } from './env';
 import { closeRedis, connectRedis } from '@lib/redis';
 import { attachRoomGateway } from '@engine/gateway';
+import { sessionManager } from '@engine/session/session-manager';
 import { logger } from '@lib/logger';
 
 const startHttpApp = async (): Promise<Server> => {
@@ -14,8 +15,11 @@ const startHttpApp = async (): Promise<Server> => {
   const app = buildApp();
   const server = createServer(app);
 
-  // Real-time room gateway (Socket.IO) shares the HTTP server.
+  // Real-time room gateway (Socket.IO) shares the HTTP server. attachRoomGateway() registers the
+  // gateway's OutputSink on the SessionManager, so recovery must run AFTER it (recovered sessions
+  // fan out through the real transport) and BEFORE listen (no traffic until rooms are restored).
   attachRoomGateway(server);
+  await sessionManager.recoverAll();
 
   server.listen(env.PORT, () => {
     logger.info({ port: env.PORT, env: env.NODE_ENV }, 'gbedity-backend listening');

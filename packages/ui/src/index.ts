@@ -22,6 +22,10 @@ export type {
   StackJustify,
 } from './layout/index.ts';
 
+// Brand
+export { Logo } from './logo/index.ts';
+export type { LogoProps, LogoSize, LogoVariant } from './logo/index.ts';
+
 // Primitives
 export { Button } from './button/index.ts';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './button/index.ts';

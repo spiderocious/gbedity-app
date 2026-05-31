@@ -34,4 +34,13 @@ export class RateLimiter {
   reset(key: string): void {
     this.buckets.delete(key);
   }
+
+  // Evict buckets idle long enough to have fully refilled — they carry no state worth keeping.
+  // A safety net for any bucket not cleared by disconnect; keeps the Map from growing unbounded.
+  sweepStale(): void {
+    const staleBefore = now() - (CAPACITY / REFILL_PER_SEC) * 1000;
+    for (const [key, bucket] of this.buckets) {
+      if (bucket.lastRefill < staleBefore) this.buckets.delete(key);
+    }
+  }
 }

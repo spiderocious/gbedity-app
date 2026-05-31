@@ -1,11 +1,11 @@
 import { ERROR_CODES } from '@shared/http/error-codes';
 import { ServiceError, ServiceSuccess, type ServiceResult } from '@shared/http/service-result';
+import { zodFieldErrors } from '@shared/http/zod-errors';
 import { MESSAGE_KEYS } from '@shared/messages';
 import { roomRegistry, type RoomRegistry } from '@engine/room/room-registry';
 import { RoomPhase, type Room, type RoomPlayer } from '@engine/room/room.types';
 import { getPlugin } from '@engine/registry';
-import { getGatewayHandle, type GatewayHandle } from '@engine/gateway';
-import { SingleSession } from '@engine/session/single-session';
+import { sessionManager, type SessionManager } from '@engine/session/session-manager';
 import type { GameId } from '@engine/constants';
 import type { PlayerRef } from '@engine/types';
 
@@ -24,7 +24,10 @@ export interface JoinRoomResult {
 }
 
 export class RoomsService {
-  constructor(private readonly registry: RoomRegistry = roomRegistry) {}
+  constructor(
+    private readonly registry: RoomRegistry = roomRegistry,
+    private readonly sessions: SessionManager = sessionManager,
+  ) {}
 
   createRoom(hostNickname: string): ServiceResult<CreateRoomResult> {
     const { room, host } = this.registry.create(hostNickname.trim());
@@ -40,7 +43,7 @@ export class RoomsService {
       return ServiceError(ERROR_CODES.ROOM_CLOSED, MESSAGE_KEYS.rooms.CLOSED, 409);
     }
     if (room.phase !== RoomPhase.LOBBY) {
-      return ServiceError(ERROR_CODES.NOT_IN_LOBBY, MESSAGE_KEYS.rooms.CLOSED, 409);
+      return ServiceError(ERROR_CODES.NOT_IN_LOBBY, MESSAGE_KEYS.rooms.NOT_IN_LOBBY, 409);
     }
     if (this.registry.isFull(room)) {
       return ServiceError(ERROR_CODES.ROOM_FULL, MESSAGE_KEYS.rooms.FULL, 409);
@@ -54,16 +57,16 @@ export class RoomsService {
     return ServiceSuccess({ code: room.code, playerId: player.id, reconnectToken: player.reconnectToken });
   }
 
-  // Start a single game in a room. Host-only; room must be in lobby with enough players. Creates a
-  // SingleSession bound to the live gateway's sink so views fan out over WebSocket. The gateway
-  // handle is injectable so this is testable without a running socket server.
+  // Start a single game in a room. Host-only; room must be in lobby with enough players. Delegates
+  // session creation to the SessionManager (engine layer) — the service never touches the socket
+  // transport. Views fan out through whatever sink the SessionManager holds (the gateway's at boot,
+  // a no-op otherwise), so this is fully testable without a running socket server.
   startGame(
     code: string,
     hostId: string,
     gameId: string,
     config: unknown,
     content: unknown,
-    handle: GatewayHandle | null = getGatewayHandle(),
   ): ServiceResult<{ code: string; gameId: GameId; instanceId: string }> {
     const room = this.registry.get(code);
     if (!room) {
@@ -83,26 +86,46 @@ export class RoomsService {
     if (room.players.length < plugin.manifest.players.min) {
       return ServiceError(ERROR_CODES.NOT_ENOUGH_PLAYERS, MESSAGE_KEYS.games.NOT_ENOUGH_PLAYERS, 409);
     }
-    if (handle === null) {
-      return ServiceError(ERROR_CODES.GATEWAY_UNAVAILABLE, MESSAGE_KEYS.games.UNAVAILABLE, 503);
+
+    // Validate config + content against the plugin's schemas HERE, at the service boundary, so a
+    // bad payload becomes a 422 validation envelope — not a 500 from a ZodError escaping the
+    // runtime's .parse() (BUG-06). The runtime's parse stays as a belt-and-suspenders invariant.
+    const configCheck = plugin.configSchema.safeParse(config);
+    if (!configCheck.success) {
+      return ServiceError(
+        ERROR_CODES.VALIDATION_ERROR,
+        MESSAGE_KEYS.common.VALIDATION_FAILED,
+        422,
+        zodFieldErrors(configCheck.error, 'config'),
+      );
+    }
+    const contentCheck = plugin.contentSchema.safeParse(content);
+    if (!contentCheck.success) {
+      return ServiceError(
+        ERROR_CODES.VALIDATION_ERROR,
+        MESSAGE_KEYS.common.VALIDATION_FAILED,
+        422,
+        zodFieldErrors(contentCheck.error, 'content'),
+      );
     }
 
     const players: PlayerRef[] = room.players.map((p) => ({ id: p.id, nickname: p.nickname }));
-    const session = new SingleSession({
+    const session = this.sessions.create({
       roomCode: code,
-      plugin,
+      gameId,
       players,
-      config,
-      content,
-      sink: handle.sink,
+      config: configCheck.data,
+      content: contentCheck.data,
       onEnded: (): void => {
         // Return the room to lobby when the game ends (PRD §4).
         room.phase = RoomPhase.LOBBY;
         room.activeGame = null;
-        handle.sessions.delete(code);
+        void this.sessions.end(code);
       },
     });
-    handle.sessions.set(code, session);
+    if (!session) {
+      return ServiceError(ERROR_CODES.GAME_NOT_FOUND, MESSAGE_KEYS.games.NOT_FOUND, 404);
+    }
 
     const resolvedId = plugin.manifest.id; // the validated, typed GameId
     room.phase = RoomPhase.IN_GAME;

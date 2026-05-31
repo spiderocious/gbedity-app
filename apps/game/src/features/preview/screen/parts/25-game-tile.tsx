@@ -1,4 +1,5 @@
 import { GameTile, Pill } from '@gbedity/ui';
+import { Bomb, Scale, Target } from '@icons';
 
 import { PageHead, RefBlock } from './preview-canvas.tsx';
 
@@ -68,6 +69,43 @@ export function GameTilePart() {
             title="Plead Your Case"
             meta="AI · 2–10 · 12m"
             description="Argue your innocence. The AI rules."
+            onClick={() => undefined}
+          />
+        </div>
+      </RefBlock>
+
+      <div className="h-6" />
+
+      <RefBlock title="With signature icon — number demotes to a faint corner reference">
+        <div className="grid grid-cols-3 gap-[10px]">
+          <GameTile
+            id={6}
+            category="casual"
+            tag="Quick"
+            title="Word Bomb"
+            meta="3–10 · 8m"
+            description="Hold the bomb longer for more points."
+            icon={<Bomb size={20} aria-hidden="true" />}
+            onClick={() => undefined}
+          />
+          <GameTile
+            id={5}
+            category="casual"
+            tag="Quick"
+            title="Wordshot"
+            meta="2–10 · 7m"
+            description="A letter and a category. Answer fast."
+            icon={<Target size={20} aria-hidden="true" />}
+            onClick={() => undefined}
+          />
+          <GameTile
+            id={18}
+            category="immersive"
+            tag="Immersive"
+            title="Plead Your Case"
+            meta="2–10 · 12m"
+            description="Argue the defence. An AI scores it."
+            icon={<Scale size={20} aria-hidden="true" />}
             onClick={() => undefined}
           />
         </div>
