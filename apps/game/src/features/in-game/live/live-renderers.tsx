@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useLobby } from '../../../shared/api/use-lobby.ts';
 import { RealGameId } from '../../../shared/types/api.ts';
 import type { ViewPatch } from '../../../shared/types/view.ts';
 import {
@@ -18,9 +19,22 @@ import {
 
 type Send = (action: Record<string, unknown>) => void;
 
+// Player views are real React COMPONENTS (not render-functions called inline) because they
+// use hooks (useState). Calling a hook-using function via `renderer.player(patch, send)` made
+// the hook count vary between renders → "Rendered more hooks than during the previous render"
+// whenever the patch shape changed. As a component, each renderer's hooks live in their own
+// stable fiber, and switching games is handled by a React `key` (see LivePlayerView).
+interface PlayerViewProps {
+  readonly patch: ViewPatch;
+  readonly send: Send;
+}
+
+type PlayerView = (props: PlayerViewProps) => React.ReactNode;
+
 interface LiveRenderer {
+  // Display projection is pure (no hooks), so a plain function is fine.
   readonly display: (p: ViewPatch) => React.ReactNode;
-  readonly player: (p: ViewPatch, send: Send) => React.ReactNode;
+  readonly Player: PlayerView;
 }
 
 function RoundHeader({ left, timer }: { readonly left: string; readonly timer?: string }) {
@@ -33,7 +47,7 @@ function RoundHeader({ left, timer }: { readonly left: string; readonly timer?: 
 }
 
 // --- quizzes ---
-function QuizPlayer(p: ViewPatch, send: Send) {
+function QuizPlayer({ patch: p, send }: PlayerViewProps) {
   const [chosen, setChosen] = useState<number | null>(null);
   const opts = p.options ?? [];
   return (
@@ -67,8 +81,8 @@ function QuizPlayer(p: ViewPatch, send: Send) {
   );
 }
 
-// --- wordshot / synonyms-style live feed ---
-function WordPlayer(p: ViewPatch, send: Send, type: string) {
+// --- wordshot ---
+function WordshotPlayer({ patch: p, send }: PlayerViewProps) {
   const [text, setText] = useState('');
   return (
     <div className="flex flex-col gap-3">
@@ -81,7 +95,7 @@ function WordPlayer(p: ViewPatch, send: Send, type: string) {
       />
       <button
         type="button"
-        onClick={() => { if (text.trim() !== '') { send({ type, text: text.trim() }); setText(''); } }}
+        onClick={() => { if (text.trim() !== '') { send({ type: 'wordshot.submit', text: text.trim() }); setText(''); } }}
         className="rounded-btn bg-action py-3 font-sans text-[15px] font-bold text-white hover:bg-action-deep"
       >
         Submit
@@ -92,7 +106,7 @@ function WordPlayer(p: ViewPatch, send: Send, type: string) {
 }
 
 // --- word_bomb ---
-function BombPlayer(p: ViewPatch, send: Send) {
+function BombPlayer({ patch: p, send }: PlayerViewProps) {
   const [text, setText] = useState('');
   const yourTurn = p.yourTurn === true;
   return (
@@ -111,7 +125,7 @@ function BombPlayer(p: ViewPatch, send: Send) {
 }
 
 // --- hot_take_court ---
-function HotTakePlayer(p: ViewPatch, send: Send) {
+function HotTakePlayer({ patch: p, send }: PlayerViewProps) {
   const [text, setText] = useState('');
   if (p.phase === 'voting') {
     return (
@@ -137,7 +151,7 @@ function HotTakePlayer(p: ViewPatch, send: Send) {
 }
 
 // --- plead_your_case ---
-function PleadPlayer(p: ViewPatch, send: Send) {
+function PleadPlayer({ patch: p, send }: PlayerViewProps) {
   const [text, setText] = useState('');
   const sc = p.scenario;
   return (
@@ -166,7 +180,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
         <McqOptions options={(p.options ?? []).map((t, i) => ({ letter: String.fromCharCode(65 + i), text: t }))} />
       </div>
     ),
-    player: QuizPlayer,
+    Player: QuizPlayer,
   },
   [RealGameId.WORDSHOT]: {
     display: (p) => (
@@ -177,7 +191,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
         <SubmissionFeed items={(p.ranked ?? []).map((r) => r.name ?? '').filter(Boolean)} />
       </div>
     ),
-    player: (p, send) => WordPlayer(p, send, 'wordshot.submit'),
+    Player: WordshotPlayer,
   },
   [RealGameId.WORD_BOMB]: {
     display: (p) => (
@@ -188,7 +202,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
         <SubmissionFeed items={p.used ?? []} />
       </div>
     ),
-    player: BombPlayer,
+    Player: BombPlayer,
   },
   [RealGameId.HOT_TAKE_COURT]: {
     display: (p) => (
@@ -204,7 +218,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
         </div>
       </div>
     ),
-    player: HotTakePlayer,
+    Player: HotTakePlayer,
   },
   [RealGameId.PLEAD_YOUR_CASE]: {
     display: (p) => (
@@ -214,7 +228,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
         <p className="font-sans text-[14px] text-ink-2">{p.scenario?.facts ?? ''}</p>
       </div>
     ),
-    player: PleadPlayer,
+    Player: PleadPlayer,
   },
 };
 
@@ -222,13 +236,19 @@ export function getLiveRenderer(gameId: string): LiveRenderer | undefined {
   return RENDERERS[gameId];
 }
 
-// Generic ranked board for the in-round reveal phase. When the reveal patch carries no rows
-// (some games send a bare reveal between rounds), show a clear interstitial rather than "…".
-export function LiveBoard({ patch }: { readonly patch: ViewPatch }) {
-  const rows = (patch.board ?? patch.ranked ?? []).map((r) => ({
-    name: r.name ?? r.playerId ?? '—',
-    pct: typeof (r as { points?: number }).points === 'number' ? (r as { points: number }).points : (r as { pct?: number }).pct ?? 0,
-  }));
+// Generic ranked board for the in-round reveal phase. Resolves playerId → nickname from the
+// lobby roster (F-7: backend board rows are {playerId, points} with no name). When the reveal
+// patch carries no rows, shows a clear interstitial rather than "…".
+export function LiveBoard({ patch, code }: { readonly patch: ViewPatch; readonly code?: string }) {
+  const lobby = useLobby(code ?? '', code !== undefined && code !== '', false);
+  const nameOf = (id: string) => lobby.data?.players.find((p) => p.id === id)?.nickname ?? id;
+  const rows = (patch.board ?? patch.ranked ?? []).map((r) => {
+    const id = (r as { playerId?: string }).playerId;
+    return {
+      name: r.name ?? (id !== undefined ? nameOf(id) : undefined) ?? '—',
+      pct: typeof (r as { points?: number }).points === 'number' ? (r as { points: number }).points : (r as { pct?: number }).pct ?? 0,
+    };
+  });
   if (rows.length === 0) {
     return <p className="text-center font-serif text-[20px] font-semibold text-ink">Next round coming up…</p>;
   }

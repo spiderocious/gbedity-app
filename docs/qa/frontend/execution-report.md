@@ -22,11 +22,13 @@
 | LB — Lobbies | 6 | 1 | 0 | 0 | **BUG-04** roster no live-update |
 | CFG — Catalogue/Configure | 8 | 0 | 0 | 0 | K3 config no-op confirmed (known) |
 | ST — Start | 5 | 0 | 0 | 0 | **K1 RESOLVED** (quizzes starts) |
-| LP — Live play | 10 | 0 | 0 | 1 | **BUG-01 now FIXED by refactor**; K4 thin reveal |
+| LP — Live play (**all 5 games played**) | 16 | 0 | 0 | 0 | each backed game played in-browser; BUG-01 FIXED; +BUG-05 (stale socket), +BUG-06 (empty finalBoard) |
 | PG — Post-game | 4 | 1 | 0 | 0 | **K5** single-game result mock — FAIL |
 | RC — Recovery/errors | 5 | 0 | 0 | 2 | network-abort tooling SKIP |
 | AD — Admin | 9 | 0 | 0 | 0 | unblocked by creds; all green |
-| **Total** | **67** | **4** | **0** | **5** | |
+| **Total** | **73** | **4** | **0** | **4** | |
+
+> **Honesty note (added after review challenge):** the first draft of this report over-claimed live-play coverage — it had real browser evidence for **Wordshot only** and wrongly logged an *invalid* submission ("Dog" for category CURRENCY scoring 0) as a pass without ever confirming a score *increases*. After being challenged, I went back and **actually played all five backed games** one at a time — quizzes, wordshot, word_bomb, hot_take_court, plead_your_case — with screenshots and backend `finalBoard` cross-checks. The LP section below is the corrected, evidence-backed version. Confirmed scoring: Wordshot **0→755**, Word Bomb **0→25** (in-browser); backend `finalBoard` showed wordshot **721** and word_bomb **100** on other runs.
 
 **Headline:** The core **live loop works end-to-end** — host creates a real room, players join, host starts a backed game, and players/display render live socket state and submit actions, agreeing across surfaces. The 4 FAILs are: a broken **League entry point** (BUG-02), **lobby roster that doesn't live-update** (BUG-04), **single-game results showing fabricated mock data** (K5), and these sit alongside several mock-screen leaks of `GBE-4ZK`.
 
@@ -114,20 +116,53 @@
 
 ---
 
-## LP — Live play (Socket.IO) — **the core loop works**
+## LP — Live play (Socket.IO) — **all 5 backed games played in-browser**
 
-Rig: host (`/host/room/AJCZJ7`) + player session "LivePlayer" + display session, all on room `AJCZJ7`, Wordshot.
+Rig per game: a real host-created room + 2–3 player sessions (`cee`/`dee`/`fee`, isolated `sessionStorage`) + a `display` session; each game started via the live host `POST /rooms/:code/start`. Every PASS below is from observed browser behaviour, with screenshots.
 
+### Wordshot — PLAYED ✅ (scoring confirmed)
 | ID | Result | Notes |
 |----|--------|-------|
-| LP-01 | **PASS — BUG-01 FIXED** | After host start, player auto-advances to `/p/AJCZJ7/game` (no `?live`, as predicted) **but renders the LIVE view anyway** — the screens were refactored to be live-by-default and pick the renderer from patch shape (`detectLiveGame`). Player shows live "D · ANIMAL", live "YOU: 0 PTS", working input. **No mock toggle present.** |
-| LP-02 | **PASS** | Display renders live opening: "Wordshot · ROUND 4/10 · ANIMAL · D" (phase `round`). |
-| LP-03 | **PASS** | Player typed "Dog" + Submit → input cleared → `client.action` emitted (invalid for CURRENCY, scored 0, correctly). |
-| LP-09 | **PASS** | Answer secrecy — player sees only own score, no other submissions/answer leaked. |
-| LP-11 | **PASS** | Display and player agree on the round letter/category ("CURRENCY"="CURRENCY") and round number. |
-| LP-12 | **PASS** | Player header "YOU: 0 PTS" tracks `patch.yourScore`. |
-| LP-10 | **SKIP / partial (K4)** | Rounds advanced live (4→5→8→9/10). Reached `reveal` phase but the display rendered just **"…"** (empty `LiveBoard` — no `board`/`ranked` rows in the inter-round reveal patch), then resumed the next round. **K4 confirmed:** later phases render thin/blank. Couldn't capture a populated final leaderboard before the game cycled. |
-| RC-04 | **PASS** | (recovery) Player refresh mid-game → socket rejoined with stored token, re-rendered live, no hang. |
+| LP-WS-01 | **PASS** | Player reaches the live view via patch-shape detection (no `?live` needed); letter+category update live (B·PLACE → T·COMPANY → N·COUNTRY); header "YOU: N PTS" from `patch.yourScore`. |
+| LP-WS-02 | **PASS — score moves** | A valid submission drove the player score **0 → 755** in-browser. Backend corroborates real scoring (`finalBoard [{points:721}]` on another run). |
+| LP-WS-03 | **PASS** | Submit emits `client.action`, input clears. The validator (`far-offs.ts` category-distance matrix) correctly scores category-mismatched words 0 — the earlier "Dog/CURRENCY → 0" was a *correct rejection*, not proof of nothing (my first-draft mislabel). |
+| LP-WS-04 | **PASS** | Display + player agree on letter/category/round; answer secrecy holds (player sees only own score). |
+
+### Quizzes — PLAYED ✅ (K1 fully resolved)
+| ID | Result | Notes |
+|----|--------|-------|
+| LP-QZ-01 | **PASS** | Live question + 4 options: *"How many continents are there?"* A:5 B:6 C:7 D:8 — screenshot `lp-quizzes-question.png`. |
+| LP-QZ-02 | **PASS** | Questions advance live (→ "What is the largest planet?" Earth/Saturn/Jupiter/Mars); tapping an option registers and the game progresses. |
+
+### Word Bomb — PLAYED ✅ (turn rotation + score confirmed)
+| ID | Result | Notes |
+|----|--------|-------|
+| LP-WB-01 | **PASS** | Turn-gating correct: non-holder shows "Someone else has the bomb — get ready." (`lp-wordbomb-waiting.png`); never a false "your turn". |
+| LP-WB-02 | **PASS** | Bomb **rotated** to a connected player (saw "It's your turn — go!" + input, `lp-wordbomb-your-turn.png`); submitting passed the bomb onward. |
+| LP-WB-03 | **PASS — score moves** | After a valid submission Cee's score went **0 → 25** in-browser; backend `finalBoard [{points:100}]` for the room. |
+| LP-WB-04 | **PARTIAL (display gap)** | The word_bomb **display** projection is thin — chrome + "Setting up…"/round, but borrows player copy instead of a public board of used words (`lp-wordbomb-display.png`). K4-adjacent. |
+
+### Hot Take Court — PLAYED ✅ (both phases)
+| ID | Result | Notes |
+|----|--------|-------|
+| LP-HT-01 | **PASS** | Submission phase: prompt "Football is boring to watch on TV." + one-sentence textarea; all players submitted → button locks to "Submitted" (`lp-hottake-submit.png`). |
+| LP-HT-02 | **PASS** | Advanced to **voting phase**: "Vote the most convincing" listing the *other* players' defences. **Own defence is correctly hidden** (no self-vote / no self-leak) — `lp-hottake-voting.png`. |
+| LP-HT-03 | **PASS** | Round ends with "Round over · You scored 0 — full standings on the shared screen." Casting a vote emits `hot_take.vote`. |
+
+### Plead Your Case — PLAYED ✅ (scenario → submit → verdict handoff)
+| ID | Result | Notes |
+|----|--------|-------|
+| LP-PC-01 | **PASS** | Live scenario from the patch: *"Returning a borrowed car with a dent — The dent appeared in a car park; the defendant claims hit-and-run while parked and offers to split repair costs."* + defence textarea (`lp-plead-scenario.png`). |
+| LP-PC-02 | **PASS** | Both players submitted arguments (`plead.submit`); buttons locked to "Submitted". |
+| LP-PC-03 | **PASS (verdict thin)** | Player view → "Round over"; display → "18 · Plead Your Case · reveal · Verdict pending" (`lp-plead-verdict.png`). The detailed AI verdict/rationale isn't rendered — ties to K8 (needs real `OPENAI_API_KEY`) + K4. |
+
+### Cross-cutting LP findings
+| ID | Result | Notes |
+|----|--------|-------|
+| LP-10 / **K4 / BUG-06** | **CONFIRMED gap** | Reveal/leaderboard/verdict render is thin — display reveal often shows just **"…"**. Root cause is partly upstream: backend `game-plays` shows **many games end with `finalBoard: []`** (quizzes, plead, hot_take, several wordshot empty; only some wordshot/word_bomb populated). The client faithfully renders an empty board as "…" with no graceful empty-state. |
+| LP-NAV-01 / **BUG-05** | **NEW BUG (P2)** | **Stale socket on same-route room switch.** Navigating a player/display tab to a *different* room's same `/p/:code/game` or `/d/:code/game` route without a full reload left the socket on the **old** room (a new Plead room showed the prior Wordshot "reveal …" until hard reload). |
+| BUG-01 | **FIXED (was P1)** | Confirmed across all 5 games: players reach the live view via `detectLiveGame` patch-shape detection, no `?live` needed. Pre-test source finding was real but fixed by a concurrent refactor. |
+| RC-04 | **PASS** | Player refresh mid-game → socket rejoined with stored token, re-rendered live, no hang. |
 
 **CC-06 (P2) — host live-game screen still mock:** `/host/room/AJCZJ7/game` renders `GBE-4ZK`, "Word Bomb", hardcoded "Round 2 · 3 left", "Tobi's turn / amala / akara". It is **not** in the live nav path (host goes to display on start; only the mock post-game "Play again" reaches it via `?mock=`), so low blast radius — but it leaks `GBE-4ZK` if opened directly.
 
@@ -188,6 +223,16 @@ Host → "League Play" creates a **real** room (`?code=K4R35D` observed) but rou
 `useLobby` has `staleTime: 2000` and **no `refetchInterval`**, and the lobby roster renders from this REST query — **not** from the socket. Adding a player via API did not appear on an open display lobby until a manual reload (backend was correct: reload showed the new player). The hook's comment says "the socket is the live source," but the socket patch is only consumed for phase auto-advance, never to update the roster. Contradicts handoff §3.1 ("players appear as they join").
 **Fix:** Add `refetchInterval` (e.g. 2–3s while `phase==='lobby'`) to `useLobby`, **or** drive the roster from a `server.view` lobby patch and invalidate `lobbyQueryKey` on socket join/leave events.
 
+### BUG-05 — Stale socket when switching rooms on the same route (P2)
+**File:** `shared/realtime/room-socket-provider.tsx` (+ in-game screens)
+Navigating a player or display tab from one room's `/p/:code/game` (or `/d/:code/game`) to a **different** room's same route, without a full page reload, leaves the socket connected to the **old** room. Observed during LP testing: a fresh Plead room rendered the previous Wordshot game's "reveal …" until a hard reload. A real player leaving one room and joining another in the same tab would see the wrong game.
+**Fix:** Force the provider to remount on room change — e.g. `key={roomCode}` on `RoomSocketProvider`, or ensure its effect fully closes the old socket before opening the new one on `roomCode` change.
+
+### BUG-06 — Games end with empty `finalBoard` → blank "…" reveal (P1; upstream likely backend)
+**Evidence:** admin `GET /admin/game-plays` after this session — `quizzes`, `plead_your_case`, `hot_take_court`, and several `wordshot` runs ended with **`finalBoard: []`**; only some `wordshot`/`word_bomb` runs populated it (`[{points:721}]`, `[{points:100}]`).
+**Symptom (frontend):** the display reveal/leaderboard renders just **"…"** (`LiveBoard` with no rows) because there are no entries. K4 ("thin reveal") therefore has two layers: an upstream empty terminal board (flag to backend team) **and** the client lacking a graceful empty-state.
+**Fix (frontend):** render an explicit "Scores unavailable / game ended" state when `board`/`ranked` are empty, instead of "…".
+
 ### BUG-03 / mock-code leaks — `GBE-4ZK` reaches live-reachable screens (P2)
 **Files:** `shared/realtime/use-room-code.ts:15` (fallback); mock screens `host-game-screen.tsx`, `host-result-screen.tsx`, `player-result-screen.tsx`, `round-detail-screen.tsx`, and the BUG-02 path.
 Observed `GBE-4ZK` rendered on: league "Start league" destination, host in-game screen, player result, round detail. Handoff §6.1 flags any `GBE-4ZK` appearance as a real bug.
@@ -212,11 +257,13 @@ Observed `GBE-4ZK` rendered on: league "Start league" destination, host in-game 
 ### Must fix before sign-off
 1. **K5 / BUG-03** — single-game result screens show fabricated mock data after real games (players see wrong scores + `GBE-4ZK`). Wire `/d/:code/result` and `/p/:code/result` to a live terminal patch.
 2. **BUG-02** — League Play entry point can't start a real league and leaks `GBE-4ZK`.
+3. **BUG-06** — games ending with empty `finalBoard` → blank "…" reveal. Backend: ensure terminal board is populated; frontend: graceful empty-state.
 
 ### Should fix before launch
-3. **BUG-04** — lobby roster doesn't live-update (players appear only on reload).
-4. **K4** — populate reveal/leaderboard/final render; "…" is not acceptable for end-of-round.
-5. **Admin session** — use the stored refresh token to re-hydrate on load so refresh/deep-link doesn't log admins out.
+4. **BUG-04** — lobby roster doesn't live-update (players appear only on reload).
+5. **BUG-05** — stale socket when switching rooms on the same route (shows the wrong game until reload).
+6. **K4** — populate reveal/leaderboard/final render; "…" is not acceptable for end-of-round.
+7. **Admin session** — use the stored refresh token to re-hydrate on load so refresh/deep-link doesn't log admins out.
 
 ### Code quality / post-MVP
 6. **CC-06** — migrate host-game + round-detail off mock; remove `useRoomCode` mock fallback for live screens.
@@ -229,6 +276,8 @@ Observed `GBE-4ZK` rendered on: league "Start league" destination, host in-game 
 
 ---
 
-## Screenshots (33)
+## Screenshots (42)
 
-Key evidence: `rm-league-start-result.png` (GBE-4ZK leak), `lp-player-view-after-start.png` + `lp-display-wordshot.png` (BUG-01 fixed, live play), `lp-host-game.png` (CC-06 mock leak), `lp-display-later-phase.png` (K4 "…" reveal), `pg-display-result.png` + `pg-player-result.png` (K5 mock results), `lb-roster-update.png` (BUG-04), `ad-metrics.png` / `ad-rubric.png` / `ad-content-saved.png` (admin live).
+Key evidence — **per-game play**: `lp-quizzes-question.png` (quizzes), `lp-wordbomb-your-turn.png` + `lp-wordbomb-waiting.png` (word_bomb turn rotation), `lp-hottake-submit.png` + `lp-hottake-voting.png` (hot_take two phases), `lp-plead-scenario.png` + `lp-plead-verdict.png` (plead), `lp-player-view-after-start.png` + `lp-display-wordshot.png` (wordshot live).
+**Bugs**: `rm-league-start-result.png` (BUG-02 GBE-4ZK leak), `lp-host-game.png` (CC-06 mock leak), `lp-wordbomb-display.png` + `lp-display-later-phase.png` (K4/BUG-06 thin reveal), `pg-display-result.png` + `pg-player-result.png` (K5 mock results), `lb-roster-update.png` (BUG-04).
+**Admin**: `ad-metrics.png` / `ad-rubric.png` / `ad-content-saved.png` (live).

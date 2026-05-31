@@ -27,20 +27,21 @@ export function HostLobbyScreen() {
   const hostId = sessionStore.getHost()?.hostId ?? '';
   const players = lobby.data?.players ?? [];
 
-  // Start a single queued game: real games hit POST /rooms/:code/start → live display; mock
-  // games (no backend engine) open the mock display shell.
+  // Start a single queued game. The host lands on the LIVE HOST screen (it plays + has host
+  // controls) — NOT the display (F-1/F-2). The display is opened separately on the shared
+  // screen via the lobby's "Open the shared screen" link / display_url.
   function startOne(q: QueuedGame) {
     if (q.backendId !== undefined) {
       startGame.mutate(
         { code, hostId, gameId: q.backendId, config: q.config },
         {
-          onSuccess: () => go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${q.backendId}`),
+          onSuccess: () => go(`${pathWith(ROUTES.HOST_GAME, { code })}?live=${q.backendId}`),
           onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
         },
       );
       return;
     }
-    go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?mock=${q.gameId}`);
+    go(`${pathWith(ROUTES.HOST_GAME, { code })}?mock=${q.gameId}`);
   }
 
   // Start the whole queue as a league (≥2 games), backed games only.

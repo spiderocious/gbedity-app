@@ -11,6 +11,7 @@ import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx'
 import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { SocketRole } from '../../../shared/services/socket.ts';
+import { useGameQueue } from '../../../shared/games/game-queue.ts';
 import { RealGameId } from '../../../shared/types/api.ts';
 import { Phase } from '../../../shared/types/view.ts';
 import { seatForIndex } from '../seat.ts';
@@ -33,13 +34,17 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
   const { patch } = useRoomSocket();
   const startGame = useStartGame();
   const host = sessionStore.getHost();
+  const queue = useGameQueue(code);
   const players = lobby.data?.players ?? [];
+  // The first BACKED game the host queued; falls back to Wordshot only if nothing's queued.
+  const nextBacked = queue.find((q) => q.backendId !== undefined);
+  const nextGameId = nextBacked?.backendId ?? RealGameId.WORDSHOT;
 
   useEffect(() => {
     if (patch !== null && patch.phase !== Phase.LOBBY) {
-      navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
+      navigate(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${nextGameId}`);
     }
-  }, [patch, code, navigate]);
+  }, [patch, code, navigate, nextGameId]);
 
   function start() {
     if (host === undefined) {
@@ -47,11 +52,11 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
       navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
       return;
     }
-    // Default to wordshot — it has seeded content and always starts (quizzes deck is unseeded).
+    // Launch the host's queued game (F-5) — not a hardcoded Wordshot.
     startGame.mutate(
-      { code, hostId: host.hostId, gameId: RealGameId.WORDSHOT },
+      { code, hostId: host.hostId, gameId: nextGameId, config: nextBacked?.config ?? {} },
       {
-        onSuccess: () => navigate(pathWith(ROUTES.DISPLAY_GAME, { code })),
+        onSuccess: () => navigate(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${nextGameId}`),
         onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
       },
     );

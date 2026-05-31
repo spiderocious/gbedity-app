@@ -34,7 +34,7 @@ export function RoomSocketProvider({
   children,
 }: RoomSocketProviderProps) {
   const [status, setStatus] = useState<ConnectionStatus>(ConnectionStatus.CONNECTING);
-  const [patch, setPatch] = useState<ViewPatch | null>(null);
+  const [patches, setPatches] = useState<PatchesByAudience>({});
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const socketRef = useRef<ReturnType<typeof createSocket> | null>(null);
 
@@ -60,7 +60,10 @@ export function RoomSocketProvider({
       const parsed = ServerView.safeParse(raw);
       if (parsed.success) {
         setStatus(ConnectionStatus.LIVE);
-        setPatch(parsed.data.patch);
+        // Store per audience so host- and player-audience patches don't overwrite each other
+        // (the host seat receives both). Unknown audiences fall under 'player' as a safe default.
+        const aud = (parsed.data.audience as Audience) ?? Audience.PLAYER;
+        setPatches((prev) => ({ ...prev, [aud]: parsed.data.patch }));
       }
     });
     socket.on(ServerEvent.ERROR, (e: { code?: string }) => {
@@ -83,11 +86,14 @@ export function RoomSocketProvider({
   const value = useMemo<RoomSocketValue>(
     () => ({
       status,
-      patch,
+      patches,
+      // The patch to render: player projection wins (host + player seats both play off it),
+      // then display, then host. Surfaces that need a specific audience read `patches` directly.
+      patch: patches[Audience.PLAYER] ?? patches[Audience.DISPLAY] ?? patches[Audience.HOST] ?? null,
       errorCode,
       sendAction: (action) => socketRef.current?.emit(ClientEvent.ACTION, { action }),
     }),
-    [status, patch, errorCode],
+    [status, patches, errorCode],
   );
 
   return <RoomSocketContext.Provider value={value}>{children}</RoomSocketContext.Provider>;

@@ -73,7 +73,9 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
               </p>
             </div>
           ) : renderer !== undefined ? (
-            renderer.player(patch, sendAction)
+            // Rendered as a component (not a call) so its hooks live in a stable fiber; the
+            // game key remounts cleanly if the live game changes.
+            <renderer.Player key={live?.backendId} patch={patch} send={sendAction} />
           ) : (
             <p className="text-center font-sans text-[15px] text-ink-3">Waiting for your turn…</p>
           )}

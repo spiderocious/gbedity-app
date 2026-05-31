@@ -48,9 +48,9 @@ function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: str
       ) : isFinal ? (
         <LiveResult patch={patch} code={code} />
       ) : isReveal ? (
-        <LiveBoard patch={patch} />
+        <LiveBoard patch={patch} code={code} />
       ) : (
-        renderer?.display(patch) ?? <LiveBoard patch={patch} />
+        renderer?.display(patch) ?? <LiveBoard patch={patch} code={code} />
       )}
     </Shell>
   );
