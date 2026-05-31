@@ -16,7 +16,9 @@ export function QrScanScreen() {
     const timer = window.setTimeout(() => {
       setFound(true);
       DrawerService.toast('Found it', { tone: 'success' });
-      window.setTimeout(() => navigate(ROUTES.JOIN_NICKNAME), 700);
+      // Mock scan can't read a real code, so route to code entry to confirm it (avoids the
+      // nickname screen bouncing for lack of a ?code — JN-12).
+      window.setTimeout(() => navigate(ROUTES.JOIN), 700);
     }, 2000);
     return () => window.clearTimeout(timer);
   }, [navigate]);

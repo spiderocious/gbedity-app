@@ -82,6 +82,33 @@ export const adminController = {
     ResponseUtil.created(res, doc);
   },
 
+  // Bulk create — takes an array body, validates each item against the kind schema, inserts the
+  // valid ones, and reports per-item results. Applies to every content kind.
+  async bulkCreateContent(req: Request, res: Response): Promise<void> {
+    const kind = param(req, 'kind');
+    const schema = contentSchemaFor(kind);
+    if (!schema) {
+      return ResponseUtil.error(res, 404, ERROR_CODES.NOT_FOUND, messages.get(MESSAGE_KEYS.admin.NOT_FOUND));
+    }
+    const items = req.body?.items;
+    if (!Array.isArray(items) || items.length === 0) {
+      return ResponseUtil.error(res, 422, ERROR_CODES.VALIDATION_ERROR, messages.get(MESSAGE_KEYS.common.VALIDATION_FAILED), {
+        items: ['Expected a non-empty array of content items.'],
+      });
+    }
+
+    const valid: Record<string, unknown>[] = [];
+    const errors: { index: number; field_errors: Record<string, string[]> }[] = [];
+    items.forEach((item, index) => {
+      const parsed = schema.safeParse(item);
+      if (parsed.success) valid.push(parsed.data as Record<string, unknown>);
+      else errors.push({ index, field_errors: zodFieldErrors(parsed.error, kind) });
+    });
+
+    const created = await contentAdminRepository.createMany(kind, valid);
+    ResponseUtil.created(res, { inserted: created.length, failed: errors.length, total: items.length, errors });
+  },
+
   async listContent(req: Request, res: Response): Promise<void> {
     const kind = param(req, 'kind');
     if (!contentAdminRepository.isKnownKind(kind)) {

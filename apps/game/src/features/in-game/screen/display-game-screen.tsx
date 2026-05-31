@@ -8,37 +8,46 @@ import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx'
 import { SocketRole } from '../../../shared/services/socket.ts';
 import { Phase } from '../../../shared/types/view.ts';
 import { getLiveRenderer, LiveBoard } from '../live/live-renderers.tsx';
-import { resolveLiveGame, type LiveGame } from '../resolve-live-game.ts';
-import { useGameParam } from '../use-game-param.ts';
+import { LiveResult } from '../live/live-result.tsx';
+import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-live-game.ts';
 
-// §5.1 — display in-game. Live games (5 backed, ?live=<backendId>) render from server.view
-// over a display socket; the 13 mock games render the static registry by ?game= id.
+// §5.1 — display in-game. LIVE by default: a display socket renders server.view patches.
+// `?mock=<catalogueId>` opts into the static registry (the 13 non-backed games + the gallery).
 export function DisplayGameScreen() {
   const { code = '' } = useParams();
   const [search] = useSearchParams();
-  const live = resolveLiveGame(search.get('live'));
+  const mockId = resolveMockGame(search.get('mock'));
 
-  if (live !== undefined) {
-    return (
-      <RoomSocketProvider roomCode={code} role={SocketRole.DISPLAY}>
-        <LiveDisplay live={live} />
-      </RoomSocketProvider>
-    );
+  if (mockId !== undefined) {
+    return <MockDisplay mockId={mockId} />;
   }
-  return <MockDisplay />;
+  return (
+    <RoomSocketProvider roomCode={code} role={SocketRole.DISPLAY}>
+      <LiveDisplay code={code} hint={search.get('live')} />
+    </RoomSocketProvider>
+  );
 }
 
-function LiveDisplay({ live }: { readonly live: LiveGame }) {
+function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: string | null }) {
   const { patch, status } = useRoomSocket();
-  const renderer = getLiveRenderer(live.backendId);
-  const isBoard =
-    patch !== null && (patch.phase === Phase.REVEAL || patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
+  const live = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  const renderer = live ? getLiveRenderer(live.backendId) : undefined;
+  // End-of-game → the full live result board; in-round reveal → the live (partial) board.
+  const isFinal = patch !== null && (patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
+  const isReveal = patch !== null && patch.phase === Phase.REVEAL;
 
   return (
-    <Shell id={live.id} category={live.category} title={live.title} round={patch?.phase ?? status}>
+    <Shell
+      id={live?.id ?? 0}
+      category={live?.category ?? 'casual'}
+      title={live?.title ?? 'Game'}
+      round={patch?.phase ?? status}
+    >
       {patch === null ? (
         <p className="text-center font-sans text-[16px] text-ink-3">Setting up…</p>
-      ) : isBoard ? (
+      ) : isFinal ? (
+        <LiveResult patch={patch} code={code} />
+      ) : isReveal ? (
         <LiveBoard patch={patch} />
       ) : (
         renderer?.display(patch) ?? <LiveBoard patch={patch} />
@@ -47,9 +56,8 @@ function LiveDisplay({ live }: { readonly live: LiveGame }) {
   );
 }
 
-function MockDisplay() {
-  const id = useGameParam();
-  const game = gameById(id);
+function MockDisplay({ mockId }: { readonly mockId: number }) {
+  const game = gameById(mockId);
   const content = game ? getGameContent(game.key) : undefined;
   if (game === undefined || content === undefined) {
     return (

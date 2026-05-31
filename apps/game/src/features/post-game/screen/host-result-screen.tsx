@@ -1,26 +1,28 @@
 import { Button, Card, DrawerService, LeaderboardRows, OrangeWinnerBar } from '@gbedity/ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { MOCK_ROOM_CODE, ROUTES, mockPath } from '../../../shared/constants/routes.ts';
+import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
 import { gameById } from '../../../shared/games/games-manifest.ts';
 import { LEADERBOARD } from '../../../shared/mock/players.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { useGameParam } from '../../in-game/use-game-param.ts';
 
-// §6.2 — host post-game. Compact winner + leaderboard + actions + round-detail link.
+// §6.2 — host post-game (preview/mock). Uses the live :code from the route so it never shows
+// the mock code on a real room.
 export function HostResultScreen() {
   const id = useGameParam();
   const game = gameById(id);
   const content = game ? getGameContent(game.key) : undefined;
   const navigate = useNavigate();
+  const { code = MOCK_ROOM_CODE } = useParams();
   if (game === undefined || content === undefined) return null;
 
   const winner = LEADERBOARD[0];
 
   return (
     <div className="min-h-screen bg-canvas pb-10">
-      <AppHeader roomCode={MOCK_ROOM_CODE} />
+      <AppHeader roomCode={code} />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-2">
         {winner !== undefined ? (
           <OrangeWinnerBar name={winner.name} seat={winner.seat} score={winner.score} label="Winner" />
@@ -40,11 +42,11 @@ export function HostResultScreen() {
         </Card>
 
         <div className="flex flex-col gap-2">
-          <Button variant="primary" size="lg" onClick={() => navigate(`${mockPath(ROUTES.HOST_GAME)}?game=${id}`)}>Play again</Button>
-          <Button variant="secondary" onClick={() => navigate(mockPath(ROUTES.HOST_LOBBY))}>Pick another</Button>
+          <Button variant="primary" size="lg" onClick={() => navigate(`${pathWith(ROUTES.HOST_GAME, { code })}?mock=${id}`)}>Play again</Button>
+          <Button variant="secondary" onClick={() => navigate(pathWith(ROUTES.HOST_LOBBY, { code }))}>Pick another</Button>
           <div className="flex gap-2">
             <Button variant="ghost" className="flex-1" onClick={() => DrawerService.openModal(<ShareSheet />, { position: 'bottom' })}>Share result</Button>
-            <Button variant="ghost" className="flex-1" onClick={() => navigate(mockPath(ROUTES.HOST_ROUND_DETAIL))}>Round detail</Button>
+            <Button variant="ghost" className="flex-1" onClick={() => navigate(pathWith(ROUTES.HOST_ROUND_DETAIL, { code, n: '1' }))}>Round detail</Button>
           </div>
           <Button variant="ghost" onClick={() => navigate(ROUTES.LANDING)}>End session</Button>
         </div>

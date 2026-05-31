@@ -10,6 +10,11 @@ export const ContentKind = {
   DEFINITION: 'definition', // { word, definition }
   THESAURUS: 'thesaurus', // { word, synonyms[], antonyms[] }
   TRUTH_OR_DARE_PROMPT: 'truth_or_dare_prompt', // { kind: truth|dare, prompt }
+  // Wave 3 content kinds
+  BIBLE_QUIZ_DECK: 'bible_quiz_deck', // { translation, testament, questions[] }
+  TYPING_PASSAGE: 'typing_passage', // { text, length, source }
+  PRESENTATION_TOPIC: 'presentation_topic', // { topic }
+  INVESTIGATION_CASE: 'investigation_case', // { title, brief, suspects[], evidence[], solution }
 } as const;
 export type ContentKind = (typeof ContentKind)[keyof typeof ContentKind];
 
@@ -43,6 +48,10 @@ export const ContentCollection = {
   DEFINITIONS: 'definitions',
   THESAURUS: 'thesaurus',
   TRUTH_OR_DARE_PROMPTS: 'truth_or_dare_prompts',
+  BIBLE_QUIZ_DECKS: 'bible_quiz_decks',
+  TYPING_PASSAGES: 'typing_passages',
+  PRESENTATION_TOPICS: 'presentation_topics',
+  INVESTIGATION_CASES: 'investigation_cases',
 } as const;
 
 // The host's content filter (PRD §8): which tiers are allowed + which tags to exclude.

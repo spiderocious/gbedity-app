@@ -36,14 +36,13 @@ export function HostStartScreen() {
     const nickname = sessionStore.getNickname() ?? 'Host';
     createRoom.mutate(nickname, {
       onSuccess: (room) => {
-        // Land on the host lobby (room dashboard): it shows the code + QR to share and is the
-        // hub for picking a game. League goes straight to the builder. The room code rides in
-        // the path/query so every downstream screen uses the LIVE code (never the mock).
-        const dest =
-          mode === Mode.LEAGUE
-            ? `${ROUTES.HOST_LEAGUE_NEW}?code=${room.code}`
-            : pathWith(ROUTES.HOST_LOBBY, { code: room.code });
-        navigate(dest);
+        // All modes land on the host lobby (room dashboard) — the single working hub: it shows
+        // the code + QR to share, holds the game queue, and starts single games OR a league
+        // (queue ≥2 → "Start league", which calls POST /rooms/:code/league). League just means
+        // queuing 2+ games here; there's no separate builder dead-end. `league=1` nudges the
+        // lobby copy toward the league framing.
+        const leagueHint = mode === Mode.LEAGUE ? '&league=1' : '';
+        navigate(`${pathWith(ROUTES.HOST_LOBBY, { code: room.code })}?picked=${mode}${leagueHint}`);
       },
       onError: (e) => {
         const msg = e instanceof ApiError ? e.message : 'Could not open a room.';

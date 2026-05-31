@@ -40,7 +40,7 @@ export function HostLobbyScreen() {
       );
       return;
     }
-    go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?game=${q.gameId}`);
+    go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?mock=${q.gameId}`);
   }
 
   // Start the whole queue as a league (≥2 games), backed games only.

@@ -12,35 +12,39 @@ import { SocketRole } from '../../../shared/services/socket.ts';
 import { Phase } from '../../../shared/types/view.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { getLiveRenderer } from '../live/live-renderers.tsx';
-import { resolveLiveGame, type LiveGame } from '../resolve-live-game.ts';
-import { useGameParam } from '../use-game-param.ts';
+import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-live-game.ts';
 
-// §5.3 — player in-game. Live games render the player patch + send client.action; mock games
-// keep the static input + the active/waiting/spectator preview toggle.
+// §5.3 — player in-game. LIVE by default: connects the room socket, renders the player patch,
+// sends client.action. `?mock=<catalogueId>` opts into the static preview registry (the 13
+// non-backed games + the /preview-screens gallery).
 export function PlayerGameScreen() {
   const { code = '' } = useParams();
   const [search] = useSearchParams();
-  const live = resolveLiveGame(search.get('live'));
+  const mockId = resolveMockGame(search.get('mock'));
 
-  if (live !== undefined) {
-    const player = sessionStore.getPlayer();
-    return (
-      <RoomSocketProvider
-        roomCode={code}
-        role={SocketRole.PLAYER}
-        {...(player?.playerId !== undefined ? { playerId: player.playerId } : {})}
-        {...(player?.reconnectToken !== undefined ? { reconnectToken: player.reconnectToken } : {})}
-      >
-        <LivePlayer live={live} code={code} />
-      </RoomSocketProvider>
-    );
+  if (mockId !== undefined) {
+    return <MockPlayer code={code} mockId={mockId} />;
   }
-  return <MockPlayer code={code} />;
+
+  const player = sessionStore.getPlayer();
+  return (
+    <RoomSocketProvider
+      roomCode={code}
+      role={SocketRole.PLAYER}
+      {...(player?.playerId !== undefined ? { playerId: player.playerId } : {})}
+      {...(player?.reconnectToken !== undefined ? { reconnectToken: player.reconnectToken } : {})}
+    >
+      <LivePlayer code={code} hint={search.get('live')} />
+    </RoomSocketProvider>
+  );
 }
 
-function LivePlayer({ live, code }: { readonly live: LiveGame; readonly code: string }) {
+function LivePlayer({ code, hint }: { readonly code: string; readonly hint: string | null }) {
   const { patch, status, sendAction } = useRoomSocket();
-  const renderer = getLiveRenderer(live.backendId);
+  // Game identity comes from the patch shape once it arrives; the ?live= hint covers the gap
+  // before the first patch (so chrome can show a title), but detection is the real source.
+  const live = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  const renderer = live ? getLiveRenderer(live.backendId) : undefined;
   const score = typeof patch?.yourScore === 'number' ? patch.yourScore : 0;
   const isBoard =
     patch !== null && (patch.phase === Phase.REVEAL || patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
@@ -56,11 +60,22 @@ function LivePlayer({ live, code }: { readonly live: LiveGame; readonly code: st
         ) : null}
         <Card size="lg">
           {patch === null ? (
-            <p className="text-center font-sans text-[15px] text-ink-3">Waiting for the round…</p>
+            <p className="text-center font-sans text-[15px] text-ink-3">
+              {status === ConnectionStatus.ERROR ? 'Couldn’t join this game.' : 'Waiting for the round to start…'}
+            </p>
           ) : isBoard ? (
-            <p className="text-center font-serif text-[20px] font-semibold text-ink">Round over — check the shared screen.</p>
+            <div className="flex flex-col items-center gap-2 py-6 text-center">
+              <p className="font-serif text-[20px] font-semibold text-ink">
+                {patch.phase === Phase.DONE ? 'That’s a wrap' : 'Round over'}
+              </p>
+              <p className="font-sans text-[14px] text-ink-3">
+                You scored <span className="font-bold text-ink">{score}</span> — full standings on the shared screen.
+              </p>
+            </div>
+          ) : renderer !== undefined ? (
+            renderer.player(patch, sendAction)
           ) : (
-            renderer?.player(patch, sendAction) ?? <p className="text-center font-sans text-[15px] text-ink-3">Waiting…</p>
+            <p className="text-center font-sans text-[15px] text-ink-3">Waiting for your turn…</p>
           )}
         </Card>
       </main>
@@ -71,9 +86,8 @@ function LivePlayer({ live, code }: { readonly live: LiveGame; readonly code: st
 const PlayerState = { ACTIVE: 'Active', WAITING: 'Waiting', SPECTATOR: 'Spectating' } as const;
 type PlayerState = (typeof PlayerState)[keyof typeof PlayerState];
 
-function MockPlayer({ code }: { readonly code: string }) {
-  const id = useGameParam();
-  const game = gameById(id);
+function MockPlayer({ code, mockId }: { readonly code: string; readonly mockId: number }) {
+  const game = gameById(mockId);
   const content = game ? getGameContent(game.key) : undefined;
   const [state, setState] = useState<PlayerState>(PlayerState.ACTIVE);
   if (game === undefined || content === undefined) return null;

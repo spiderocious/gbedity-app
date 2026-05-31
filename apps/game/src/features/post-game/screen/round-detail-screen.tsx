@@ -1,7 +1,7 @@
 import { Avatar, Button, Card, Score } from '@gbedity/ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { MOCK_ROOM_CODE, ROUTES, mockPath } from '../../../shared/constants/routes.ts';
+import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { PLAYERS } from '../../../shared/mock/players.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 
@@ -15,10 +15,11 @@ const ROUND_ANSWERS: Record<string, readonly { readonly answer: string; readonly
 
 export function RoundDetailScreen() {
   const navigate = useNavigate();
+  const { code = MOCK_ROOM_CODE } = useParams();
 
   return (
     <div className="min-h-screen bg-canvas pb-10">
-      <AppHeader roomCode={MOCK_ROOM_CODE} />
+      <AppHeader roomCode={code} />
       <main className="mx-auto flex max-w-md flex-col gap-3 px-6 pt-2">
         <h1 className="font-serif text-[26px] font-semibold tracking-[-0.01em] text-ink">Round 2 detail</h1>
         {PLAYERS.map((p) => {
@@ -38,7 +39,7 @@ export function RoundDetailScreen() {
             </Card>
           );
         })}
-        <Button variant="ghost" onClick={() => navigate(mockPath(ROUTES.HOST_RESULT))}>Back to scores</Button>
+        <Button variant="ghost" onClick={() => navigate(pathWith(ROUTES.HOST_RESULT, { code }))}>Back to scores</Button>
       </main>
     </div>
   );

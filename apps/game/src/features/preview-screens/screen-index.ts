@@ -64,16 +64,16 @@ export const SCREEN_INDEX: readonly ScreenGroup[] = [
   {
     section: '§5 · In-game',
     screens: [
-      { label: 'Display in-game', path: `${mockPath(ROUTES.DISPLAY_GAME)}?game=${G}`, context: ScreenContext.DISPLAY },
-      { label: 'Host in-game', path: `${mockPath(ROUTES.HOST_GAME)}?game=${G}`, context: ScreenContext.HOST },
-      { label: 'Player in-game', path: `${mockPath(ROUTES.PLAYER_GAME)}?game=${G}`, context: ScreenContext.PLAYER, note: 'toggle active/waiting/spectator' },
+      { label: 'Display in-game', path: `${mockPath(ROUTES.DISPLAY_GAME)}?mock=${G}`, context: ScreenContext.DISPLAY },
+      { label: 'Host in-game', path: `${mockPath(ROUTES.HOST_GAME)}?mock=${G}`, context: ScreenContext.HOST },
+      { label: 'Player in-game', path: `${mockPath(ROUTES.PLAYER_GAME)}?mock=${G}`, context: ScreenContext.PLAYER, note: 'toggle active/waiting/spectator' },
     ],
   },
   {
     section: '§6 · Post-game & §7 player result',
     screens: [
-      { label: 'Display result', path: `${mockPath(ROUTES.DISPLAY_RESULT)}?game=${G}`, context: ScreenContext.DISPLAY },
-      { label: 'Host result', path: `${mockPath(ROUTES.HOST_RESULT)}?game=${G}`, context: ScreenContext.HOST },
+      { label: 'Display result', path: `${mockPath(ROUTES.DISPLAY_RESULT)}?mock=${G}`, context: ScreenContext.DISPLAY },
+      { label: 'Host result', path: `${mockPath(ROUTES.HOST_RESULT)}?mock=${G}`, context: ScreenContext.HOST },
       { label: 'Round detail', path: mockPath(ROUTES.HOST_ROUND_DETAIL), context: ScreenContext.HOST },
       { label: 'League final', path: mockPath(ROUTES.DISPLAY_LEAGUE_RESULT), context: ScreenContext.DISPLAY },
       { label: 'Player result', path: mockPath(ROUTES.PLAYER_RESULT), context: ScreenContext.PLAYER },

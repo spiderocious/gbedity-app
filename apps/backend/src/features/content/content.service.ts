@@ -148,6 +148,47 @@ export class ContentService {
       .toArray();
     return rows.map((r) => String(r.prompt));
   }
+
+  // Wave 3 resolvers ---------------------------------------------------------
+
+  async resolveBibleQuestions(opts: { translation?: string; testament?: string; sample: number }): Promise<QuizQuestion[]> {
+    const match: Filter<Document> = {};
+    if (opts.translation && opts.translation !== 'mixed') match.translation = opts.translation;
+    if (opts.testament && opts.testament !== 'both') match.testament = opts.testament;
+    const decks = await getDb()
+      .collection(ContentCollection.BIBLE_QUIZ_DECKS)
+      .find(match, { projection: { _id: 0, questions: 1 } })
+      .toArray();
+    const all = decks.flatMap((d) => (Array.isArray(d.questions) ? (d.questions as QuizQuestion[]) : []));
+    return all.slice(0, opts.sample);
+  }
+
+  async resolveTypingPassages(opts: { sample: number; length?: string }): Promise<string[]> {
+    const match: Filter<Document> = opts.length && opts.length !== 'mixed' ? { length: opts.length } : {};
+    const rows = await getDb()
+      .collection(ContentCollection.TYPING_PASSAGES)
+      .aggregate([{ $match: match }, { $sample: { size: opts.sample } }, { $project: { _id: 0, text: 1 } }])
+      .toArray();
+    return rows.map((r) => String(r.text));
+  }
+
+  async resolvePresentationTopics(opts: { filter?: RatingFilterShape; sample: number }): Promise<string[]> {
+    const filter = opts.filter ?? DEFAULT_RATING_FILTER;
+    const rows = await getDb()
+      .collection(ContentCollection.PRESENTATION_TOPICS)
+      .aggregate([{ $match: ratingClause(filter) }, { $sample: { size: opts.sample } }, { $project: { _id: 0, topic: 1 } }])
+      .toArray();
+    return rows.map((r) => String(r.topic));
+  }
+
+  async resolveInvestigationCases(opts: { filter?: RatingFilterShape; sample: number }): Promise<Record<string, unknown>[]> {
+    const filter = opts.filter ?? DEFAULT_RATING_FILTER;
+    const rows = await getDb()
+      .collection(ContentCollection.INVESTIGATION_CASES)
+      .aggregate([{ $match: ratingClause(filter) }, { $sample: { size: opts.sample } }, { $project: { _id: 0 } }])
+      .toArray();
+    return rows as Record<string, unknown>[];
+  }
 }
 
 export const contentService = new ContentService();

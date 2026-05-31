@@ -1,0 +1,862 @@
+[
+  {
+    "key": "case-01",
+    "title": "The Missing Trophy",
+    "brief": "The community trophy vanished from the locked hall overnight. Three people held keys.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Caretaker",
+        "profile": "Holds the master key; claims he was home all night."
+      },
+      {
+        "id": "s2",
+        "name": "Captain",
+        "profile": "Wanted the trophy relocated; alibi is a phone call."
+      },
+      {
+        "id": "s3",
+        "name": "Treasurer",
+        "profile": "Last to leave; signed out at 9pm."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Door log",
+        "detail": "Keycard entry at 11:42pm under the caretaker’s card."
+      },
+      {
+        "id": "e2",
+        "label": "Phone records",
+        "detail": "The captain’s call ended at 10:30pm, not midnight."
+      }
+    ],
+    "timeline": [
+      "9:00pm treasurer signs out",
+      "10:30pm captain’s call ends",
+      "11:42pm keycard entry"
+    ],
+    "solutionSuspectId": "s1",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-02",
+    "title": "The Spoiled Soup",
+    "brief": "The wedding soup was ruined with too much salt minutes before serving.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Head Cook",
+        "profile": "Tasted it last and approved it."
+      },
+      {
+        "id": "s2",
+        "name": "Rival Caterer",
+        "profile": "Lost the contract to the couple."
+      },
+      {
+        "id": "s3",
+        "name": "New Helper",
+        "profile": "Was alone with the pot during the toast."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Salt sack",
+        "detail": "A half-empty sack found behind the rival caterer’s van."
+      },
+      {
+        "id": "e2",
+        "label": "CCTV",
+        "detail": "Shows the rival entering the kitchen at 2pm."
+      }
+    ],
+    "timeline": [
+      "1:30pm cook approves the soup",
+      "2:00pm rival enters kitchen",
+      "2:15pm soup served and rejected"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-03",
+    "title": "The Vanished Painting",
+    "brief": "A valuable painting disappeared from the gallery during a power cut.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Night Guard",
+        "profile": "Reported the outage; was on duty alone."
+      },
+      {
+        "id": "s2",
+        "name": "Curator",
+        "profile": "Had insured the painting heavily last week."
+      },
+      {
+        "id": "s3",
+        "name": "Electrician",
+        "profile": "Serviced the fuse box that morning."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Insurance form",
+        "detail": "Curator doubled the coverage six days prior."
+      },
+      {
+        "id": "e2",
+        "label": "Fuse box",
+        "detail": "Tampered manually, not a fault, per the inspector."
+      }
+    ],
+    "timeline": [
+      "Morning: electrician services fuse box",
+      "8pm power cut",
+      "8:05pm painting gone"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-04",
+    "title": "The Broken Window",
+    "brief": "A shop window was smashed and the till emptied after closing.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Ex-Employee",
+        "profile": "Fired last month; still had a uniform."
+      },
+      {
+        "id": "s2",
+        "name": "Neighbour",
+        "profile": "Complained about noise for weeks."
+      },
+      {
+        "id": "s3",
+        "name": "Delivery Driver",
+        "profile": "Made a late drop-off that evening."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Footprints",
+        "detail": "Match work boots issued to staff."
+      },
+      {
+        "id": "e2",
+        "label": "Receipt",
+        "detail": "Driver’s drop logged at 6pm, store shut at 7pm."
+      }
+    ],
+    "timeline": [
+      "6:00pm delivery",
+      "7:00pm store closes",
+      "7:40pm alarm triggers"
+    ],
+    "solutionSuspectId": "s1",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-05",
+    "title": "The Tampered Scoreboard",
+    "brief": "The quiz final scoreboard was altered to crown the wrong winner.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Scorekeeper",
+        "profile": "Had sole access to the laptop."
+      },
+      {
+        "id": "s2",
+        "name": "Runner-up",
+        "profile": "Argued about a ruling earlier."
+      },
+      {
+        "id": "s3",
+        "name": "Sponsor",
+        "profile": "Wanted a local team to win."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Login log",
+        "detail": "One login at 9:50pm — the scorekeeper’s."
+      },
+      {
+        "id": "e2",
+        "label": "Edit history",
+        "detail": "A score changed at 9:52pm."
+      }
+    ],
+    "timeline": [
+      "9:45pm quiz ends",
+      "9:50pm scorekeeper login",
+      "9:52pm score edited"
+    ],
+    "solutionSuspectId": "s1",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-06",
+    "title": "The Empty Fuel Tank",
+    "brief": "The generator ran dry overnight though it was filled at dusk.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Watchman",
+        "profile": "Filled it and kept the key."
+      },
+      {
+        "id": "s2",
+        "name": "Tenant",
+        "profile": "Complained about the fuel cost."
+      },
+      {
+        "id": "s3",
+        "name": "Mechanic",
+        "profile": "Serviced the generator that day."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Siphon hose",
+        "detail": "Found hidden near the tenant’s unit."
+      },
+      {
+        "id": "e2",
+        "label": "Fuel log",
+        "detail": "Tank was full at 7pm per the watchman."
+      }
+    ],
+    "timeline": [
+      "7:00pm tank filled",
+      "Midnight generator stops",
+      "Hose found at dawn"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-07",
+    "title": "The Switched Cake",
+    "brief": "The birthday cake was swapped for a cheaper one before the cut.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Baker",
+        "profile": "Delivered both cakes that day."
+      },
+      {
+        "id": "s2",
+        "name": "Cousin",
+        "profile": "Was upset about the budget."
+      },
+      {
+        "id": "s3",
+        "name": "Planner",
+        "profile": "Handled the dessert table alone."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Delivery note",
+        "detail": "Only one premium cake was paid for."
+      },
+      {
+        "id": "e2",
+        "label": "Table photo",
+        "detail": "Planner rearranged the table at 4pm."
+      }
+    ],
+    "timeline": [
+      "2pm cakes delivered",
+      "4pm planner at the table",
+      "5pm cake cut"
+    ],
+    "solutionSuspectId": "s3",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-08",
+    "title": "The Leaked Question",
+    "brief": "An exam question leaked to one class the night before.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Printer",
+        "profile": "Printed the papers after hours."
+      },
+      {
+        "id": "s2",
+        "name": "Teacher",
+        "profile": "Has a relative in the class."
+      },
+      {
+        "id": "s3",
+        "name": "Clerk",
+        "profile": "Filed the master copy."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Phone forward",
+        "detail": "A photo sent from the teacher’s number at 9pm."
+      },
+      {
+        "id": "e2",
+        "label": "Print log",
+        "detail": "Printing finished at 6pm, before the leak."
+      }
+    ],
+    "timeline": [
+      "6pm printing done",
+      "9pm photo forwarded",
+      "Next morning exam"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-09",
+    "title": "The Missing Donations",
+    "brief": "Cash donations from the fundraiser came up short by half.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Treasurer",
+        "profile": "Counted the cash alone."
+      },
+      {
+        "id": "s2",
+        "name": "Volunteer",
+        "profile": "Held the box during the event."
+      },
+      {
+        "id": "s3",
+        "name": "Auditor",
+        "profile": "Reviewed the totals afterward."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Count sheet",
+        "detail": "Treasurer’s figure differs from the ticket count."
+      },
+      {
+        "id": "e2",
+        "label": "Box seal",
+        "detail": "Reopened and resealed, per the auditor."
+      }
+    ],
+    "timeline": [
+      "Event ends",
+      "Treasurer counts alone",
+      "Auditor flags mismatch"
+    ],
+    "solutionSuspectId": "s1",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-10",
+    "title": "The Sabotaged Drone",
+    "brief": "A racing drone crashed mid-final after a tampered battery.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Pilot",
+        "profile": "Owns the drone and the spare battery."
+      },
+      {
+        "id": "s2",
+        "name": "Rival Pilot",
+        "profile": "Was seen near the pit before the race."
+      },
+      {
+        "id": "s3",
+        "name": "Judge",
+        "profile": "Inspected the drone last."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Battery cap",
+        "detail": "Loosened by hand, not flight damage."
+      },
+      {
+        "id": "e2",
+        "label": "Pit camera",
+        "detail": "Rival lingered at the bench at 3pm."
+      }
+    ],
+    "timeline": [
+      "3pm rival at the pit",
+      "3:30pm inspection",
+      "4pm crash"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-11",
+    "title": "The Phantom Order",
+    "brief": "A huge fake catering order nearly bankrupted a small kitchen.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Manager",
+        "profile": "Took the order by phone."
+      },
+      {
+        "id": "s2",
+        "name": "Competitor",
+        "profile": "Opened a rival kitchen nearby."
+      },
+      {
+        "id": "s3",
+        "name": "Supplier",
+        "profile": "Was paid up front for ingredients."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Caller ID",
+        "detail": "Traced to a burner near the competitor’s shop."
+      },
+      {
+        "id": "e2",
+        "label": "Deposit",
+        "detail": "Supplier received and kept the deposit."
+      }
+    ],
+    "timeline": [
+      "Call placed",
+      "Ingredients bought",
+      "Order never collected"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-12",
+    "title": "The Altered Will",
+    "brief": "A family will was changed days before it was read.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Lawyer",
+        "profile": "Drafted and stored the will."
+      },
+      {
+        "id": "s2",
+        "name": "Heir",
+        "profile": "Visited the office that week."
+      },
+      {
+        "id": "s3",
+        "name": "Witness",
+        "profile": "Signed both versions."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Ink test",
+        "detail": "A clause added in newer ink."
+      },
+      {
+        "id": "e2",
+        "label": "Visitor log",
+        "detail": "Heir signed in the day before the change."
+      }
+    ],
+    "timeline": [
+      "Heir visits",
+      "Clause added",
+      "Will read"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-13",
+    "title": "The Cut Power Line",
+    "brief": "A street lost power right as the night market opened.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Vendor",
+        "profile": "Argued over a stall location."
+      },
+      {
+        "id": "s2",
+        "name": "Linesman",
+        "profile": "Was working the pole that afternoon."
+      },
+      {
+        "id": "s3",
+        "name": "Shopowner",
+        "profile": "Wanted the market shut down."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Cut marks",
+        "detail": "Clean cut from a tool, not weather."
+      },
+      {
+        "id": "e2",
+        "label": "Toolbox",
+        "detail": "A bolt cutter found in the shopowner’s store."
+      }
+    ],
+    "timeline": [
+      "Afternoon line work",
+      "Market opens",
+      "Power cut"
+    ],
+    "solutionSuspectId": "s3",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-14",
+    "title": "The Stolen Recipe",
+    "brief": "A secret stew recipe appeared on a rival’s menu overnight.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Sous Chef",
+        "profile": "Knows the recipe by heart."
+      },
+      {
+        "id": "s2",
+        "name": "Waiter",
+        "profile": "Serves both restaurants part-time."
+      },
+      {
+        "id": "s3",
+        "name": "Critic",
+        "profile": "Reviewed the dish last week."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Note photo",
+        "detail": "A snap of the recipe card on the waiter’s phone."
+      },
+      {
+        "id": "e2",
+        "label": "Shift log",
+        "detail": "Waiter worked the rival’s kitchen that night."
+      }
+    ],
+    "timeline": [
+      "Recipe photographed",
+      "Waiter’s rival shift",
+      "Menu appears"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-15",
+    "title": "The False Alarm",
+    "brief": "A fire alarm emptied the office right before a big presentation.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Intern",
+        "profile": "Stood near the alarm panel."
+      },
+      {
+        "id": "s2",
+        "name": "Presenter",
+        "profile": "Was unprepared and nervous."
+      },
+      {
+        "id": "s3",
+        "name": "Rival",
+        "profile": "Wanted the slot rescheduled."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Panel print",
+        "detail": "Manual pull at booth three."
+      },
+      {
+        "id": "e2",
+        "label": "Seat map",
+        "detail": "Rival sat beside booth three."
+      }
+    ],
+    "timeline": [
+      "Presentation due",
+      "Alarm pulled",
+      "Office cleared"
+    ],
+    "solutionSuspectId": "s3",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-16",
+    "title": "The Swapped Keys",
+    "brief": "A car went missing after keys were swapped at a valet stand.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Valet",
+        "profile": "Parked all the cars."
+      },
+      {
+        "id": "s2",
+        "name": "Guest",
+        "profile": "Lost their ticket earlier."
+      },
+      {
+        "id": "s3",
+        "name": "Owner",
+        "profile": "Reported it for insurance."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Ticket stub",
+        "detail": "Owner’s stub matched a different car."
+      },
+      {
+        "id": "e2",
+        "label": "Claim form",
+        "detail": "Owner filed a claim within the hour."
+      }
+    ],
+    "timeline": [
+      "Cars parked",
+      "Keys swapped",
+      "Insurance claim filed"
+    ],
+    "solutionSuspectId": "s3",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-17",
+    "title": "The Muddy Footprint",
+    "brief": "A garden shed was raided and the prize seeds taken.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Gardener",
+        "profile": "Has the only spare key."
+      },
+      {
+        "id": "s2",
+        "name": "Neighbour",
+        "profile": "Competes in the same flower show."
+      },
+      {
+        "id": "s3",
+        "name": "Child",
+        "profile": "Plays near the shed daily."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Footprint",
+        "detail": "Adult size, treaded boot near the show."
+      },
+      {
+        "id": "e2",
+        "label": "Glove",
+        "detail": "A gardening glove dropped by the fence."
+      }
+    ],
+    "timeline": [
+      "Evening raid",
+      "Footprint found",
+      "Show next week"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-18",
+    "title": "The Deleted Files",
+    "brief": "Project files were wiped the night before a deadline.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Developer",
+        "profile": "Had admin access."
+      },
+      {
+        "id": "s2",
+        "name": "Manager",
+        "profile": "Was over budget on the project."
+      },
+      {
+        "id": "s3",
+        "name": "Client",
+        "profile": "Disputed the final invoice."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Access log",
+        "detail": "A delete command at 11pm from an office IP."
+      },
+      {
+        "id": "e2",
+        "label": "Badge swipe",
+        "detail": "Manager swiped in at 10:50pm."
+      }
+    ],
+    "timeline": [
+      "10:50pm badge swipe",
+      "11pm delete",
+      "Morning deadline"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-19",
+    "title": "The Counterfeit Ticket",
+    "brief": "Two guests arrived with the same VIP ticket number.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Printer",
+        "profile": "Produced the ticket batch."
+      },
+      {
+        "id": "s2",
+        "name": "Reseller",
+        "profile": "Sold the second ticket online."
+      },
+      {
+        "id": "s3",
+        "name": "Usher",
+        "profile": "Scanned both at the door."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Serial scan",
+        "detail": "The duplicate was a photocopy, scanned second."
+      },
+      {
+        "id": "e2",
+        "label": "Listing",
+        "detail": "Reseller posted the number for sale."
+      }
+    ],
+    "timeline": [
+      "Tickets printed",
+      "Number listed online",
+      "Both scanned"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": []
+  },
+  {
+    "key": "case-20",
+    "title": "The Overflowing Tap",
+    "brief": "An office flooded overnight from a tap left running.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Cleaner",
+        "profile": "Was last to leave the kitchen."
+      },
+      {
+        "id": "s2",
+        "name": "Plumber",
+        "profile": "Fixed the tap that day."
+      },
+      {
+        "id": "s3",
+        "name": "Worker",
+        "profile": "Filled a kettle before leaving."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "label": "Work order",
+        "detail": "Plumber left the washer loose, per the report."
+      },
+      {
+        "id": "e2",
+        "label": "Sign-out",
+        "detail": "Cleaner signed out before the worker."
+      }
+    ],
+    "timeline": [
+      "Plumber repairs tap",
+      "Worker fills kettle",
+      "Cleaner leaves"
+    ],
+    "solutionSuspectId": "s2",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": []
+  }
+]

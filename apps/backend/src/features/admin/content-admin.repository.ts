@@ -17,6 +17,10 @@ const COLLECTION_BY_KIND: Record<string, string> = {
   definition: ContentCollection.DEFINITIONS,
   thesaurus: ContentCollection.THESAURUS,
   truth_or_dare_prompt: ContentCollection.TRUTH_OR_DARE_PROMPTS,
+  bible_quiz_deck: ContentCollection.BIBLE_QUIZ_DECKS,
+  typing_passage: ContentCollection.TYPING_PASSAGES,
+  presentation_topic: ContentCollection.PRESENTATION_TOPICS,
+  investigation_case: ContentCollection.INVESTIGATION_CASES,
 };
 
 export interface ContentDoc {
@@ -39,6 +43,16 @@ export const contentAdminRepository = {
     const doc: ContentDoc = { ...body, id: newId(ID_PREFIX.CONTENT), createdAt: now(), updatedAt: now() };
     await getDb().collection(c).insertOne(doc);
     return doc;
+  },
+
+  // Bulk insert pre-validated docs (the controller validates each against the kind schema first).
+  async createMany(kind: string, bodies: Record<string, unknown>[]): Promise<ContentDoc[]> {
+    const c = coll(kind);
+    if (!c || bodies.length === 0) return [];
+    const at = now();
+    const docs: ContentDoc[] = bodies.map((b) => ({ ...b, id: newId(ID_PREFIX.CONTENT), createdAt: at, updatedAt: at }));
+    await getDb().collection(c).insertMany(docs);
+    return docs;
   },
 
   // Cursor on `_id` (ObjectId) — monotonic by insertion and present + type-uniform on EVERY doc,

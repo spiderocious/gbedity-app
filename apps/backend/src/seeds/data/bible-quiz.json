@@ -1,0 +1,32 @@
+[
+  {
+    "key": "bible-general-1",
+    "title": "Bible General Knowledge",
+    "translation": "mixed",
+    "testament": "both",
+    "ratingTier": "family",
+    "tags": [],
+    "questions": [
+      { "prompt": "Who built the ark?", "options": ["Moses", "Noah", "Abraham", "David"], "answerIdx": 1 },
+      { "prompt": "How many days and nights did it rain during the flood?", "options": ["7", "12", "30", "40"], "answerIdx": 3 },
+      { "prompt": "Who led the Israelites out of Egypt?", "options": ["Joshua", "Moses", "Aaron", "Joseph"], "answerIdx": 1 },
+      { "prompt": "What was the first plague of Egypt?", "options": ["Frogs", "Water to blood", "Locusts", "Darkness"], "answerIdx": 1 },
+      { "prompt": "Who was thrown into the lions' den?", "options": ["Daniel", "David", "Elijah", "Jonah"], "answerIdx": 0 },
+      { "prompt": "Which sea did the Israelites cross on dry ground?", "options": ["Dead Sea", "Red Sea", "Sea of Galilee", "Mediterranean"], "answerIdx": 1 },
+      { "prompt": "How many disciples did Jesus choose?", "options": ["7", "10", "12", "14"], "answerIdx": 2 },
+      { "prompt": "Who betrayed Jesus for thirty pieces of silver?", "options": ["Peter", "Judas", "Thomas", "John"], "answerIdx": 1 },
+      { "prompt": "In which town was Jesus born?", "options": ["Nazareth", "Jerusalem", "Bethlehem", "Capernaum"], "answerIdx": 2 },
+      { "prompt": "Who baptised Jesus?", "options": ["Peter", "John the Baptist", "Paul", "Andrew"], "answerIdx": 1 },
+      { "prompt": "What is the first book of the Bible?", "options": ["Exodus", "Genesis", "Psalms", "Matthew"], "answerIdx": 1 },
+      { "prompt": "Who was the strongest man in the Bible?", "options": ["Samson", "Goliath", "Saul", "Gideon"], "answerIdx": 0 },
+      { "prompt": "Which giant did David defeat?", "options": ["Og", "Goliath", "Nimrod", "Anak"], "answerIdx": 1 },
+      { "prompt": "How many books are in the New Testament?", "options": ["27", "39", "66", "12"], "answerIdx": 0 },
+      { "prompt": "Who was swallowed by a great fish?", "options": ["Jonah", "Job", "Joel", "Joshua"], "answerIdx": 0 },
+      { "prompt": "What did God create on the first day?", "options": ["Animals", "Light", "Man", "Plants"], "answerIdx": 1 },
+      { "prompt": "Who was the first man?", "options": ["Cain", "Adam", "Abel", "Seth"], "answerIdx": 1 },
+      { "prompt": "Which apostle is known for doubting?", "options": ["Thomas", "Philip", "James", "Simon"], "answerIdx": 0 },
+      { "prompt": "What was turned into wine at the wedding in Cana?", "options": ["Oil", "Water", "Milk", "Honey"], "answerIdx": 1 },
+      { "prompt": "Who received the Ten Commandments?", "options": ["Aaron", "Joshua", "Moses", "Abraham"], "answerIdx": 2 }
+    ]
+  }
+]

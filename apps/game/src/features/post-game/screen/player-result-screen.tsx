@@ -1,16 +1,18 @@
 import { Button, Card, Score } from '@gbedity/ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { MOCK_ROOM_CODE, ROUTES, mockPath } from '../../../shared/constants/routes.ts';
+import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 
-// §7.1 — player result. Current user is Funmi, 3rd with 940 (spec mock).
+// §7.1 — player result (preview/mock summary). Uses the live :code from the route so it never
+// shows the mock GBE-4ZK on a real room; falls back to the mock code only when opened bare.
 export function PlayerResultScreen() {
   const navigate = useNavigate();
+  const { code = MOCK_ROOM_CODE } = useParams();
 
   return (
     <div className="min-h-screen bg-canvas">
-      <AppHeader roomCode={MOCK_ROOM_CODE} />
+      <AppHeader roomCode={code} />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-8">
         <Card size="lg" className="flex flex-col items-center gap-2 text-center">
           <h1 className="font-serif text-[28px] font-semibold tracking-[-0.01em] text-ink">You came 3rd</h1>
@@ -25,7 +27,7 @@ export function PlayerResultScreen() {
         </Card>
 
         <div className="flex flex-col gap-2">
-          <Button variant="primary" size="lg" onClick={() => navigate(mockPath(ROUTES.PLAYER_LOBBY))}>Stay for next game</Button>
+          <Button variant="primary" size="lg" onClick={() => navigate(pathWith(ROUTES.PLAYER_LOBBY, { code }))}>Stay for next game</Button>
           <Button variant="ghost" onClick={() => navigate(ROUTES.LANDING)}>Leave session</Button>
         </div>
       </main>

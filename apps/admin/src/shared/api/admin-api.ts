@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 import { apiClient } from '../services/api-client.ts';
 import { authStore } from '../services/auth-store.ts';
@@ -25,6 +26,48 @@ export function useAdminSeed() {
   return useMutation({
     mutationFn: (email: string) => apiClient.post<{ email: string; password: string }>('/admin/seed', { email }),
   });
+}
+
+// Re-hydrate the in-memory access token from the stored refresh token (survives a reload /
+// deep-link). Returns the auth state once the attempt settles, so the guard doesn't bounce a
+// genuinely-logged-in admin to /login on refresh.
+export const SessionState = { CHECKING: 'checking', AUTHED: 'authed', ANON: 'anon' } as const;
+export type SessionState = (typeof SessionState)[keyof typeof SessionState];
+
+export function useAdminSession(): SessionState {
+  const [state, setState] = useState<SessionState>(() =>
+    authStore.getAccessToken() !== null ? SessionState.AUTHED : SessionState.CHECKING,
+  );
+
+  useEffect(() => {
+    if (authStore.getAccessToken() !== null) {
+      setState(SessionState.AUTHED);
+      return undefined;
+    }
+    const refresh = authStore.getRefreshToken();
+    if (refresh === null) {
+      setState(SessionState.ANON);
+      return undefined;
+    }
+    let cancelled = false;
+    apiClient
+      .post<Tokens>('/admin/refresh', { refreshToken: refresh })
+      .then((data) => {
+        if (cancelled) return;
+        authStore.setTokens(data.accessToken, data.refreshToken);
+        setState(SessionState.AUTHED);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        authStore.clear();
+        setState(SessionState.ANON);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return state;
 }
 
 // ---- Content kinds (api-docs §Content authoring) ----

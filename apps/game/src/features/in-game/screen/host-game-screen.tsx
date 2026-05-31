@@ -1,18 +1,20 @@
 import { Button, Card, DrawerService, GameId } from '@gbedity/ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { MOCK_ROOM_CODE, ROUTES, mockPath } from '../../../shared/constants/routes.ts';
+import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
 import { gameById } from '../../../shared/games/games-manifest.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { useGameParam } from '../use-game-param.ts';
 
-// §5.2 — host in-game. Compact status + host controls. End-game confirms; pause is instant.
+// §5.2 — host in-game (preview/mock; live play happens on the display + player surfaces).
+// Uses the live :code from the route so it never shows the mock code on a real room.
 export function HostGameScreen() {
   const id = useGameParam();
   const game = gameById(id);
   const content = game ? getGameContent(game.key) : undefined;
   const navigate = useNavigate();
+  const { code = MOCK_ROOM_CODE } = useParams();
   if (game === undefined || content === undefined) return null;
 
   function endGame() {
@@ -21,14 +23,14 @@ export function HostGameScreen() {
       confirmLabel: 'End game',
       cancelLabel: 'Keep playing',
       destructive: true,
-      onConfirm: () => navigate(`${mockPath(ROUTES.HOST_RESULT)}?game=${id}`),
+      onConfirm: () => navigate(`${pathWith(ROUTES.HOST_RESULT, { code })}?mock=${id}`),
     });
   }
 
   return (
     <div className="min-h-screen bg-canvas pb-10">
       <AppHeader
-        roomCode={MOCK_ROOM_CODE}
+        roomCode={code}
         right={<span className="font-sans text-[13px] font-bold text-ink-3">Round 2 · 3 left</span>}
       />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-2">

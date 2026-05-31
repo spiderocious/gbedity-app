@@ -68,3 +68,10 @@ export function pathWith(
 }
 
 export const MOCK_ROOM_CODE = ROOM;
+
+/** Absolute join URL for a room's QR — derived from the current origin, not hardcoded, so it
+ *  works off-localhost (tunnels, LAN, deploy). Falls back to a relative path under SSR. */
+export function joinUrl(code: string): string {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  return `${origin}${pathWith(ROUTES.JOIN_WITH_CODE, { code })}`;
+}

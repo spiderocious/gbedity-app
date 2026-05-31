@@ -2,10 +2,12 @@ import { Logo } from '@gbedity/ui';
 import { BarChart3, FileText, LogOut, Scale } from '@icons';
 import { Link, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 
+import { SessionState, useAdminSession } from '../../shared/api/admin-api.ts';
 import { authStore } from '../../shared/services/auth-store.ts';
 
-// Admin app shell: persistent sidebar nav + routed outlet. Guards: redirect to /login when
-// not authenticated.
+// Admin app shell: persistent sidebar nav + routed outlet. Guards: on load it re-hydrates the
+// session from the stored refresh token (so a reload/deep-link doesn't log the admin out);
+// only redirects to /login once that attempt settles as anonymous.
 const NAV = [
   { to: '/', label: 'Metrics', icon: BarChart3, end: true },
   { to: '/content', label: 'Content', icon: FileText, end: false },
@@ -14,7 +16,16 @@ const NAV = [
 
 export function AdminShell() {
   const navigate = useNavigate();
-  if (!authStore.isAuthed()) return <Navigate to="/login" replace />;
+  const session = useAdminSession();
+
+  if (session === SessionState.CHECKING) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-canvas">
+        <p className="font-sans text-[14px] text-ink-3">Loading…</p>
+      </div>
+    );
+  }
+  if (session === SessionState.ANON) return <Navigate to="/login" replace />;
 
   function signOut() {
     authStore.clear();

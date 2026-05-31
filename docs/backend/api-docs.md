@@ -54,7 +54,8 @@ Host starts a single game. Content is resolved **server-side** (client content i
 
 `gameId` ∈ `quizzes` · `wordshot` · `word_bomb` · `hot_take_court` · `plead_your_case` ·
 `missing_letters` · `scrambled_word` · `spelling_fast` · `definition_race` · `synonyms` ·
-`antonyms` · `truth_or_dare` · `catch_the_lie` (+ engine test games `test_simultaneous`,
+`antonyms` · `truth_or_dare` · `catch_the_lie` · `bible_quiz` · `typing_fast` · `presentation` ·
+`millionaire` · `investigation` — **all 18** (+ engine test games `test_simultaneous`,
 `test_round_robin`).
 
 **Per-game `config` (all fields optional — full defaults applied):**
@@ -70,6 +71,11 @@ Host starts a single game. Content is resolved **server-side** (client content i
 - **synonyms / antonyms**: `rounds`(8) `secondsPerRound`(25) `revealSeconds`(3) `answersRequired`(1) `obscurity`
 - **truth_or_dare**: `rounds`(3) `chooseSeconds`(20) `voteSeconds`(20) `threshold`(`majority`|`unanimous`|`any`)
 - **catch_the_lie**: `submissionSeconds`(120) `votingSeconds`(30) — *player-generated content, no platform content*
+- **bible_quiz**: `rounds`(10) `secondsPerQuestion`(20) `revealSeconds`(3) `translation`(`mixed`|`kjv`|`niv`|`nlt`|`yoruba`|`igbo`|`hausa`) `testament`(`both`|`old`|`new`)
+- **typing_fast**: `rounds`(3) `secondsPerPassage`(60) `revealSeconds`(4) `accuracyWeight`(0–100, default 50) `passageLength`(`short`|`medium`|`long`|`mixed`)
+- **presentation**: `rounds`(rotations, 1) `presentationSeconds`(90) `rateSeconds`(20) `allowHeckle`(true) `audienceBonus`(true)
+- **millionaire**: `timePerQuestion`(30) `pollSeconds`(15) `phoneSeconds`(15) `revealSeconds`(4) `questionCount`(15) `lifelines`(subset of `fifty_fifty`|`ask_audience`|`phone_friend`) `category`
+- **investigation**: `investigateSeconds`(300) `revealSeconds`(10)
 
 ---
 
@@ -135,8 +141,13 @@ Creates the first admin; **returns the generated password once**.
 
 ### Content authoring — full CRUD per kind
 `:kind` ∈ `quiz_deck` · `word` · `hot_take_prompt` · `plead_scenario` · `definition` · `thesaurus` ·
-`truth_or_dare_prompt`. Each kind's body is validated against its authoring schema on POST (full)
-and PATCH (partial); `ratingTier` is **required** on every content row.
+`truth_or_dare_prompt` · `bible_quiz_deck` · `typing_passage` · `presentation_topic` ·
+`investigation_case`. Each kind's body is validated against its authoring schema on POST/PATCH/bulk;
+`ratingTier` is **required** on every content row.
+
+| Method | Path | Body / Response |
+|---|---|---|
+| POST | `/admin/content/:kind/bulk` | Body `{ items: [doc, …] }` → **201** `{ data: { inserted, failed, total, errors: [{ index, field_errors }] } }`. Validates each item; inserts the valid ones; reports per-item failures (partial success is normal). Works for **every** kind. |
 | Method | Path | Body / Response |
 |---|---|---|
 | POST | `/admin/content/:kind` | Body = the content doc → **201** `{ data: doc }` · **404** (unknown kind) |
@@ -153,6 +164,10 @@ and PATCH (partial); `ratingTier` is **required** on every content row.
 - `definition`: `{ word, definition, obscurity(`common`|`academic`), ratingTier, tags[] }`
 - `thesaurus`: `{ word, synonyms[], antonyms[], obscurity, ratingTier, tags[] }`
 - `truth_or_dare_prompt`: `{ kind(`truth`|`dare`), prompt, ratingTier, tags[] }`
+- `bible_quiz_deck`: `{ key, title, translation, testament, ratingTier, tags[], questions: [{ prompt, options[4], answerIdx, difficulty }] }`
+- `typing_passage`: `{ text, length(`short`|`medium`|`long`), source(`general`|`nigerian`|`bible`|`pidgin`|`quotes`), ratingTier, tags[] }`
+- `presentation_topic`: `{ topic, ratingTier, tags[] }`
+- `investigation_case`: `{ key, title, brief, suspects:[{id,name,profile}], evidence:[{id,label,detail}], timeline[], solutionSuspectId, difficulty, ratingTier, tags[] }`
 
 ---
 
@@ -190,6 +205,11 @@ Connect to the origin; events:
 - antonyms: `{ type: "antonyms.submit", text }`
 - truth_or_dare: `{ type: "truth_or_dare.choose", choice: "truth"|"dare" }` (holder) then `{ type: "truth_or_dare.vote", completed: boolean }` (others)
 - catch_the_lie: `{ type: "catch_the_lie.submit", statements: [s1,s2,s3], lieIdx }` then `{ type: "catch_the_lie.vote", statementIdx }`
+- bible_quiz: `{ type: "bible_quiz.answer", questionIdx, choiceIdx }`
+- typing_fast: `{ type: "typing_fast.submit", text }`
+- presentation: `{ type: "presentation.rate", ratings: { persuasiveness, entertainment, confidence } }` (1–5 each, raters) · `{ type: "presentation.heckle", text }`
+- millionaire (holder): `{ type: "millionaire.answer", choiceIdx }` · `{ type: "millionaire.lifeline", lifeline: "fifty_fifty"|"ask_audience"|"phone_friend", friendId? }`; others during a poll: `{ type: "millionaire.audience_vote", choiceIdx }`; the phoned friend: `{ type: "millionaire.phone_suggest", choiceIdx }`
+- investigation: `{ type: "investigation.accuse", suspectId }` (changeable until the window closes)
 
 ---
 

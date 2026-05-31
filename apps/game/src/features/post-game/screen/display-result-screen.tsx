@@ -35,7 +35,7 @@ export function DisplayResultScreen() {
           ) : null}
           <LeaderboardRows entries={LEADERBOARD.map((e) => ({ name: e.name, seat: e.seat, score: e.score }))} />
           <div className="mt-2 flex flex-wrap justify-center gap-3">
-            <Button variant="primary" onClick={() => navigate(`${mockPath(ROUTES.DISPLAY_GAME)}?game=${id}`)}>Play again</Button>
+            <Button variant="primary" onClick={() => navigate(`${mockPath(ROUTES.DISPLAY_GAME)}?mock=${id}`)}>Play again</Button>
             <Button variant="secondary" onClick={() => navigate(mockPath(ROUTES.DISPLAY_LOBBY))}>Pick another</Button>
             <Button variant="ghost" onClick={() => navigate(ROUTES.LANDING)}>End session</Button>
           </div>

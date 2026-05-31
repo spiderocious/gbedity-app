@@ -80,10 +80,10 @@ export function PreviewScreensScreen() {
                   {Icon !== undefined ? <Icon size={18} aria-hidden="true" className="text-ink-3" /> : null}
                   <span className="font-sans text-[14px] font-bold text-ink">{g.title}</span>
                 </span>
-                <Link to={`${mockPath(ROUTES.DISPLAY_GAME)}?game=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Display</Link>
-                <Link to={`${mockPath(ROUTES.PLAYER_GAME)}?game=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Player</Link>
-                <Link to={`${mockPath(ROUTES.HOST_GAME)}?game=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Host</Link>
-                <Link to={`${mockPath(ROUTES.DISPLAY_RESULT)}?game=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Result</Link>
+                <Link to={`${mockPath(ROUTES.DISPLAY_GAME)}?mock=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Display</Link>
+                <Link to={`${mockPath(ROUTES.PLAYER_GAME)}?mock=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Player</Link>
+                <Link to={`${mockPath(ROUTES.HOST_GAME)}?mock=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Host</Link>
+                <Link to={`${mockPath(ROUTES.DISPLAY_RESULT)}?mock=${g.id}`} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Result</Link>
                 <Link to={mockPath(ROUTES.HOST_CONFIGURE, String(g.id))} className="font-sans text-[13px] font-bold text-action hover:text-action-deep">Configure</Link>
               </Card>
             );

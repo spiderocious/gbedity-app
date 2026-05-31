@@ -48,6 +48,9 @@ const routes: RouteObject[] = [
   { path: ROUTES.PREVIEW, Component: PreviewScreen },
 
   { path: ROUTES.JOIN, Component: JoinCodeScreen },
+  // Backend's join_url is /join/:code — the QR target. Reuses the code-entry screen, which
+  // pre-fills from the :code param.
+  { path: ROUTES.JOIN_WITH_CODE, Component: JoinCodeScreen },
   { path: ROUTES.JOIN_NICKNAME, Component: NicknameScreen },
   { path: ROUTES.JOIN_QR, Component: QrScanScreen },
 
@@ -60,6 +63,9 @@ const routes: RouteObject[] = [
   { path: ROUTES.PLAYER_LOBBY, Component: PlayerLobbyScreen },
   { path: ROUTES.HOST_LOBBY, Component: HostLobbyScreen },
   { path: ROUTES.DISPLAY_LOBBY, Component: DisplayLobbyScreen },
+  // Backend's display_url is /display/:code — the shared-screen entry. Routes to the display
+  // lobby, which shows the code + QR and auto-advances into the game when the host starts.
+  { path: ROUTES.DISPLAY, Component: DisplayLobbyScreen },
 
   { path: ROUTES.DISPLAY_GAME, Component: DisplayGameScreen },
   { path: ROUTES.HOST_GAME, Component: HostGameScreen },

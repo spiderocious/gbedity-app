@@ -25,7 +25,11 @@ router.get('/metrics', asyncHandler(async (req, res) => adminController.metrics(
 router.get('/rubric', asyncHandler(async (req, res) => adminController.getRubric(req, res)));
 router.put('/rubric', asyncHandler(async (req, res) => adminController.setRubric(req, res)));
 
-// Content authoring — full CRUD per kind (quiz_deck | word | hot_take_prompt | plead_scenario).
+// Content authoring — full CRUD per kind. `:kind` ∈ quiz_deck | word | hot_take_prompt |
+// plead_scenario | definition | thesaurus | truth_or_dare_prompt | bible_quiz_deck |
+// typing_passage | presentation_topic | investigation_case.
+// Specific `/bulk` route registered before `/:id` so "bulk" isn't matched as an id.
+router.post('/content/:kind/bulk', asyncHandler(async (req, res) => adminController.bulkCreateContent(req, res)));
 router.post('/content/:kind', asyncHandler(async (req, res) => adminController.createContent(req, res)));
 router.get('/content/:kind', asyncHandler(async (req, res) => adminController.listContent(req, res)));
 router.get('/content/:kind/:id', asyncHandler(async (req, res) => adminController.getContent(req, res)));

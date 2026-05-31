@@ -23,6 +23,17 @@ import { synonymsGame, antonymsGame, installRelationContent } from './relation/r
 import { catchTheLieGame } from './catch-the-lie/catch-the-lie.plugin';
 import { truthOrDareGame } from './truth-or-dare/truth-or-dare.plugin';
 import { installTruthOrDareContent } from './truth-or-dare/truth-or-dare.content';
+// Wave 3
+import { bibleQuizGame } from './bible-quiz/bible-quiz.plugin';
+import { installBibleQuizContent } from './bible-quiz/bible-quiz.content';
+import { typingFastGame } from './typing-fast/typing-fast.plugin';
+import { installTypingFastContent } from './typing-fast/typing-fast.content';
+import { presentationGame } from './presentation/presentation.plugin';
+import { installPresentationContent } from './presentation/presentation.content';
+import { millionaireGame } from './millionaire/millionaire.plugin';
+import { installMillionaireContent } from './millionaire/millionaire.content';
+import { investigationGame } from './investigation/investigation.plugin';
+import { installInvestigationContent } from './investigation/investigation.content';
 
 // Registers every real catalogue game plugin + its server-side content resolver. The remaining
 // games slot in here the same way.
@@ -58,6 +69,18 @@ export const registerGames = (): void => {
   registerPlugin(catchTheLieGame); // player-generated content — no resolver
   registerPlugin(truthOrDareGame);
   installTruthOrDareContent();
+
+  // Wave 3 — completes the 18-game catalogue
+  registerPlugin(bibleQuizGame);
+  installBibleQuizContent();
+  registerPlugin(typingFastGame);
+  installTypingFastContent();
+  registerPlugin(presentationGame);
+  installPresentationContent();
+  registerPlugin(millionaireGame);
+  installMillionaireContent();
+  registerPlugin(investigationGame);
+  installInvestigationContent();
 
   registered = true;
 };

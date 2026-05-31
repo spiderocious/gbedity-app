@@ -7,11 +7,11 @@ import {
   type JoinPayload,
   type SocketRole,
 } from '../services/socket.ts';
-import { ServerView } from '../types/view.ts';
-import type { ViewPatch } from '../types/view.ts';
+import { Audience, ServerView } from '../types/view.ts';
 import {
   ConnectionStatus,
   RoomSocketContext,
+  type PatchesByAudience,
   type RoomSocketValue,
 } from './room-socket-context.tsx';
 

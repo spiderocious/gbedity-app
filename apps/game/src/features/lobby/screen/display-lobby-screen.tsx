@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useLobby } from '../../../shared/api/use-lobby.ts';
 import { useStartGame } from '../../../shared/api/use-start-game.ts';
-import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
+import { ROUTES, joinUrl, pathWith } from '../../../shared/constants/routes.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx';
 import { ApiError } from '../../../shared/services/api-error.ts';
@@ -67,7 +67,7 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
 
       <div className="flex flex-1 gap-10 px-10 pb-6">
         <main className="flex flex-1 flex-col items-center justify-center gap-6">
-          <QrCode url={`http://localhost:5173/join/${code}`} size={240} className="border-2 border-action" />
+          <QrCode url={joinUrl(code)} size={240} className="border-2 border-action" />
           <RoomCodeChip code={code} size="hero" />
           <p className="max-w-[44ch] text-center font-sans text-[20px] leading-[1.5] text-ink-3">
             Open gbedity.app on your phone and enter the code — or scan.

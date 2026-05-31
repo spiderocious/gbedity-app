@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { Score } from '@gbedity/ui';
-
 import { RealGameId } from '../../../shared/types/api.ts';
 import type { ViewPatch } from '../../../shared/types/view.ts';
 import {
@@ -224,12 +222,15 @@ export function getLiveRenderer(gameId: string): LiveRenderer | undefined {
   return RENDERERS[gameId];
 }
 
-// Generic ranked board for reveal/leaderboard phases shared across games.
+// Generic ranked board for the in-round reveal phase. When the reveal patch carries no rows
+// (some games send a bare reveal between rounds), show a clear interstitial rather than "…".
 export function LiveBoard({ patch }: { readonly patch: ViewPatch }) {
   const rows = (patch.board ?? patch.ranked ?? []).map((r) => ({
     name: r.name ?? r.playerId ?? '—',
     pct: typeof (r as { points?: number }).points === 'number' ? (r as { points: number }).points : (r as { pct?: number }).pct ?? 0,
   }));
-  if (rows.length === 0) return <Score value="…" size="md" tone="ink" />;
+  if (rows.length === 0) {
+    return <p className="text-center font-serif text-[20px] font-semibold text-ink">Next round coming up…</p>;
+  }
   return <RankedGuesses guesses={rows} />;
 }

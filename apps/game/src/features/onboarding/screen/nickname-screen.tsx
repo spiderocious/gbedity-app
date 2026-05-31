@@ -10,15 +10,9 @@ import { ApiError, ApiErrorCode } from '../../../shared/services/api-error.ts';
 import { BANNED_NICKNAMES, NICKNAME_SUGGESTIONS } from '../../../shared/mock/players.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 
-// §1.3 — nickname entry. Pre-fills a cheerful suggestion; ≤16 chars; client profanity filter.
-// On submit: POST /rooms/:code/players (real join), store reconnect token, go to lobby.
+// §1.3 — nickname entry. Pre-fills a cheerful suggestion (editable/clearable); ≤16 chars;
+// client profanity filter. On submit: POST /rooms/:code/players, store reconnect token, lobby.
 const FALLBACK_NICKNAME = 'BoldOkra';
-
-function pickSuggestion(exclude?: string): string {
-  const pool = NICKNAME_SUGGESTIONS.filter((n) => n !== exclude);
-  // Deterministic-but-varied: rotate by current length (no Math.random per env rules).
-  return pool[(exclude?.length ?? 0) % pool.length] ?? FALLBACK_NICKNAME;
-}
 
 export function NicknameScreen() {
   const navigate = useNavigate();
@@ -29,13 +23,18 @@ export function NicknameScreen() {
   const [error, setError] = useState('');
 
   function handleChange(next: string) {
-    const trimmed = next.slice(0, 16);
-    setName(trimmed === '' ? pickSuggestion(name) : trimmed);
+    // Allow blank — the user can clear and type their own. The suggestion is only the initial
+    // value (JN-11). Submit guards against an empty nickname below.
+    setName(next.slice(0, 16));
     setError('');
   }
 
   function handleSubmit() {
     const trimmed = name.trim();
+    if (trimmed === '') {
+      setError('Enter a nickname.');
+      return;
+    }
     if (BANNED_NICKNAMES.some((b) => trimmed.toLowerCase().includes(b))) {
       setError('Pick another nickname.');
       return;
