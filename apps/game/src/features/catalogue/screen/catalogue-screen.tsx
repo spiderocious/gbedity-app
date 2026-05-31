@@ -68,7 +68,7 @@ export function CatalogueScreen() {
                     meta={game.meta}
                     description={game.description}
                     icon={<Icon size={20} aria-hidden="true" />}
-                    onClick={() => go(`${mockPath(ROUTES.HOST_CONFIGURE, String(game.id))}${codeQuery}`)}
+                    onClick={() => go(`${pathWith(ROUTES.HOST_CONFIGURE, { gameId: String(game.id) })}${codeQuery}`)}
                   />
                 </div>
               );

@@ -3,7 +3,7 @@ import { ArrowRight, Settings2, Trophy, Zap, type LucideIcon } from '@icons';
 import { useNavigate } from 'react-router-dom';
 
 import { useCreateRoom } from '../../../shared/api/use-create-room.ts';
-import { ROUTES } from '../../../shared/constants/routes.ts';
+import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
@@ -36,11 +36,13 @@ export function HostStartScreen() {
     const nickname = sessionStore.getNickname() ?? 'Host';
     createRoom.mutate(nickname, {
       onSuccess: (room) => {
-        // The room code rides as a query param so the next screen knows the live room.
+        // Land on the host lobby (room dashboard): it shows the code + QR to share and is the
+        // hub for picking a game. League goes straight to the builder. The room code rides in
+        // the path/query so every downstream screen uses the LIVE code (never the mock).
         const dest =
           mode === Mode.LEAGUE
             ? `${ROUTES.HOST_LEAGUE_NEW}?code=${room.code}`
-            : `${ROUTES.HOST_CATALOGUE}?mode=${mode}&code=${room.code}`;
+            : pathWith(ROUTES.HOST_LOBBY, { code: room.code });
         navigate(dest);
       },
       onError: (e) => {

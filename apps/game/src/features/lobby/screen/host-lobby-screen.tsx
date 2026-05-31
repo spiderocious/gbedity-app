@@ -1,9 +1,14 @@
-import { Button, Card, DrawerService, PlayerPill, RoomCodeChip } from '@gbedity/ui';
-import { EllipsisVertical, Settings } from '@icons';
+import { Button, Card, DrawerService, GameId, PlayerPill, RoomCodeChip } from '@gbedity/ui';
+import { EllipsisVertical, Play as PlayIcon, Settings, Trash2 } from '@icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useLobby } from '../../../shared/api/use-lobby.ts';
+import { useStartGame } from '../../../shared/api/use-start-game.ts';
+import { useStartLeague } from '../../../shared/api/use-start-league.ts';
 import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
+import { gameById } from '../../../shared/games/games-manifest.ts';
+import { gameQueue, useGameQueue, type QueuedGame } from '../../../shared/games/game-queue.ts';
+import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { useStageNav } from '../../../shared/widgets/use-stage-nav.tsx';
@@ -16,8 +21,43 @@ export function HostLobbyScreen() {
   const navigate = useNavigate();
   const { go, curtain } = useStageNav();
   const lobby = useLobby(code);
-  const hostId = sessionStore.getHost()?.hostId;
+  const queue = useGameQueue(code);
+  const startGame = useStartGame();
+  const startLeague = useStartLeague();
+  const hostId = sessionStore.getHost()?.hostId ?? '';
   const players = lobby.data?.players ?? [];
+
+  // Start a single queued game: real games hit POST /rooms/:code/start → live display; mock
+  // games (no backend engine) open the mock display shell.
+  function startOne(q: QueuedGame) {
+    if (q.backendId !== undefined) {
+      startGame.mutate(
+        { code, hostId, gameId: q.backendId, config: q.config },
+        {
+          onSuccess: () => go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${q.backendId}`),
+          onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
+        },
+      );
+      return;
+    }
+    go(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?game=${q.gameId}`);
+  }
+
+  // Start the whole queue as a league (≥2 games), backed games only.
+  function startLeagueRun() {
+    const backed = queue.filter((q) => q.backendId !== undefined);
+    if (backed.length < 2) {
+      DrawerService.toast('Add at least two backed games for a league.', { tone: 'info' });
+      return;
+    }
+    startLeague.mutate(
+      { code, hostId, queue: backed.map((q) => ({ gameId: q.backendId as string, config: q.config, weight: q.weight })) },
+      {
+        onSuccess: () => go(pathWith(ROUTES.DISPLAY_LOBBY, { code })),
+        onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start the league.', { tone: 'danger' }),
+      },
+    );
+  }
 
   function playerMenu(name: string) {
     DrawerService.confirm(`Manage ${name}`, {
@@ -80,11 +120,51 @@ export function HostLobbyScreen() {
         </Card>
 
         <Card size="lg" className="flex flex-col gap-3">
-          <h2 className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">Next game</h2>
-          <p className="font-sans text-[14px] text-ink-3">No game picked yet. Choose one to get started.</p>
-          <Button variant="primary" size="lg" className="w-full" onClick={() => go(`${ROUTES.HOST_CATALOGUE}?mode=quick&code=${code}`)}>
-            Pick a game
+          <h2 className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">Games</h2>
+
+          {queue.length === 0 ? (
+            <p className="font-sans text-[14px] text-ink-3">No games added yet. Pick one to add it to the room.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {queue.map((q) => {
+                const g = gameById(q.gameId);
+                return (
+                  <div key={q.uid} className="flex items-center gap-3 rounded-card bg-canvas px-3 py-3">
+                    {g !== undefined ? <GameId id={g.id} category={g.category} size="sm" /> : null}
+                    <div className="min-w-0 flex-1">
+                      <span className="block truncate font-sans text-[15px] font-bold text-ink">{q.title}</span>
+                      {q.backendId === undefined ? (
+                        <span className="font-sans text-[11px] font-bold uppercase tracking-[0.06em] text-ink-4">Preview only</span>
+                      ) : null}
+                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      leadingIcon={<PlayIcon size={14} aria-hidden="true" />}
+                      loading={startGame.isPending}
+                      onClick={() => startOne(q)}
+                    >
+                      Start
+                    </Button>
+                    <button type="button" aria-label={`Remove ${q.title}`} onClick={() => gameQueue.remove(code, q.uid)} className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-ink-3 hover:bg-surface hover:text-danger">
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <Button variant={queue.length === 0 ? 'primary' : 'secondary'} size="lg" className="w-full" onClick={() => go(`${ROUTES.HOST_CATALOGUE}?code=${code}`)}>
+            {queue.length === 0 ? 'Pick a game' : 'Add another game'}
           </Button>
+
+          {queue.length >= 2 ? (
+            <Button variant="celebrate" size="lg" className="w-full" loading={startLeague.isPending} onClick={startLeagueRun}>
+              Start league ({queue.length} games)
+            </Button>
+          ) : null}
+
           <Link to={pathWith(ROUTES.DISPLAY_LOBBY, { code })} className="text-center font-sans text-[12px] font-bold uppercase tracking-[0.1em] text-action hover:text-action-deep">
             Open the shared screen →
           </Link>

@@ -52,14 +52,24 @@ Host starts a single game. Content is resolved **server-side** (client content i
 **201** `{ "data": { "code", "gameId", "instanceId" } }`
 **403** `not_host` · **404** `room_not_found` | `game_not_found` · **409** `game_already_running` | `not_enough_players` · **422** `validation_error` (bad config/content).
 
-`gameId` ∈ `quizzes` · `wordshot` · `word_bomb` · `hot_take_court` · `plead_your_case` (+ engine test games `test_simultaneous`, `test_round_robin`).
+`gameId` ∈ `quizzes` · `wordshot` · `word_bomb` · `hot_take_court` · `plead_your_case` ·
+`missing_letters` · `scrambled_word` · `spelling_fast` · `definition_race` · `synonyms` ·
+`antonyms` · `truth_or_dare` · `catch_the_lie` (+ engine test games `test_simultaneous`,
+`test_round_robin`).
 
 **Per-game `config` (all fields optional — full defaults applied):**
 - **quizzes**: `rounds`(10) `secondsPerQuestion`(20) `revealSeconds`(3) `scoringMode`(`time_weighted`|`flat`) `wrongPenaltyPct`(0) `category`(`general`|`nigerian`|…)
 - **wordshot**: `rounds`(10) `secondsPerRound`(20) `revealSeconds`(3) `dupHandling`(`strict`|`relaxed`|`synonym`) `rankingDisplayCount`(5) `enabledCategories`(string[]) `letterDifficulty`(`common_only`|`includes_qxz`|`mixed`)
 - **word_bomb**: `rounds`(3) `bombSecondsStart`(7) `decayPerRound`(true) `validationSeconds`(5) `dupHandling` `category`
-- **hot_take_court**: `rounds`(5) `submissionSeconds`(60) `votingSeconds`(45) `revealSeconds`(5)
+- **hot_take_court**: `rounds`(5) `submissionSeconds`(60) `votingSeconds`(45) `revealSeconds`(5) `anonymousVoting`(true) `funniestBonusRound`(true)
 - **plead_your_case**: `rounds`(3) `argumentSeconds`(300) `revealSeconds`(8)
+- **missing_letters**: `rounds`(8) `secondsPerRound`(20) `revealSeconds`(3) `minLen` `maxLen` `hiddenCount`(3)
+- **scrambled_word**: `rounds`(8) `secondsPerRound`(25) `revealSeconds`(3) `rankingDisplayCount`(5) `minLen` `maxLen`
+- **spelling_fast**: `rounds`(8) `secondsPerRound`(20) `revealSeconds`(3) `audioVoice`(`naija`|`british`|`american`) `replaysAllowed`(1) — *display speaks the word via client TTS; players never receive it*
+- **definition_race**: `rounds`(8) `secondsPerRound`(25) `revealSeconds`(4) `rankingDisplayCount`(5) `obscurity`(`common`|`academic`|`mixed`)
+- **synonyms / antonyms**: `rounds`(8) `secondsPerRound`(25) `revealSeconds`(3) `answersRequired`(1) `obscurity`
+- **truth_or_dare**: `rounds`(3) `chooseSeconds`(20) `voteSeconds`(20) `threshold`(`majority`|`unanimous`|`any`)
+- **catch_the_lie**: `submissionSeconds`(120) `votingSeconds`(30) — *player-generated content, no platform content*
 
 ---
 
@@ -124,7 +134,9 @@ Creates the first admin; **returns the generated password once**.
 | PUT | `/admin/rubric` | Body `{ criteria: [{key,label,weight}] }` → **200** `{ data: { ok: true } }` · **422** |
 
 ### Content authoring — full CRUD per kind
-`:kind` ∈ `quiz_deck` · `word` · `hot_take_prompt` · `plead_scenario`.
+`:kind` ∈ `quiz_deck` · `word` · `hot_take_prompt` · `plead_scenario` · `definition` · `thesaurus` ·
+`truth_or_dare_prompt`. Each kind's body is validated against its authoring schema on POST (full)
+and PATCH (partial); `ratingTier` is **required** on every content row.
 | Method | Path | Body / Response |
 |---|---|---|
 | POST | `/admin/content/:kind` | Body = the content doc → **201** `{ data: doc }` · **404** (unknown kind) |
@@ -138,6 +150,9 @@ Creates the first admin; **returns the generated password once**.
 - `word`: `{ word, category, startsWith, difficulty(1–3), aliases[], ratingTier, tags[] }`
 - `hot_take_prompt`: `{ prompt, ratingTier, tags[] }`
 - `plead_scenario`: `{ key, charge, defendant, facts, laws, precedents, ratingTier, tags[], difficulty }`
+- `definition`: `{ word, definition, obscurity(`common`|`academic`), ratingTier, tags[] }`
+- `thesaurus`: `{ word, synonyms[], antonyms[], obscurity, ratingTier, tags[] }`
+- `truth_or_dare_prompt`: `{ kind(`truth`|`dare`), prompt, ratingTier, tags[] }`
 
 ---
 
@@ -166,7 +181,15 @@ Connect to the origin; events:
 - wordshot: `{ type: "wordshot.submit", text }`
 - word_bomb: `{ type: "word_bomb.submit", text }` (current holder only)
 - hot_take_court: `{ type: "hot_take.submit", text }` then `{ type: "hot_take.vote", defenceId }`
-- plead_your_case: `{ type: "plead.submit", argument }`; host: `{ type: "plead.override", winnerId }`
+- plead_your_case: `{ type: "plead.submit", argument }`; **host-only** `{ type: "plead.override", winnerId }`
+- missing_letters: `{ type: "missing_letters.guess", text }`
+- scrambled_word: `{ type: "scrambled_word.guess", text }`
+- spelling_fast: `{ type: "spelling_fast.spell", text }`
+- definition_race: `{ type: "definition_race.guess", text }`
+- synonyms: `{ type: "synonyms.submit", text }`
+- antonyms: `{ type: "antonyms.submit", text }`
+- truth_or_dare: `{ type: "truth_or_dare.choose", choice: "truth"|"dare" }` (holder) then `{ type: "truth_or_dare.vote", completed: boolean }` (others)
+- catch_the_lie: `{ type: "catch_the_lie.submit", statements: [s1,s2,s3], lieIdx }` then `{ type: "catch_the_lie.vote", statementIdx }`
 
 ---
 

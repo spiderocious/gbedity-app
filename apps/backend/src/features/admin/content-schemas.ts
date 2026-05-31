@@ -55,12 +55,40 @@ const pleadScenario = z.object({
   difficulty: z.number().int().min(1).max(3).default(1),
 });
 
+// Wave 2 content kinds.
+const definition = z.object({
+  word: z.string().min(1),
+  definition: z.string().min(1),
+  obscurity: z.enum(['common', 'academic']).default('common'),
+  ratingTier,
+  tags,
+});
+
+const thesaurus = z.object({
+  word: z.string().min(1),
+  synonyms: z.array(z.string().min(1)).default([]),
+  antonyms: z.array(z.string().min(1)).default([]),
+  obscurity: z.enum(['common', 'academic']).default('common'),
+  ratingTier,
+  tags,
+});
+
+const truthOrDarePrompt = z.object({
+  kind: z.enum(['truth', 'dare']),
+  prompt: z.string().min(1),
+  ratingTier,
+  tags,
+});
+
 // Full schema (create) and a partial variant (PATCH).
 const SCHEMAS: Record<string, z.ZodTypeAny> = {
   quiz_deck: quizDeck,
   word,
   hot_take_prompt: hotTakePrompt,
   plead_scenario: pleadScenario,
+  definition,
+  thesaurus,
+  truth_or_dare_prompt: truthOrDarePrompt,
 };
 
 export const contentSchemaFor = (kind: string): z.ZodTypeAny | undefined => SCHEMAS[kind];

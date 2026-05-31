@@ -113,3 +113,14 @@ access token for `GET /admin/game-plays`, `GET /admin/metrics`, `POST /admin/con
   service only.
 - Every variant string is a named `as const` POJO (no inline literals).
 - All services return `ServiceResult`; controllers map to `ResponseUtil`; cursor pagination on lists.
+
+---
+
+## Follow-on slices
+
+- **Wave 2 — 8 more games + new content kinds:** see [`wave-2-games-handoff.md`](./wave-2-games-handoff.md)
+  (Missing Letters, Scrambled Word, Spelling Fast, Definition Race, Synonyms, Antonyms, Catch the
+  Lie, Truth or Dare — and the `definition` / `thesaurus` / `truth_or_dare_prompt` content kinds).
+
+> This document covers the **Wave 1** slice (the original 5 games + full infra). It is intentionally
+> scoped to that slice; later waves get their own handoff files for easier management.

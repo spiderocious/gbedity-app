@@ -111,6 +111,43 @@ export class ContentService {
       .findOne({ key: 'default' }, { projection: { _id: 0, criteria: 1 } });
     return { criteria: (doc?.criteria as PleadRubric['criteria']) ?? [] };
   }
+
+  // Wave 2 resolvers ---------------------------------------------------------
+
+  // Definition Race: sample {word, definition} pairs (obscurity filter optional).
+  async resolveDefinitions(opts: { sample: number; obscurity?: string }): Promise<{ word: string; definition: string }[]> {
+    const match: Filter<Document> = opts.obscurity && opts.obscurity !== 'mixed' ? { obscurity: opts.obscurity } : {};
+    const rows = await getDb()
+      .collection(ContentCollection.DEFINITIONS)
+      .aggregate([{ $match: match }, { $sample: { size: opts.sample } }, { $project: { _id: 0, word: 1, definition: 1 } }])
+      .toArray();
+    return rows.map((r) => ({ word: String(r.word), definition: String(r.definition) }));
+  }
+
+  // Synonyms/Antonyms: sample prompt words that HAVE the needed relation populated.
+  async resolveThesaurusWords(opts: { sample: number; relation: 'synonyms' | 'antonyms'; obscurity?: string }): Promise<string[]> {
+    const match: Filter<Document> = { [opts.relation]: { $exists: true, $ne: [] } };
+    if (opts.obscurity && opts.obscurity !== 'mixed') match.obscurity = opts.obscurity;
+    const rows = await getDb()
+      .collection(ContentCollection.THESAURUS)
+      .aggregate([{ $match: match }, { $sample: { size: opts.sample } }, { $project: { _id: 0, word: 1 } }])
+      .toArray();
+    return rows.map((r) => String(r.word));
+  }
+
+  // Truth or Dare: sample prompts of a kind, rating-filtered.
+  async resolveTruthOrDare(opts: { kind: 'truth' | 'dare'; filter?: RatingFilterShape; sample: number }): Promise<string[]> {
+    const filter = opts.filter ?? DEFAULT_RATING_FILTER;
+    const rows = await getDb()
+      .collection(ContentCollection.TRUTH_OR_DARE_PROMPTS)
+      .aggregate([
+        { $match: { kind: opts.kind, ...ratingClause(filter) } },
+        { $sample: { size: opts.sample } },
+        { $project: { _id: 0, prompt: 1 } },
+      ])
+      .toArray();
+    return rows.map((r) => String(r.prompt));
+  }
 }
 
 export const contentService = new ContentService();

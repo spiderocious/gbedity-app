@@ -1,52 +1,48 @@
 import { Button, Card, DrawerService, GameId, PreviewRail, Pill } from '@gbedity/ui';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import { useStartGame } from '../../../shared/api/use-start-game.ts';
-import { ROUTES, mockPath, pathWith } from '../../../shared/constants/routes.ts';
+import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { backendGameId, buildStartConfig } from '../../../shared/games/config-map.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
+import { gameQueue } from '../../../shared/games/game-queue.ts';
 import { CATEGORY_TAG, gameById } from '../../../shared/games/games-manifest.ts';
-import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
-import { useStageNav } from '../../../shared/widgets/use-stage-nav.tsx';
 import { ConfigControlRow } from '../parts/config-control.tsx';
 
 // §4.1 — universal configure shell. Reads :gameId → game + content registry, renders the
-// per-game config groups generically + the preview rail. On Start: real games hit
-// POST /rooms/:code/start and route to the live display; mock games route to the mock shell.
+// per-game config groups generically + the preview rail. Configure is pure prep: "Add to
+// room" saves this game + its config to the room's queue and returns to the room. Starting
+// happens in the room, per game.
 export function ConfigureScreen() {
   const { gameId } = useParams();
   const [search] = useSearchParams();
   const navigate = useNavigate();
   const game = gameById(gameId ?? '');
   const content = game ? getGameContent(game.key) : undefined;
-  const { go, curtain } = useStageNav();
-  const startGame = useStartGame();
   const code = search.get('code') ?? sessionStore.getHost()?.roomCode ?? '';
   const backendId = game ? backendGameId(game.key) : undefined;
+  // Back to the catalogue, preserving the live room code so the chain doesn't fall back to mock.
+  const catalogueBack = code !== '' ? `${ROUTES.HOST_CATALOGUE}?code=${code}` : ROUTES.HOST_CATALOGUE;
 
-  function handleStart() {
-    if (game === undefined) return;
-    if (backendId !== undefined && code !== '') {
-      const hostId = sessionStore.getHost()?.hostId ?? '';
-      startGame.mutate(
-        { code, hostId, gameId: backendId, config: buildStartConfig() },
-        {
-          onSuccess: () => navigate(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${backendId}`),
-          onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
-        },
-      );
-      return;
-    }
-    // Mock game (no backend engine) — open the mock display shell.
-    go(`${mockPath(ROUTES.DISPLAY_GAME)}?game=${game.id}`);
+  function handleAddToRoom() {
+    if (game === undefined || code === '') return;
+    gameQueue.add(code, {
+      gameId: game.id,
+      key: game.key,
+      title: game.title,
+      ...(backendId !== undefined ? { backendId } : {}),
+      config: buildStartConfig(),
+      weight: 1,
+    });
+    DrawerService.toast(`${game.title} added to the room.`, { tone: 'success' });
+    navigate(pathWith(ROUTES.HOST_LOBBY, { code }));
   }
 
   if (game === undefined || content === undefined) {
     return (
       <div className="min-h-screen bg-canvas">
-        <AppHeader backTo={ROUTES.HOST_CATALOGUE} />
+        <AppHeader backTo={catalogueBack} />
         <p className="mx-auto max-w-md px-6 pt-10 text-center font-sans text-[15px] text-ink-3">
           That game isn’t available.
         </p>
@@ -57,7 +53,7 @@ export function ConfigureScreen() {
   return (
     <div className="min-h-screen bg-canvas pb-28">
       <AppHeader
-        backTo={ROUTES.HOST_CATALOGUE}
+        backTo={catalogueBack}
         right={
           <Button variant="ghost" size="sm" onClick={() => undefined}>Use defaults</Button>
         }
@@ -104,13 +100,12 @@ export function ConfigureScreen() {
 
       <div className="fixed inset-x-0 bottom-0 border-t border-ink-5 bg-surface px-6 py-4">
         <div className="mx-auto flex max-w-5xl gap-3">
-          <Button variant="primary" size="lg" className="flex-1" loading={startGame.isPending} onClick={handleStart}>
-            Start game
+          <Button variant="primary" size="lg" className="flex-1" onClick={handleAddToRoom}>
+            Add to room
           </Button>
-          <Button variant="secondary" size="lg" onClick={handleStart}>Use defaults</Button>
+          <Button variant="secondary" size="lg" onClick={handleAddToRoom}>Use defaults</Button>
         </div>
       </div>
-      {curtain}
     </div>
   );
 }

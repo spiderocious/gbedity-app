@@ -14,6 +14,9 @@ const COLLECTION_BY_KIND: Record<string, string> = {
   word: ContentCollection.WORDS,
   hot_take_prompt: ContentCollection.HOT_TAKE_PROMPTS,
   plead_scenario: ContentCollection.PLEAD_SCENARIOS,
+  definition: ContentCollection.DEFINITIONS,
+  thesaurus: ContentCollection.THESAURUS,
+  truth_or_dare_prompt: ContentCollection.TRUTH_OR_DARE_PROMPTS,
 };
 
 export interface ContentDoc {

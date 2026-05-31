@@ -152,6 +152,37 @@ export class ValidationService {
     return false;
   }
 
+  // Synonym/antonym validation (Synonyms/Antonyms games) — dataset lookup ONLY, no LLM (Q4).
+  // Valid iff `guess` is in the prompt word's curated relation list (synonym-tolerant: also accept
+  // a near-spelling of a listed term).
+  async validateRelation(input: {
+    promptWord: string;
+    guess: string;
+    relation: 'synonyms' | 'antonyms';
+    used?: string[];
+  }): Promise<{ valid: boolean; isDuplicate: boolean }> {
+    const guess = input.guess.trim().toLowerCase();
+    if (guess.length === 0) return { valid: false, isDuplicate: false };
+    if (input.used?.some((u) => u.toLowerCase() === guess)) return { valid: false, isDuplicate: true };
+
+    const doc = await getDb()
+      .collection(ContentCollection.THESAURUS)
+      .findOne({ word: input.promptWord.trim().toLowerCase() }, { projection: { _id: 0, synonyms: 1, antonyms: 1 } });
+    const list = ((doc?.[input.relation] as string[] | undefined) ?? []).map((w) => w.toLowerCase());
+    if (list.includes(guess)) return { valid: true, isDuplicate: false };
+    // synonym-tolerant: accept a close spelling of any listed term
+    const close = list.some((w) => similarity(guess, w) > 0.9);
+    return { valid: close, isDuplicate: false };
+  }
+
+  // Definition Race: is `guess` the defined word? Exact, then fuzzy for "almost" feedback.
+  async validateDefinitionAnswer(input: { answerWord: string; guess: string }): Promise<{ correct: boolean; closeness: number }> {
+    const answer = input.answerWord.trim().toLowerCase();
+    const guess = input.guess.trim().toLowerCase();
+    if (guess === answer) return { correct: true, closeness: 1 };
+    return { correct: false, closeness: similarity(guess, answer) };
+  }
+
   // Closest real word for "did you mean…" — pulls candidates by prefix+category, ranks by similarity.
   private async closestWord(word: string, category?: string, startsWithLetter?: string): Promise<string | undefined> {
     const prefix = (startsWithLetter ?? word.charAt(0)).toLowerCase();

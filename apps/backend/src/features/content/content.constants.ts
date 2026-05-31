@@ -6,6 +6,10 @@ export const ContentKind = {
   WORD: 'word',
   HOT_TAKE_PROMPT: 'hot_take_prompt',
   PLEAD_SCENARIO: 'plead_scenario',
+  // Wave 2 content kinds
+  DEFINITION: 'definition', // { word, definition }
+  THESAURUS: 'thesaurus', // { word, synonyms[], antonyms[] }
+  TRUTH_OR_DARE_PROMPT: 'truth_or_dare_prompt', // { kind: truth|dare, prompt }
 } as const;
 export type ContentKind = (typeof ContentKind)[keyof typeof ContentKind];
 
@@ -36,6 +40,9 @@ export const ContentCollection = {
   HOT_TAKE_PROMPTS: 'hot_take_prompts',
   PLEAD_SCENARIOS: 'plead_scenarios',
   PLEAD_RUBRIC: 'plead_rubric',
+  DEFINITIONS: 'definitions',
+  THESAURUS: 'thesaurus',
+  TRUTH_OR_DARE_PROMPTS: 'truth_or_dare_prompts',
 } as const;
 
 // The host's content filter (PRD §8): which tiers are allowed + which tags to exclude.
