@@ -81,7 +81,7 @@ export class GameRuntime {
   start(config: unknown, content: unknown): void {
     const parsedConfig = this.plugin.configSchema.parse(config);
     const parsedContent = this.plugin.contentSchema.parse(content);
-    this.state = this.plugin.init({
+    const step = this.plugin.init({
       config: parsedConfig,
       content: parsedContent,
       players: this.players,
@@ -89,27 +89,22 @@ export class GameRuntime {
       startedAt: now(),
       random: this.random,
     });
-    sessionLog.emit({
-      roomCode: this.roomCode,
-      instanceId: this.instanceId,
-      kind: SessionEventKind.STATE_TRANSITION,
-      stateBytes: jsonBytes(this.state),
-    });
-    // init produces no effects directly; plugins emit on first action/tick. Broadcast initial view.
-    this.broadcast();
-    this.scheduleSnapshot();
+    // init's state + initial effects (e.g. arm the first timer, broadcast) flow through the
+    // same executor as every other step.
+    this.applyStep(step);
   }
 
   // Dispatch a client action. The caller (gateway) has already authenticated the actor and checked
   // role/turn legality; the runtime validates the action shape and capability gating here.
   dispatchAction(actor: PlayerRef, rawAction: unknown): void {
     const action = this.plugin.actionSchema.parse(rawAction);
+    const actionType = this.actionType(action);
     sessionLog.emit({
       roomCode: this.roomCode,
       instanceId: this.instanceId,
       kind: SessionEventKind.ACTION_IN,
       actorId: actor.id,
-      actionType: this.actionType(action),
+      ...(actionType !== undefined && { actionType }),
     });
     const ctx: ActionCtx = { actor, now: now(), random: this.random };
     this.applyStep(this.plugin.onAction(this.requireState(), action, ctx));

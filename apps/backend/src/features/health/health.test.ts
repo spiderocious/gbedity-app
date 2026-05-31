@@ -11,9 +11,9 @@ describe('GET /api/v1/health', () => {
     expect(res.body).toMatchObject({ status: 'ok', service: 'gbedity-backend' });
   });
 
-  it('returns 404 for unknown routes', async () => {
+  it('returns 404 for unknown routes in the error envelope', async () => {
     const res = await request(app).get('/nope');
     expect(res.status).toBe(404);
-    expect(res.body).toMatchObject({ error: 'not_found' });
+    expect(res.body).toMatchObject({ error: { code: 'not_found' } });
   });
 });

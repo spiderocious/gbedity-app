@@ -19,5 +19,9 @@ export const MESSAGE_KEYS = {
   },
 } as const;
 
-type Slice = (typeof MESSAGE_KEYS)[keyof typeof MESSAGE_KEYS];
-export type MessageKey = Slice[keyof Slice];
+// Union of every leaf value across all slices. Mapping over each slice individually (then
+// indexing) avoids the union-of-objects collapsing to an intersection of keys.
+type Catalog = typeof MESSAGE_KEYS;
+export type MessageKey = {
+  [S in keyof Catalog]: Catalog[S][keyof Catalog[S]];
+}[keyof Catalog];

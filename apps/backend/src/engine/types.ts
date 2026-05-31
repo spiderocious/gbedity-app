@@ -139,11 +139,16 @@ export interface ServiceResultAction {
 export interface GamePlugin<Config, State, Action, Content> {
   readonly manifest: GameManifest;
 
-  readonly configSchema: z.ZodType<Config>;
-  readonly contentSchema: z.ZodType<Content>;
-  readonly actionSchema: z.ZodType<Action>;
+  // Output type is pinned to the plugin's type; input is `unknown` so schemas with .default()
+  // (whose input differs from output) satisfy the contract.
+  readonly configSchema: z.ZodType<Config, z.ZodTypeDef, unknown>;
+  readonly contentSchema: z.ZodType<Content, z.ZodTypeDef, unknown>;
+  readonly actionSchema: z.ZodType<Action, z.ZodTypeDef, unknown>;
 
-  init(input: InitInput<Config, Content>): State;
+  // init returns state AND initial effects (e.g. arm the first timer + broadcast). The doc's §2
+  // signature showed `: State`; the §8 example emitted effects from init — this StepResult form
+  // reconciles them so initial timers/fanout flow through the same executor as every other step.
+  init(input: InitInput<Config, Content>): StepResult<State>;
   onAction(state: State, action: Action | ServiceResultAction, ctx: ActionCtx): StepResult<State>;
   onTick(state: State, now: EpochMs, ctx: TickCtx): StepResult<State>;
 
