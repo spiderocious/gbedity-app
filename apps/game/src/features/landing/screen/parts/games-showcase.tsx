@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Repeat } from 'meemaw';
 
-import { GAME_ICON } from '../../shared/game-icons.ts';
+import { GAME_ICON } from '../../../../shared/games/game-icons.ts';
 import {
   CATEGORY_LABEL,
   CATEGORY_ORDER,
@@ -14,7 +14,7 @@ import {
   GAMES,
   GameCategory,
   type LandingGame,
-} from '../../shared/games-manifest.ts';
+} from '../../../../shared/games/games-manifest.ts';
 
 gsap.registerPlugin(ScrollTrigger);
 

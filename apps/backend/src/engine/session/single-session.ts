@@ -1,7 +1,10 @@
+import { now } from '@shared/time';
+
 import type { PlayerRef, AnyGamePlugin, RatingFilter, RoundScore } from '../types';
 import type { OutputSink } from '../output-sink';
 import { GameRuntime } from '../game-runtime';
 import { Leaderboard, type LeaderboardRow } from '../scoring/leaderboard';
+import { persistence } from '../services/persistence-hook';
 import type { GameSnapshot } from '../snapshot';
 
 // Single-game session (game-engine.md §1). One plugin, one runtime, one raw leaderboard. No
@@ -45,6 +48,7 @@ export class SingleSession {
   readonly runtime: GameRuntime;
   private readonly board = new Leaderboard();
   private ended = false;
+  private readonly startedAt = now();
 
   // Constructing the runtime inside the constructor lets its callbacks close over `this` directly
   // (no forward-declared `let`). Shared by start() and recover() via the static factories.
@@ -60,8 +64,23 @@ export class SingleSession {
       onRoundEnded: (score: RoundScore): void => this.board.apply(score),
       onGameEnded: (): void => {
         this.ended = true;
+        this.recordPlay();
         args.onEnded?.();
       },
+    });
+  }
+
+  // Persist a game-play summary on game end (PRD §9). Fire-and-forget via the injected hook.
+  private recordPlay(): void {
+    const id = this.runtime.playIdentity();
+    persistence().recordPlay({
+      id: id.id,
+      roomCode: id.roomCode,
+      gameId: id.gameId,
+      players: id.players.map((p) => ({ id: p.id, nickname: p.nickname })),
+      finalBoard: this.board.rows().map((r) => ({ playerId: r.playerId, points: r.points })),
+      startedAt: this.startedAt,
+      endedAt: now(),
     });
   }
 

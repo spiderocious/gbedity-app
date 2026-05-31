@@ -6,8 +6,11 @@ import { listActiveSnapshots, readSnapshot } from '../snapshot';
 import { roomRegistry, type RoomRegistry } from '../room/room-registry';
 import { listActiveRooms, readRoomSnapshot } from '../room/room-snapshot';
 import { RoomPhase } from '../room/room.types';
+import type { GameRuntime } from '../game-runtime';
 import type { PlayerRef } from '../types';
 import { SingleSession } from './single-session';
+import { LeagueSession } from './league-session';
+import type { LeagueConfig } from './session.types';
 
 // Owns active game sessions, keyed by room code — the single authority for "what game is running
 // in this room." Lives in the ENGINE layer and imports NO transport (socket.io): the OutputSink is
@@ -16,6 +19,7 @@ import { SingleSession } from './single-session';
 
 export class SessionManager {
   private readonly sessions = new Map<string, SingleSession>();
+  private readonly leagues = new Map<string, LeagueSession>();
   private sink: OutputSink = noopSink;
 
   constructor(private readonly registry: RoomRegistry = roomRegistry) {}
@@ -30,7 +34,31 @@ export class SessionManager {
   }
 
   has(roomCode: string): boolean {
-    return this.sessions.has(roomCode);
+    return this.sessions.has(roomCode) || this.leagues.has(roomCode);
+  }
+
+  // The active GameRuntime for a room — whether a single game or the league's current game. The
+  // gateway routes WS actions here so it doesn't care which session kind is running.
+  activeRuntime(roomCode: string): GameRuntime | undefined {
+    return this.sessions.get(roomCode)?.runtime ?? this.leagues.get(roomCode)?.currentRuntime() ?? undefined;
+  }
+
+  // Start a configured league (4.x). Entries (plugin + config + resolved content + weight) are
+  // prepared by the league service; this drives the queue and auto-advances on game end.
+  startLeague(args: { roomCode: string; players: PlayerRef[]; league: LeagueConfig; onEnded?: () => void }): LeagueSession {
+    const session = new LeagueSession({
+      roomCode: args.roomCode,
+      players: args.players,
+      league: args.league,
+      sink: this.sink,
+    });
+    this.leagues.set(args.roomCode, session);
+    session.startNext();
+    return session;
+  }
+
+  league(roomCode: string): LeagueSession | undefined {
+    return this.leagues.get(roomCode);
   }
 
   // Start a new game in a room. Caller (rooms service) has done host/phase/min-player checks.
@@ -62,6 +90,11 @@ export class SessionManager {
     if (session) {
       await session.dispose();
       this.sessions.delete(roomCode);
+    }
+    const league = this.leagues.get(roomCode);
+    if (league) {
+      await league.dispose();
+      this.leagues.delete(roomCode);
     }
   }
 

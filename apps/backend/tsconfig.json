@@ -15,7 +15,8 @@
       "@db/*": ["db/*"],
       "@middlewares/*": ["middlewares/*"],
       "@shared/*": ["shared/*"],
-      "@engine/*": ["engine/*"]
+      "@engine/*": ["engine/*"],
+      "@games/*": ["games/*"]
     }
   },
   "include": ["src/**/*.ts"],

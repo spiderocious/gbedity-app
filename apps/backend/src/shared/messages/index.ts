@@ -21,6 +21,23 @@ const catalog: Record<MessageKey, string> = {
   [MESSAGE_KEYS.games.NOT_HOST]: 'Only the host can start a game.',
   [MESSAGE_KEYS.games.NOT_ENOUGH_PLAYERS]: 'Not enough players for that game yet.',
   [MESSAGE_KEYS.games.ALREADY_RUNNING]: 'A game is already running.',
+
+  [MESSAGE_KEYS.admin.SEEDED]: 'Admin created. Save this password — it is shown once.',
+  [MESSAGE_KEYS.admin.SEED_DISABLED]: 'Admin seeding is disabled.',
+  [MESSAGE_KEYS.admin.ALREADY_SEEDED]: 'An admin already exists.',
+  [MESSAGE_KEYS.admin.INVALID_CREDENTIALS]: 'Invalid email or password.',
+  [MESSAGE_KEYS.admin.TOKEN_INVALID]: 'Invalid token.',
+  [MESSAGE_KEYS.admin.SESSION_REVOKED]: 'Session revoked — sign in again.',
+  [MESSAGE_KEYS.admin.UNAUTHORIZED]: 'Admin access required.',
+  [MESSAGE_KEYS.admin.SAVED]: 'Saved.',
+  [MESSAGE_KEYS.admin.DELETED]: 'Deleted.',
+  [MESSAGE_KEYS.admin.NOT_FOUND]: 'Not found.',
+
+  [MESSAGE_KEYS.auth.INVALID_CREDENTIALS]: 'Invalid email or password.',
+  [MESSAGE_KEYS.auth.EMAIL_TAKEN]: 'That email is already registered.',
+  [MESSAGE_KEYS.auth.TOKEN_INVALID]: 'Invalid token.',
+  [MESSAGE_KEYS.auth.SESSION_REVOKED]: 'Session revoked — sign in again.',
+  [MESSAGE_KEYS.auth.REGISTERED]: 'Account created.',
 };
 
 export const messages = {

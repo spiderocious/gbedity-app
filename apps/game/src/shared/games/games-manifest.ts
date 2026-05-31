@@ -223,3 +223,14 @@ export const GAMES: readonly LandingGame[] = [
     description: 'Present a cold topic for 90 seconds. The room rates you.',
   },
 ];
+
+/** Look up a game by its PRD catalogue id (string from route params or number). */
+export function gameById(id: string | number): LandingGame | undefined {
+  const numeric = typeof id === 'number' ? id : Number.parseInt(id, 10);
+  return GAMES.find((g) => g.id === numeric);
+}
+
+/** Look up a game by its key. */
+export function gameByKey(key: GameKey): LandingGame | undefined {
+  return GAMES.find((g) => g.key === key);
+}

@@ -7,6 +7,9 @@ export const ID_PREFIX = {
   PLAYER: 'pl_',
   GAME_INSTANCE: 'gi_',
   LEAGUE: 'lg_',
+  ADMIN: 'a_',
+  HOST: 'h_',
+  CONTENT: 'c_',
 } as const;
 
 export type IdPrefix = (typeof ID_PREFIX)[keyof typeof ID_PREFIX];

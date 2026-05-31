@@ -1,6 +1,6 @@
 import type { CategoryKey } from '@gbedity/ui';
 
-import { GameCategory } from './games-manifest.ts';
+import { GameCategory } from '../../../shared/games/games-manifest.ts';
 
 // Mock "in-game moment" frames for the hero demo montage. These are STATIC presentational
 // snapshots — no game logic, no live state — that show what a moment of play looks like.

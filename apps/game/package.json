@@ -16,13 +16,15 @@
     "@gbedity/icons": "workspace:*",
     "@gbedity/ui": "workspace:*",
     "@gsap/react": "2.1.2",
+    "@tanstack/react-query": "5.100.14",
     "gsap": "3.15.0",
     "meemaw": "1.0.2",
-    "qrcode.react": "4.2.0",
     "react": "^19.0.0",
     "react-confetti": "6.4.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "socket.io-client": "4.8.3",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

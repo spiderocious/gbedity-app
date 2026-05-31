@@ -1,3 +1,4 @@
+import { ActorRole } from './constants';
 import { GameRuntime } from './game-runtime';
 import type { OutputSink } from './output-sink';
 import { simultaneousTestGame } from './test-games/simultaneous.plugin';
@@ -29,7 +30,7 @@ describe('GameRuntime + simultaneous test game', () => {
     // init broadcast reached host + display + both players
     expect(views.length).toBeGreaterThan(0);
 
-    runtime.dispatchAction(players[0]!, { type: 'test_sim.answer', questionId: 'q1', value: 48 });
+    runtime.dispatchAction(players[0]!, ActorRole.PLAYER, { type: 'test_sim.answer', questionId: 'q1', value: 48 });
 
     const state = runtime.snapshotState() as { answers: { playerId: string }[] };
     expect(state.answers).toHaveLength(1);

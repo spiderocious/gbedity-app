@@ -166,6 +166,14 @@ export const PARTS: readonly PreviewPart[] = [
     ),
   },
   {
+    id: 'qr-code',
+    label: 'QrCode',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/29-qr-code.tsx').then((m) => ({ default: m.QrCodePart })),
+    ),
+  },
+  {
     id: 'feedback',
     label: 'Toast · Banner · InlineAlert',
     group: 'Feedback',

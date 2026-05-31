@@ -5,9 +5,11 @@ import { MESSAGE_KEYS } from '@shared/messages';
 import { roomRegistry, type RoomRegistry } from '@engine/room/room-registry';
 import { RoomPhase, type Room, type RoomPlayer } from '@engine/room/room.types';
 import { getPlugin } from '@engine/registry';
+import { getContentResolver } from '@engine/content-resolver';
 import { sessionManager, type SessionManager } from '@engine/session/session-manager';
 import type { GameId } from '@engine/constants';
 import type { PlayerRef } from '@engine/types';
+import { DEFAULT_RATING_FILTER, type RatingFilter } from '@features/content/content.constants';
 
 // Room business logic. Returns ServiceResult — never throws for expected failures, never sees req.
 
@@ -61,13 +63,14 @@ export class RoomsService {
   // session creation to the SessionManager (engine layer) — the service never touches the socket
   // transport. Views fan out through whatever sink the SessionManager holds (the gateway's at boot,
   // a no-op otherwise), so this is fully testable without a running socket server.
-  startGame(
+  async startGame(
     code: string,
     hostId: string,
     gameId: string,
     config: unknown,
-    content: unknown,
-  ): ServiceResult<{ code: string; gameId: GameId; instanceId: string }> {
+    clientContent: unknown,
+    ratingFilter: RatingFilter = DEFAULT_RATING_FILTER,
+  ): Promise<ServiceResult<{ code: string; gameId: GameId; instanceId: string }>> {
     const room = this.registry.get(code);
     if (!room) {
       return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
@@ -87,9 +90,7 @@ export class RoomsService {
       return ServiceError(ERROR_CODES.NOT_ENOUGH_PLAYERS, MESSAGE_KEYS.games.NOT_ENOUGH_PLAYERS, 409);
     }
 
-    // Validate config + content against the plugin's schemas HERE, at the service boundary, so a
-    // bad payload becomes a 422 validation envelope — not a 500 from a ZodError escaping the
-    // runtime's .parse() (BUG-06). The runtime's parse stays as a belt-and-suspenders invariant.
+    // Validate config at the service boundary → 422 on bad input (not a 500 from runtime .parse()).
     const configCheck = plugin.configSchema.safeParse(config);
     if (!configCheck.success) {
       return ServiceError(
@@ -99,7 +100,17 @@ export class RoomsService {
         zodFieldErrors(configCheck.error, 'config'),
       );
     }
-    const contentCheck = plugin.contentSchema.safeParse(content);
+
+    // Content is resolved SERVER-SIDE (PRD §8/§12): if the game registered a resolver, use it
+    // (rating-filtered) and IGNORE any client-supplied content. Only games without a resolver
+    // (e.g. the bare test games) fall back to client content.
+    const resolver = getContentResolver(gameId);
+    const seed = `${code}:${room.players.length}:${gameId}`;
+    const rawContent = resolver
+      ? await resolver({ config: configCheck.data, ratingFilter, seed })
+      : clientContent;
+
+    const contentCheck = plugin.contentSchema.safeParse(rawContent);
     if (!contentCheck.success) {
       return ServiceError(
         ERROR_CODES.VALIDATION_ERROR,

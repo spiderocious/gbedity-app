@@ -8,6 +8,14 @@ export const ERROR_CODES = {
   BAD_REQUEST: 'bad_request',
   CONFLICT: 'conflict',
   RATE_LIMITED: 'rate_limited',
+  FORBIDDEN: 'forbidden',
+
+  // Auth (admin + host)
+  INVALID_CREDENTIALS: 'invalid_credentials',
+  TOKEN_INVALID: 'token_invalid',
+  TOKEN_EXPIRED: 'token_expired',
+  SESSION_REVOKED: 'session_revoked',
+  UNAUTHORIZED: 'unauthorized',
 
   // Rooms / sessions (PRD §4)
   ROOM_NOT_FOUND: 'room_not_found',

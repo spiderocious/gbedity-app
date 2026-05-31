@@ -25,6 +25,25 @@ export const MESSAGE_KEYS = {
     NOT_ENOUGH_PLAYERS: 'games.not_enough_players',
     ALREADY_RUNNING: 'games.already_running',
   },
+  admin: {
+    SEEDED: 'admin.seeded',
+    SEED_DISABLED: 'admin.seed_disabled',
+    ALREADY_SEEDED: 'admin.already_seeded',
+    INVALID_CREDENTIALS: 'admin.invalid_credentials',
+    TOKEN_INVALID: 'admin.token_invalid',
+    SESSION_REVOKED: 'admin.session_revoked',
+    UNAUTHORIZED: 'admin.unauthorized',
+    SAVED: 'admin.saved',
+    DELETED: 'admin.deleted',
+    NOT_FOUND: 'admin.not_found',
+  },
+  auth: {
+    INVALID_CREDENTIALS: 'auth.invalid_credentials',
+    EMAIL_TAKEN: 'auth.email_taken',
+    TOKEN_INVALID: 'auth.token_invalid',
+    SESSION_REVOKED: 'auth.session_revoked',
+    REGISTERED: 'auth.registered',
+  },
 } as const;
 
 // Union of every leaf value across all slices. Mapping over each slice individually (then

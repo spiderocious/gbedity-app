@@ -3,10 +3,11 @@ import { ulid } from 'ulid';
 import { logger } from '@lib/logger';
 import { now, type EpochMs } from '@shared/time';
 
-import { AudienceKind, EffectKind, SessionEventKind, SystemActionType } from './constants';
+import { ActorRole, AudienceKind, EffectKind, SessionEventKind, SystemActionType } from './constants';
 import { jsonBytes, metrics, sessionLog } from './observability';
 import { makeRandom } from './prng';
 import { runAI, runValidation } from './services/service-seams';
+import { persistence } from './services/persistence-hook';
 import { deleteSnapshot, writeSnapshot, type GameSnapshot, type TimerSnapshot } from './snapshot';
 import { noopSink, type OutputSink } from './output-sink';
 import type {
@@ -64,6 +65,7 @@ export class GameRuntime {
   private readonly pendingRefs = new Set<string>();
   private snapshotTimer: ReturnType<typeof setTimeout> | null = null;
   private recovering = false;
+  private eventSeq = 0; // monotonic per instance, for persisted play events
 
   constructor(opts: RuntimeOptions) {
     this.instanceId = opts.instanceId ?? `gi_${ulid()}`;
@@ -96,9 +98,10 @@ export class GameRuntime {
     this.applyStep(step);
   }
 
-  // Dispatch a client action. The caller (gateway) has already authenticated the actor and checked
-  // role/turn legality; the runtime validates the action shape and capability gating here.
-  dispatchAction(actor: PlayerRef, rawAction: unknown): void {
+  // Dispatch a client action. The caller (gateway) authenticated the actor and passes its verified
+  // role (host is token-verified at join), so plugins can gate host-only actions. The runtime
+  // validates the action shape + capability gating here.
+  dispatchAction(actor: PlayerRef, role: ActorRole, rawAction: unknown): void {
     const action = this.plugin.actionSchema.parse(rawAction);
     const actionType = this.actionType(action);
     sessionLog.emit({
@@ -108,7 +111,7 @@ export class GameRuntime {
       actorId: actor.id,
       ...(actionType !== undefined && { actionType }),
     });
-    const ctx: ActionCtx = { actor, now: now(), random: this.random };
+    const ctx: ActionCtx = { actor, role, now: now(), random: this.random };
     this.applyStep(this.plugin.onAction(this.requireState(), action, ctx));
   }
 
@@ -193,9 +196,16 @@ export class GameRuntime {
         this.dispatchService(effect.ref, runAI(effect.payload));
         return;
       case EffectKind.PERSIST_EVENT:
-        // Persistence hook — game-play history (PRD §9). Wired to Mongo in Block 1.19; the seam
-        // exists now so plugins can emit it. For the engine slice this is a structured log line.
-        logger.debug({ roomCode: this.roomCode, eventType: effect.event.type }, 'persist.event');
+        // Persistence hook — game-play history (PRD §9). The installed hook writes to Mongo; if
+        // none installed it's a no-op. Plugin describes WHAT (event type + data), not HOW.
+        persistence().recordEvent({
+          instanceId: this.instanceId,
+          roomCode: this.roomCode,
+          seq: this.eventSeq++,
+          at: now(),
+          type: effect.event.type,
+          data: effect.event.data,
+        });
         return;
       case EffectKind.ROUND_ENDED:
         this.onRoundEnded(this.plugin.scoreRound(this.requireState()));
@@ -224,8 +234,9 @@ export class GameRuntime {
           ref,
           result,
         };
-        // Re-enter the plugin synchronously — it handles the verdict like any action.
-        const ctx: ActionCtx = { actor: this.systemActor(), now: now(), random: this.random };
+        // Re-enter the plugin synchronously — it handles the verdict like any action. System role
+        // is HOST (trusted) so a verdict is never blocked by host-only gating.
+        const ctx: ActionCtx = { actor: this.systemActor(), role: ActorRole.HOST, now: now(), random: this.random };
         this.applyStep(this.plugin.onAction(this.requireState(), synthetic, ctx));
       })
       .catch((err: unknown) => {
@@ -348,6 +359,17 @@ export class GameRuntime {
   // Expose current state read-only (sessions/tests inspect; never mutate through this).
   snapshotState(): unknown {
     return this.state;
+  }
+
+  // Re-project current state to a single (reconnecting) player — drives the resume indicator.
+  resendTo(playerId: string): void {
+    if (this.state === undefined) return;
+    this.sendToPlayer(playerId);
+  }
+
+  // Identity + roster for a game-play record (the session supplies the final board + timing).
+  playIdentity(): { id: string; roomCode: string; gameId: string; players: PlayerRef[] } {
+    return { id: this.instanceId, roomCode: this.roomCode, gameId: this.plugin.manifest.id, players: this.players };
   }
 
   private requireState(): unknown {

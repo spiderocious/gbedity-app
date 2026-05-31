@@ -28,6 +28,26 @@ body {
   }
 }
 
+/* Gentle horizontal shake for an invalid room-code submit (§1.2). */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* One-shot pulse when the join button becomes valid (§1.2). */
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Looping waiting dots (lobby / waiting states). */
+@keyframes bob-dot {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;

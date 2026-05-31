@@ -64,6 +64,21 @@ export type { GameIdProps, GameIdSize } from './game-id/index.ts';
 export { GameTile } from './game-tile/index.ts';
 export type { GameTileProps } from './game-tile/index.ts';
 
+export { QrCode } from './qr-code/index.ts';
+export type { QrCodeProps } from './qr-code/index.ts';
+
+export { RoomCodeChip } from './room-code-chip/index.ts';
+export type { RoomCodeChipProps, RoomCodeChipSize } from './room-code-chip/index.ts';
+
+export { PlayerPill } from './player-pill/index.ts';
+export type { PlayerPillProps, PlayerPillSize } from './player-pill/index.ts';
+
+export { OrangeWinnerBar } from './winner-bar/index.ts';
+export type { OrangeWinnerBarProps } from './winner-bar/index.ts';
+
+export { LeaderboardRows } from './leaderboard/index.ts';
+export type { LeaderboardRowsProps, LeaderboardEntry } from './leaderboard/index.ts';
+
 export { LobbyRow, RankedRow } from './player-row/index.ts';
 export type { LobbyRowProps, RankedRowProps } from './player-row/index.ts';
 

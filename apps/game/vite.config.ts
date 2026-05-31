@@ -32,6 +32,9 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    // Allow tunneling the dev server (e.g. ngrok) onto a phone. Free ngrok hosts rotate on every
+    // restart, so allow the whole subdomain rather than pinning one ephemeral host.
+    allowedHosts: ['.ngrok-free.app', '.ngrok.io', '.ngrok.app'],
   },
   test: {
     globals: true,

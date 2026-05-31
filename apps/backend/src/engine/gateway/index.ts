@@ -8,7 +8,7 @@ import { bootstrapEngine } from '../index';
 import { roomRegistry } from '../room/room-registry';
 import { HOST_LEAVE_GRACE_MS, RoomMemberRole, RoomPhase, type RoomPlayer } from '../room/room.types';
 import type { Audience, PlayerRef, ViewPatch } from '../types';
-import { AudienceKind } from '../constants';
+import { ActorRole, AudienceKind } from '../constants';
 import type { OutputSink } from '../output-sink';
 import { sessionManager } from '../session/session-manager';
 import { ClientEvent, ServerEvent, actionSchema, joinSchema } from './protocol';
@@ -72,13 +72,16 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
         socket.emit(ServerEvent.ERROR, { code: 'rate_limited' });
         return;
       }
-      const session = sessionManager.get(data.roomCode);
-      if (!session) {
+      const runtime = sessionManager.activeRuntime(data.roomCode);
+      if (!runtime) {
         socket.emit(ServerEvent.ERROR, { code: 'no_active_game' });
         return;
       }
       try {
-        session.runtime.dispatchAction(data.player, parsed.data.action);
+        // The host role is token-verified at join (handleJoin), so this is trustworthy for
+        // gating host-only actions. Everyone else is PLAYER.
+        const actorRole = data.role === RoomMemberRole.HOST ? ActorRole.HOST : ActorRole.PLAYER;
+        runtime.dispatchAction(data.player, actorRole, parsed.data.action);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         logger.warn({ roomCode: data.roomCode, err: message }, 'action dispatch rejected');
@@ -180,6 +183,12 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
         return;
       }
       bindPlayer(socket, data, roomCode, seat);
+      // If a game is live, re-project current state to this seat and signal resumed (PRD §10/§12).
+      const runtime = sessionManager.activeRuntime(roomCode);
+      if (runtime) {
+        runtime.resendTo(seat.id);
+        socket.emit(ServerEvent.RESUMED, { roomCode });
+      }
     }
 
     socket.emit(ServerEvent.JOINED, { roomCode, role });

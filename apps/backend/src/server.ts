@@ -6,11 +6,15 @@ import { env } from './env';
 import { closeRedis, connectRedis } from '@lib/redis';
 import { attachRoomGateway } from '@engine/gateway';
 import { sessionManager } from '@engine/session/session-manager';
+import { bootstrapApp } from './bootstrap';
 import { logger } from '@lib/logger';
 
 const startHttpApp = async (): Promise<Server> => {
   await connectDb();
   await connectRedis();
+
+  // Composition root: register games + install validation/AI/persistence providers (after DB).
+  await bootstrapApp();
 
   const app = buildApp();
   const server = createServer(app);

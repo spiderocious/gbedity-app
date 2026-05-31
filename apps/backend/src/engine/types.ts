@@ -4,6 +4,7 @@ import type { EpochMs } from '@shared/time';
 import type { MessageKey } from '@shared/messages/keys';
 
 import type {
+  ActorRole,
   AudienceKind,
   EffectKind,
   GameCategory,
@@ -59,6 +60,7 @@ export interface RatingFilter {
 
 export interface ActionCtx {
   actor: PlayerRef;
+  role: ActorRole; // host | player — for gating host-only actions. Trustworthy (host is token-verified at join).
   now: EpochMs;
   random: () => number; // seeded PRNG provided by the runtime (§6)
 }

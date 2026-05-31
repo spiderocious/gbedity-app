@@ -1,35 +1,17 @@
 import { useState } from 'react';
 
-import { Button, Card, DrawerService, Field, RoomCodeInput } from '@gbedity/ui';
-import { ArrowRight, Keyboard, QrCode } from '@icons';
-import { QRCodeSVG } from 'qrcode.react';
+import { Button, Card, Field, RoomCodeInput } from '@gbedity/ui';
+import { ArrowRight, QrCode } from '@icons';
 
-// C (join half) — enter a room code to join, or flip to a scannable QR. Per PRD §10 the
-// landing captures only the code; nickname is the next screen. Bare UI: the code value is
-// controlled for demo, the QR encodes a placeholder join URL, and Join carries no real
-// logic yet (toast placeholder until the join feature is wired).
+import { ROUTES } from '../../../../shared/constants/routes.ts';
+import { useStageNav } from '../../../../shared/widgets/use-stage-nav.tsx';
 
-const PLACEHOLDER_JOIN_URL = 'https://gbedity.app/join';
-
-// Brand: Forest Ink modules on white, per the no-pure-black rule.
-const QR_FG = '#1F6B4A';
-const QR_BG = '#FFFFFF';
-
-const ViewMode = {
-  CODE: 'code',
-  QR: 'qr',
-} as const;
-type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
-
+// C (join half) — per screens-spec §1.1: room-code input + "Join room" + "Scan QR instead"
+// ghost link. Join routes to the full join flow (/join), where validation + nickname live.
+// Scan routes to the QR scanner (§1.4).
 export function JoinRoomCard() {
   const [code, setCode] = useState('');
-  const [mode, setMode] = useState<ViewMode>(ViewMode.CODE);
-  const trimmed = code.trim();
-  const showingQr = mode === ViewMode.QR;
-
-  function handleJoin() {
-    DrawerService.toast('Joining a room is coming soon.', { tone: 'info' });
-  }
+  const { go, curtain } = useStageNav();
 
   return (
     <Card size="lg" className="flex flex-col" data-monkey-perch>
@@ -43,58 +25,37 @@ export function JoinRoomCard() {
         Type the six characters from the shared screen — or scan the QR.
       </p>
 
-      {showingQr ? (
-        <div className="mt-5 flex flex-col items-center gap-3 rounded-card bg-canvas px-4 py-6">
-          <span className="rounded-[16px] bg-surface p-4">
-            <QRCodeSVG value={PLACEHOLDER_JOIN_URL} size={148} fgColor={QR_FG} bgColor={QR_BG} />
-          </span>
-          <p className="text-center font-sans text-[13px] font-semibold text-ink-3">
-            Scan this with your phone camera to join.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-5">
-          <Field label="Room code" htmlFor="room-code">
-            <RoomCodeInput
-              id="room-code"
-              value={code}
-              placeholder="GBE-4ZK"
-              className="max-w-none"
-              onChange={(e) => setCode(e.target.value)}
-            />
-          </Field>
-        </div>
-      )}
+      <div className="mt-5">
+        <Field label="Room code" htmlFor="room-code">
+          <RoomCodeInput
+            id="room-code"
+            value={code}
+            placeholder="GBE-4ZK"
+            className="max-w-none"
+            onChange={(e) => setCode(e.target.value)}
+          />
+        </Field>
+      </div>
 
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="mt-auto flex flex-col gap-3 pt-6">
         <Button
           variant="primary"
           size="lg"
           className="w-full"
-          disabled={!showingQr && trimmed === ''}
           trailingIcon={<ArrowRight size={18} aria-hidden="true" />}
-          onClick={handleJoin}
+          onClick={() => go(ROUTES.JOIN)}
         >
           Join room
         </Button>
-        {showingQr ? (
-          <Button
-            variant="ghost"
-            leadingIcon={<Keyboard size={18} aria-hidden="true" />}
-            onClick={() => setMode(ViewMode.CODE)}
-          >
-            Back to code
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            leadingIcon={<QrCode size={18} aria-hidden="true" />}
-            onClick={() => setMode(ViewMode.QR)}
-          >
-            Show QR instead
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          leadingIcon={<QrCode size={18} aria-hidden="true" />}
+          onClick={() => go(ROUTES.JOIN_QR)}
+        >
+          Scan QR instead
+        </Button>
       </div>
+      {curtain}
     </Card>
   );
 }

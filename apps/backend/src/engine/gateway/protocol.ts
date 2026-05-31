@@ -17,6 +17,7 @@ export const ServerEvent = {
   ERROR: 'server.error',
   ROOM_SUSPENDED: 'server.room_suspended', // host left; grace countdown started (PRD §10)
   ROOM_ENDED: 'server.room_ended', // room closed (host didn't return / ended)
+  RESUMED: 'server.resumed', // a reconnecting client's seat is live again (PRD §10/§12 indicator)
 } as const;
 export type ServerEvent = (typeof ServerEvent)[keyof typeof ServerEvent];
 

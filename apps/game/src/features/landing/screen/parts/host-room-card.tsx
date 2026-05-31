@@ -1,17 +1,14 @@
-import { useState } from 'react';
-
-import { Button, Card, DrawerService } from '@gbedity/ui';
+import { Button, Card } from '@gbedity/ui';
 import { ArrowRight } from '@icons';
 
-import { CurtainTransition } from './curtain-transition.tsx';
+import { ROUTES } from '../../../../shared/constants/routes.ts';
+import { useStageNav } from '../../../../shared/widgets/use-stage-nav.tsx';
 
-// C (host half) — one decision: start a room. The Quick Play / Create Game / League fork
-// lives inside the host flow, not here — the landing shouldn't ask for a strategic choice
-// before the host has seen the product. Starting a room plays the Stage Cobalt curtain
-// (the brand's "entering the product" motion) into a placeholder until the host route
-// exists. Bare UI: no room is created.
+// C (host half) — per screens-spec §1.1: a single "Start a room" CTA. The three modes
+// (Quick Play / Create Game / League Play) live on /host/new (§1.5), not the landing.
+// Starting plays the Stage Cobalt curtain into the host start screen.
 export function HostRoomCard() {
-  const [curtain, setCurtain] = useState(false);
+  const { go, curtain } = useStageNav();
 
   return (
     <Card size="lg" className="flex flex-col" data-monkey-perch>
@@ -32,17 +29,12 @@ export function HostRoomCard() {
           size="lg"
           className="w-full"
           trailingIcon={<ArrowRight size={18} aria-hidden="true" />}
-          onClick={() => setCurtain(true)}
+          onClick={() => go(ROUTES.HOST_NEW)}
         >
           Start a room
         </Button>
       </div>
-
-      <CurtainTransition
-        active={curtain}
-        onMidpoint={() => DrawerService.toast('Hosting is coming soon.', { tone: 'info' })}
-        onDone={() => setCurtain(false)}
-      />
+      {curtain}
     </Card>
   );
 }

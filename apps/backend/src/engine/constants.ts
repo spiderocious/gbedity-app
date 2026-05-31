@@ -39,6 +39,15 @@ export const AudienceKind = {
 } as const;
 export type AudienceKind = (typeof AudienceKind)[keyof typeof AudienceKind];
 
+// The role of the actor who sent an action — lets a plugin gate host-only actions (pause / skip /
+// boot / end / override). The runtime sets this from the transport's verified role (the host role
+// is token-verified at join), so a plugin can trust it.
+export const ActorRole = {
+  HOST: 'host',
+  PLAYER: 'player',
+} as const;
+export type ActorRole = (typeof ActorRole)[keyof typeof ActorRole];
+
 // Reserved action type for async service results re-entering the plugin (§5).
 export const SystemActionType = {
   SERVICE_RESULT: 'system.service_result',

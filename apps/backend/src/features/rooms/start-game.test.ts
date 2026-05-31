@@ -30,7 +30,7 @@ describe('rooms start-game wiring', () => {
 
     svc.joinRoom(code, 'Tobi'); // round-robin test game needs ≥2 players
 
-    const started = svc.startGame(code, hostId, GameId.TEST_ROUND_ROBIN, { turnSeconds: 10 }, { prompt: 'say something' });
+    const started = await svc.startGame(code, hostId, GameId.TEST_ROUND_ROBIN, { turnSeconds: 10 }, { prompt: 'say something' });
     expect(started.success).toBe(true);
     if (!started.success) return;
     expect(started.data.instanceId).toMatch(/^gi_/);
@@ -40,13 +40,13 @@ describe('rooms start-game wiring', () => {
     await sessions.end(code);
   });
 
-  it('rejects start from a non-host', () => {
+  it('rejects start from a non-host', async () => {
     const { svc } = harness();
     const created = svc.createRoom('Host');
     if (!created.success) return;
     svc.joinRoom(created.data.code, 'Tobi');
 
-    const res = svc.startGame(created.data.code, 'pl_not_the_host', GameId.TEST_ROUND_ROBIN, {}, {});
+    const res = await svc.startGame(created.data.code, 'pl_not_the_host', GameId.TEST_ROUND_ROBIN, {}, {});
     expect(res.success).toBe(false);
     if (res.success) return;
     expect(res.errorCode).toBe('not_host');

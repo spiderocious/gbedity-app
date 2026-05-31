@@ -13,6 +13,7 @@ module.exports = {
     '^@middlewares/(.*)$': '<rootDir>/middlewares/$1',
     '^@shared/(.*)$': '<rootDir>/shared/$1',
     '^@engine/(.*)$': '<rootDir>/engine/$1',
+    '^@games/(.*)$': '<rootDir>/games/$1',
   },
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/../tsconfig.json' }],
