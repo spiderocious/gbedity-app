@@ -10,13 +10,15 @@ import { RoomMemberRole, type RoomPlayer } from '../room/room.types';
 import type { Audience, PlayerRef, ViewPatch } from '../types';
 import { AudienceKind } from '../constants';
 import type { OutputSink } from '../output-sink';
-import { SingleSession } from '../session/single-session';
+import { sessionManager } from '../session/session-manager';
 import { ClientEvent, ServerEvent, actionSchema, joinSchema } from './protocol';
 import { RateLimiter } from './rate-limiter';
 
-// The real-time gateway (game-engine.md §7, PRD §14). Bridges Socket.IO ↔ room ↔ runtime:
+// The real-time gateway (game-engine.md §7, PRD §14). PURE TRANSPORT: it bridges Socket.IO ↔
+// rooms/sessions but owns no game lifecycle. It provides its OutputSink to the SessionManager and
+// looks sessions up there — it does not hold the sessions map itself.
 // - clients JOIN as host/player/display (with reconnect-into-seat for players),
-// - ACTIONs are rate-limited then dispatched to the active session's runtime,
+// - ACTIONs are rate-limited then dispatched to the active session's runtime (via SessionManager),
 // - an OutputSink fans projected views to the right sockets by audience.
 
 interface SocketData {
@@ -36,15 +38,14 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
   const limiter = new RateLimiter();
 
-  // Active sessions, one per room (single-game for this slice; league wiring is Block 4).
-  const sessions = new Map<string, SingleSession>();
-
-  // Sink: route a projected view to the sockets matching the audience.
+  // Sink: route a projected view to the sockets matching the audience. Handed to the
+  // SessionManager so every session (new or recovered) fans out through this transport.
   const sink: OutputSink = {
     send(roomCode: string, audience: Audience, patch: ViewPatch): void {
       io.to(channelFor(roomCode, audience)).emit(ServerEvent.VIEW, { audience: audience.kind, patch });
     },
   };
+  sessionManager.setSink(sink);
 
   io.on('connection', (socket: Socket) => {
     socket.on(ClientEvent.JOIN, (raw: unknown) => {
@@ -173,7 +174,7 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
 };
 
 // A small handle the HTTP edge uses to start games against the live gateway. Set on attach.
-interface GatewayHandle {
+export interface GatewayHandle {
   sink: OutputSink;
   sessions: Map<string, SingleSession>;
 }

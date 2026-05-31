@@ -141,7 +141,11 @@ interface GamePlugin<Config, State, Action, Content> {
   readonly actionSchema: ZodType<Action>;     // client → server messages for this game
 
   // Pure transitions. `now` and identity come in via ctx/args — never read from the clock.
-  init(input: InitInput<Config, Content>): State;
+  // init returns state AND its initial effects (e.g. arm the first timer + initial broadcast), so
+  // startup flows through the same effect executor as every other step. (Earlier drafts showed
+  // `: State`; that couldn't express the §8 "init emits startTimer + broadcast" behaviour — the
+  // StepResult form reconciles them.)
+  init(input: InitInput<Config, Content>): StepResult<State>;
   onAction(state: State, action: Action, ctx: ActionCtx): StepResult<State>;
   onTick(state: State, now: EpochMs, ctx: TickCtx): StepResult<State>;
 

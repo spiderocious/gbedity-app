@@ -16,6 +16,10 @@ export const ERROR_CODES = {
   NICKNAME_TAKEN: 'nickname_taken',
   NOT_IN_LOBBY: 'not_in_lobby',
   GAME_NOT_FOUND: 'game_not_found',
+  NOT_HOST: 'not_host',
+  NOT_ENOUGH_PLAYERS: 'not_enough_players',
+  GAME_ALREADY_RUNNING: 'game_already_running',
+  GATEWAY_UNAVAILABLE: 'gateway_unavailable',
 
   // Server
   INTERNAL_ERROR: 'internal_error',

@@ -11,12 +11,19 @@ import {
   type Room,
   type RoomPlayer,
 } from './room.types';
+import { deleteRoomSnapshot, writeRoomSnapshot } from './room-snapshot';
 
 // The in-memory source of truth for live rooms. Single-instance for v1 (PRD §11); Redis snapshots
-// (see snapshot.ts) provide restart recovery, not a second authority.
+// (see room-snapshot.ts) provide restart recovery, not a second authority. The registry
+// write-throughs to Redis on every mutation so a restart can rebuild rooms via restore().
 
 export class RoomRegistry {
   private readonly rooms = new Map<string, Room>();
+
+  // Fire-and-forget Redis write-through. Best-effort; never blocks the synchronous room API.
+  private persist(room: Room): void {
+    void writeRoomSnapshot(room);
+  }
 
   // Create a room with the given host nickname. Returns the room + the host player record.
   create(hostNickname: string): { room: Room; host: RoomPlayer } {
@@ -39,12 +46,19 @@ export class RoomRegistry {
       lastActivityAt: at,
     };
     this.rooms.set(code, room);
+    this.persist(room);
     logger.info({ code }, 'room created');
     return { room, host };
   }
 
   get(code: string): Room | undefined {
     return this.rooms.get(code);
+  }
+
+  // Re-insert a room rebuilt from a Redis snapshot on boot (recovery). Does not re-persist —
+  // the snapshot it came from is already the source.
+  restore(room: Room): void {
+    this.rooms.set(room.code, room);
   }
 
   // Add a player to the lobby. Caller is responsible for phase/duplicate-nickname checks at the
@@ -71,8 +85,10 @@ export class RoomRegistry {
     return room.players.some((p) => p.nickname.trim().toLowerCase() === wanted);
   }
 
+  // Bump activity and write-through to Redis. Called after every room mutation.
   touch(room: Room): void {
     room.lastActivityAt = now();
+    this.persist(room);
   }
 
   close(code: string): void {
@@ -80,6 +96,7 @@ export class RoomRegistry {
     if (room) {
       room.phase = RoomPhase.CLOSED;
       this.rooms.delete(code);
+      void deleteRoomSnapshot(code);
       logger.info({ code }, 'room closed');
     }
   }
@@ -91,6 +108,7 @@ export class RoomRegistry {
     for (const [code, room] of this.rooms) {
       if (room.lastActivityAt < cutoff) {
         this.rooms.delete(code);
+        void deleteRoomSnapshot(code);
         removed.push(code);
       }
     }

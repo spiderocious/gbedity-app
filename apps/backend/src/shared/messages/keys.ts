@@ -17,6 +17,14 @@ export const MESSAGE_KEYS = {
     JOINED: 'rooms.joined',
     NICKNAME_TAKEN: 'rooms.nickname_taken',
   },
+  games: {
+    STARTED: 'games.started',
+    NOT_FOUND: 'games.not_found',
+    NOT_HOST: 'games.not_host',
+    NOT_ENOUGH_PLAYERS: 'games.not_enough_players',
+    ALREADY_RUNNING: 'games.already_running',
+    UNAVAILABLE: 'games.unavailable',
+  },
 } as const;
 
 // Union of every leaf value across all slices. Mapping over each slice individually (then

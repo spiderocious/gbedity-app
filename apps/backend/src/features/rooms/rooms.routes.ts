@@ -10,5 +10,6 @@ const router: IRouter = Router();
 router.post('/', asyncHandler(async (req, res) => roomsController.create(req, res)));
 router.get('/:code', asyncHandler(async (req, res) => roomsController.lobby(req, res)));
 router.post('/:code/players', asyncHandler(async (req, res) => roomsController.join(req, res)));
+router.post('/:code/start', asyncHandler(async (req, res) => roomsController.start(req, res)));
 
 export default router;

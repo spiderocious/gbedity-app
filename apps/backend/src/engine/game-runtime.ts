@@ -33,6 +33,8 @@ export interface RuntimeOptions {
   plugin: AnyGamePlugin;
   players: PlayerRef[];
   seed?: string;
+  // Provided only on recovery so the rehydrated runtime keeps the same identity as the snapshot.
+  instanceId?: string;
   ratingFilter?: RatingFilter;
   sink?: OutputSink;
   // Called when the plugin signals ROUND_ENDED / GAME_ENDED so the Session can react (§4).
@@ -64,7 +66,7 @@ export class GameRuntime {
   private recovering = false;
 
   constructor(opts: RuntimeOptions) {
-    this.instanceId = `gi_${ulid()}`;
+    this.instanceId = opts.instanceId ?? `gi_${ulid()}`;
     this.roomCode = opts.roomCode;
     this.plugin = opts.plugin;
     this.players = opts.players;
@@ -267,6 +269,8 @@ export class GameRuntime {
       roomCode: this.roomCode,
       instanceId: this.instanceId,
       gameId: this.plugin.manifest.id,
+      seed: this.seed,
+      players: this.players,
       state: this.state,
       timers,
       pendingRefs: [...this.pendingRefs],

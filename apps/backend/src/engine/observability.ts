@@ -1,7 +1,7 @@
 import { logger } from '@lib/logger';
 import { now, type EpochMs } from '@shared/time';
 
-import { SessionEventKind, type EffectKind } from './constants';
+import type { EffectKind, SessionEventKind } from './constants';
 
 // Structured per-session event log (game-engine.md §9). HARD RULE: log shape and SIZE, never
 // contents — no question text, answers, nicknames, or case material. Ids + constant tags + bytes

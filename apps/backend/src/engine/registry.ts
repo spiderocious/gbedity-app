@@ -10,6 +10,8 @@ export const registerPlugin = (plugin: AnyGamePlugin): void => {
   plugins.set(plugin.manifest.id, plugin);
 };
 
-export const getPlugin = (id: GameId): AnyGamePlugin | undefined => plugins.get(id);
+// Accepts any string — an unknown/invalid id simply misses (returns undefined), so the caller
+// can validate client-supplied ids without an unsafe cast to GameId.
+export const getPlugin = (id: string): AnyGamePlugin | undefined => plugins.get(id as GameId);
 
 export const listPlugins = (): AnyGamePlugin[] => [...plugins.values()];

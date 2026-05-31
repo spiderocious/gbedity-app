@@ -69,4 +69,23 @@ export const roomsController = {
     }
     ResponseUtil.ok(res, result.data);
   },
+
+  start(req: Request, res: Response): void {
+    const code = paramCode(req).toUpperCase();
+    const hostId = requireString(res, req.body?.hostId, 'hostId');
+    if (hostId === null) return;
+    const gameId = requireString(res, req.body?.gameId, 'gameId');
+    if (gameId === null) return;
+
+    // config/content are opaque to the controller — the plugin's Zod schemas validate them.
+    const config: unknown = req.body?.config ?? {};
+    const content: unknown = req.body?.content ?? {};
+
+    const result = roomsService.startGame(code, hostId, gameId, config, content);
+    if (!result.success) {
+      fail(res, result);
+      return;
+    }
+    ResponseUtil.created(res, result.data);
+  },
 };
