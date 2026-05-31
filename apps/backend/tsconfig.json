@@ -13,7 +13,9 @@
       "@features/*": ["features/*"],
       "@lib/*": ["lib/*"],
       "@db/*": ["db/*"],
-      "@middlewares/*": ["middlewares/*"]
+      "@middlewares/*": ["middlewares/*"],
+      "@shared/*": ["shared/*"],
+      "@engine/*": ["engine/*"]
     }
   },
   "include": ["src/**/*.ts"],

@@ -11,6 +11,13 @@ const EnvSchema = z.object({
   // Persistence. Mongo today; the repo layer keeps this swappable.
   MONGO_URL: z.string().default('mongodb://127.0.0.1:27017'),
   MONGO_DB_NAME: z.string().default('gbedity'),
+
+  // Hot room state + pub/sub for fanout (game-engine.md §6, PRD §11/§12).
+  REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
+
+  // AI: prompt shell lives in env; the rubric lives in Mongo (game-engine.md §0).
+  OPENAI_API_KEY: z.string().optional(),
+  PLEAD_PROMPT_TEMPLATE: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

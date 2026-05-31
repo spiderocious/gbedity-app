@@ -10,6 +10,8 @@ module.exports = {
     '^@lib/(.*)$': '<rootDir>/lib/$1',
     '^@db/(.*)$': '<rootDir>/db/$1',
     '^@middlewares/(.*)$': '<rootDir>/middlewares/$1',
+    '^@shared/(.*)$': '<rootDir>/shared/$1',
+    '^@engine/(.*)$': '<rootDir>/engine/$1',
   },
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/../tsconfig.json' }],
