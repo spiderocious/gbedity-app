@@ -2,8 +2,9 @@ import { useState } from 'react';
 
 import { CategoryChip, GameTile } from '@gbedity/ui';
 import { Repeat } from 'meemaw';
+import { useSearchParams } from 'react-router-dom';
 
-import { ROUTES, mockPath } from '../../../shared/constants/routes.ts';
+import { ROUTES, mockPath, pathWith } from '../../../shared/constants/routes.ts';
 import { GAME_ICON } from '../../../shared/games/game-icons.ts';
 import {
   CATEGORY_LABEL,
@@ -23,10 +24,14 @@ type Filter = GameCategory | typeof ALL;
 export function CatalogueScreen() {
   const [filter, setFilter] = useState<Filter>(ALL);
   const { go, curtain } = useStageNav();
+  const [search] = useSearchParams();
+  const code = search.get('code') ?? '';
+  const codeQuery = code !== '' ? `?code=${code}` : '';
+  const backTo = code !== '' ? pathWith(ROUTES.HOST_LOBBY, { code }) : mockPath(ROUTES.HOST_LOBBY);
 
   return (
     <div className="min-h-screen bg-canvas">
-      <AppHeader backTo={mockPath(ROUTES.HOST_LOBBY)} />
+      <AppHeader backTo={backTo} />
       <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-2">
         <h1 className="font-serif text-[32px] font-semibold tracking-[-0.01em] text-ink">Pick a game</h1>
 
@@ -63,7 +68,7 @@ export function CatalogueScreen() {
                     meta={game.meta}
                     description={game.description}
                     icon={<Icon size={20} aria-hidden="true" />}
-                    onClick={() => go(mockPath(ROUTES.HOST_CONFIGURE, String(game.id)))}
+                    onClick={() => go(`${mockPath(ROUTES.HOST_CONFIGURE, String(game.id))}${codeQuery}`)}
                   />
                 </div>
               );

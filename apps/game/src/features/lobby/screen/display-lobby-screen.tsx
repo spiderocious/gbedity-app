@@ -1,73 +1,101 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import { Button, Logo, PlayerPill, QrCode, RoomCodeChip } from '@gbedity/ui';
-import { Link } from 'react-router-dom';
+import { Button, DrawerService, Logo, PlayerPill, QrCode, RoomCodeChip } from '@gbedity/ui';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { MOCK_ROOM_CODE, ROUTES, mockPath } from '../../../shared/constants/routes.ts';
-import { PLAYERS } from '../../../shared/mock/players.ts';
-import { useStageNav } from '../../../shared/widgets/use-stage-nav.tsx';
+import { useLobby } from '../../../shared/api/use-lobby.ts';
+import { useStartGame } from '../../../shared/api/use-start-game.ts';
+import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
+import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
+import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx';
+import { ApiError } from '../../../shared/services/api-error.ts';
+import { sessionStore } from '../../../shared/services/session-store.ts';
+import { SocketRole } from '../../../shared/services/socket.ts';
+import { RealGameId } from '../../../shared/types/api.ts';
+import { Phase } from '../../../shared/types/view.ts';
+import { seatForIndex } from '../seat.ts';
 
-// §2.1 — display lobby (landscape, large text). QR + room code centre, player list rail.
-// Players join in sequence over the first 16s (mock), then hold at 4. When this device is
-// both display + host controller, a compact host-control strip appears at the bottom.
+// §2.1 — display lobby (landscape, large text). Live roster from GET /rooms/:code; the
+// display socket auto-advances to the display game when the host starts. A host-control
+// strip (this device is also the host) starts a game directly via POST /rooms/:code/start.
 export function DisplayLobbyScreen() {
-  const [count, setCount] = useState(1);
-  const { go, curtain } = useStageNav();
+  const { code = '' } = useParams();
+  return (
+    <RoomSocketProvider roomCode={code} role={SocketRole.DISPLAY}>
+      <DisplayLobbyContent code={code} />
+    </RoomSocketProvider>
+  );
+}
+
+function DisplayLobbyContent({ code }: { readonly code: string }) {
+  const navigate = useNavigate();
+  const lobby = useLobby(code);
+  const { patch } = useRoomSocket();
+  const startGame = useStartGame();
+  const host = sessionStore.getHost();
+  const players = lobby.data?.players ?? [];
 
   useEffect(() => {
-    if (count >= PLAYERS.length) return undefined;
-    const timer = window.setTimeout(() => setCount((c) => Math.min(c + 1, PLAYERS.length)), 4000);
-    return () => window.clearTimeout(timer);
-  }, [count]);
+    if (patch !== null && patch.phase !== Phase.LOBBY) {
+      navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
+    }
+  }, [patch, code, navigate]);
 
-  const joined = PLAYERS.slice(0, count);
+  function start() {
+    if (host === undefined) {
+      // Not the host on this device — just preview the display game shell.
+      navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
+      return;
+    }
+    // Default to wordshot — it has seeded content and always starts (quizzes deck is unseeded).
+    startGame.mutate(
+      { code, hostId: host.hostId, gameId: RealGameId.WORDSHOT },
+      {
+        onSuccess: () => navigate(pathWith(ROUTES.DISPLAY_GAME, { code })),
+        onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
+      },
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <header className="flex items-center justify-between px-10 py-6">
         <Logo size="lg" />
-        <RoomCodeChip code={MOCK_ROOM_CODE} size="lg" />
+        <RoomCodeChip code={code} size="lg" />
         <span className="font-sans text-[14px] font-bold text-ink-3">How players join</span>
       </header>
 
       <div className="flex flex-1 gap-10 px-10 pb-6">
         <main className="flex flex-1 flex-col items-center justify-center gap-6">
-          <QrCode url={`https://gbedity.app/join/${MOCK_ROOM_CODE}`} size={240} className="border-2 border-action" />
-          <RoomCodeChip code={MOCK_ROOM_CODE} size="hero" />
+          <QrCode url={`http://localhost:5173/join/${code}`} size={240} className="border-2 border-action" />
+          <RoomCodeChip code={code} size="hero" />
           <p className="max-w-[44ch] text-center font-sans text-[20px] leading-[1.5] text-ink-3">
             Open gbedity.app on your phone and enter the code — or scan.
           </p>
         </main>
 
         <aside className="flex w-[340px] flex-col gap-3">
-          <h2 className="font-sans text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
-            Players
-          </h2>
-          {joined.map((p) => (
-            <PlayerPill key={p.id} name={p.name} seat={p.seat} meta={p.joinedAgo} size="lg" />
+          <h2 className="font-sans text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink-3">Players</h2>
+          {players.map((p, i) => (
+            <PlayerPill key={p.id} name={p.nickname} seat={seatForIndex(i)} size="lg" />
           ))}
+          {players.length === 0 ? <p className="font-sans text-[15px] text-ink-3">Waiting for the first player…</p> : null}
         </aside>
       </div>
 
-      {/* Host-control strip — shown when this device is both display + host controller
-          (§2.1). Also the way forward when testing from the display lobby directly. */}
       <footer className="flex items-center justify-between gap-4 bg-surface px-10 py-5">
         <span className="font-serif text-[24px] font-semibold text-ink">
-          Waiting for players · {count} joined
+          Waiting for players · {players.length} joined
         </span>
         <div className="flex items-center gap-3">
-          <Link
-            to={mockPath(ROUTES.HOST_LOBBY)}
-            className="font-sans text-[14px] font-bold text-ink-3 hover:text-ink"
-          >
+          <Link to={pathWith(ROUTES.HOST_LOBBY, { code })} className="font-sans text-[14px] font-bold text-ink-3 hover:text-ink">
             Configure
           </Link>
-          <Button variant="primary" onClick={() => go(`${mockPath(ROUTES.DISPLAY_GAME)}?game=6`)}>
+          <Button variant="primary" loading={startGame.isPending} onClick={start}>
             Start game
           </Button>
         </div>
       </footer>
-      {curtain}
     </div>
   );
 }

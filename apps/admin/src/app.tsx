@@ -1,61 +1,40 @@
-import { BannerHost, Button, DrawerService, ModalHost, ToastHost } from '@gbedity/ui';
-import { LayoutDashboard } from '@icons';
+import { BannerHost, ModalHost, ToastHost } from '@gbedity/ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Suspense, lazy } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+const LoginScreen = lazy(() => import('./features/auth/login-screen.tsx').then((m) => ({ default: m.LoginScreen })));
+const AdminShell = lazy(() => import('./features/shell/admin-shell.tsx').then((m) => ({ default: m.AdminShell })));
+const MetricsScreen = lazy(() => import('./features/metrics/metrics-screen.tsx').then((m) => ({ default: m.MetricsScreen })));
+const ContentScreen = lazy(() => import('./features/content/content-screen.tsx').then((m) => ({ default: m.ContentScreen })));
+const RubricScreen = lazy(() => import('./features/rubric/rubric-screen.tsx').then((m) => ({ default: m.RubricScreen })));
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false }, mutations: { retry: false } },
+});
+
+const router = createBrowserRouter([
+  { path: '/login', Component: LoginScreen },
+  {
+    path: '/',
+    Component: AdminShell,
+    children: [
+      { index: true, Component: MetricsScreen },
+      { path: 'content', Component: ContentScreen },
+      { path: 'rubric', Component: RubricScreen },
+    ],
+  },
+]);
 
 export function App() {
   return (
-    <>
-      <main className="mx-auto mt-16 flex max-w-2xl flex-col items-start gap-4 px-6">
-        <h1 className="font-serif text-[40px] font-semibold leading-none tracking-[-0.02em] text-ink">
-          Gbedity Admin
-        </h1>
-        <p className="text-ink-3">Operator surface for hosts, content, and league templates.</p>
-        <Button leadingIcon={<LayoutDashboard size={18} />}>Get started</Button>
-
-        <p className="mt-10 text-[12px] font-bold uppercase tracking-[0.12em] text-ink-3">
-          Drawer service wired
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => DrawerService.toast('Saved.', { tone: 'success' })}
-          >
-            Toast
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() =>
-              DrawerService.banner('Operator banners live here', {
-                tone: 'info',
-                description: 'Triggered from admin via DrawerService.banner(...).',
-                cta: { label: 'Got it', onClick: () => undefined },
-              })
-            }
-          >
-            Banner
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() =>
-              DrawerService.confirm('Reset all session presets?', {
-                description: 'This clears every saved league template for the workspace.',
-                confirmLabel: 'Reset',
-                destructive: true,
-                onConfirm: () =>
-                  DrawerService.toast('Presets reset', { tone: 'warn' }),
-              })
-            }
-          >
-            Confirm
-          </Button>
-        </div>
-      </main>
-
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={null}>
+        <RouterProvider router={router} />
+      </Suspense>
       <BannerHost />
       <ModalHost />
       <ToastHost />
-    </>
+    </QueryClientProvider>
   );
 }

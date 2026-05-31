@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,9 +36,36 @@ import { GAMES } from '../shared/games/games-manifest.ts';
 // screens that mount them (via shared widgets) don't throw in the test environment.
 vi.mock('canvas-confetti', () => ({ default: () => undefined }));
 
+// socket.io-client opens a real connection on mount (lobby / in-game live screens). Stub it
+// with an inert socket so screens render without network.
+vi.mock('socket.io-client', () => ({
+  io: () => ({
+    on: () => undefined,
+    off: () => undefined,
+    emit: () => undefined,
+    close: () => undefined,
+    removeAllListeners: () => undefined,
+    io: { on: () => undefined },
+  }),
+}));
+
 afterEach(() => {
   document.body.innerHTML = '';
 });
+
+// Screens now use React Query + (some) sockets — wrap every render in a fresh QueryClient.
+function withProviders(ui: ReactNode, initialPath: string, pattern: string) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  return (
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Routes>
+          <Route path={pattern} element={ui} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+}
 
 interface Case {
   readonly name: string;
@@ -71,19 +100,9 @@ const CASES: readonly Case[] = [
   { name: 'Preview screens', path: ROUTES.PREVIEW_SCREENS, pattern: ROUTES.PREVIEW_SCREENS, Screen: PreviewScreensScreen },
 ];
 
-function renderAt(c: Case) {
-  return render(
-    <MemoryRouter initialEntries={[c.path]}>
-      <Routes>
-        <Route path={c.pattern} element={<c.Screen />} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
 describe('every screen renders visible content', () => {
   it.each(CASES.map((c) => [c.name, c] as const))('%s', (_name, c) => {
-    const { container } = renderAt(c);
+    const { container } = render(withProviders(<c.Screen />, c.path, c.pattern));
     expect(container.textContent?.trim().length ?? 0).toBeGreaterThan(0);
   });
 });
@@ -96,13 +115,7 @@ describe('every game renders in the in-game + configure + result shells', () => 
       { path: `/host/configure/${id}`, pattern: ROUTES.HOST_CONFIGURE, Screen: ConfigureScreen },
       { path: `/d/GBE-4ZK/result?game=${id}`, pattern: ROUTES.DISPLAY_RESULT, Screen: DisplayResultScreen },
     ]) {
-      const { container, unmount } = render(
-        <MemoryRouter initialEntries={[c.path]}>
-          <Routes>
-            <Route path={c.pattern} element={<c.Screen />} />
-          </Routes>
-        </MemoryRouter>,
-      );
+      const { container, unmount } = render(withProviders(<c.Screen />, c.path, c.pattern));
       expect(container.textContent?.trim().length ?? 0).toBeGreaterThan(0);
       unmount();
     }
