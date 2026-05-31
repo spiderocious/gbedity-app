@@ -81,10 +81,9 @@ export function Field({ label, helper, error, success, htmlFor, children }: Fiel
   );
 }
 
-export interface RoomCodeInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  // The Studio shows GBE-4ZK as the canonical example — 6 chars, dash-separated visually
-  // but stored uppercase without the dash. Caller controls value/onChange.
-}
+// The Studio shows GBE-4ZK as the canonical example — 6 chars, dash-separated visually
+// but stored uppercase without the dash. Caller controls value/onChange.
+export type RoomCodeInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 /**
  * RoomCodeInput — the six-character joiner.

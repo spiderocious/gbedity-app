@@ -11,6 +11,17 @@
 // Utils
 export { cn } from './utils/cn.ts';
 
+// Layout
+export { Row, Column } from './layout/index.ts';
+export type {
+  RowProps,
+  ColumnProps,
+  StackProps,
+  SpaceToken,
+  StackAlign,
+  StackJustify,
+} from './layout/index.ts';
+
 // Primitives
 export { Button } from './button/index.ts';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './button/index.ts';
@@ -66,3 +77,24 @@ export type {
   InlineAlertProps,
   FeedbackTone,
 } from './feedback/index.ts';
+
+// Overlays
+export { Modal, CriticalModal, CustomModal } from './modal/index.ts';
+export type {
+  ModalProps,
+  ModalIntent,
+  ModalPosition,
+  CriticalModalProps,
+  CustomModalProps,
+} from './modal/index.ts';
+
+// Imperative drawer service (toast + banner + modal singleton)
+export { DrawerService, ToastHost, BannerHost, ModalHost } from './drawer/index.ts';
+export type {
+  ToastOptions,
+  BannerOptions,
+  ConfirmOptions,
+  CriticalOptions,
+  CustomModalOptions,
+} from './drawer/index.ts';
+export type { ToastPosition, BannerPosition } from './drawer/index.ts';

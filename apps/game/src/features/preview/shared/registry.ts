@@ -78,6 +78,14 @@ export const PARTS: readonly PreviewPart[] = [
     ),
   },
   {
+    id: 'layout',
+    label: 'Row · Column',
+    group: 'Primitives',
+    Component: lazy(() =>
+      import('../screen/parts/16-layout.tsx').then((m) => ({ default: m.LayoutPart })),
+    ),
+  },
+  {
     id: 'pill',
     label: 'Pill · CategoryChip',
     group: 'Display',
@@ -142,11 +150,37 @@ export const PARTS: readonly PreviewPart[] = [
     ),
   },
   {
+    id: 'game-avatar',
+    label: 'GameAvatar',
+    group: 'Display',
+    Component: lazy(() =>
+      import('../screen/parts/28-game-avatar.tsx').then((m) => ({ default: m.GameAvatarPart })),
+    ),
+  },
+  {
     id: 'feedback',
     label: 'Toast · Banner · InlineAlert',
     group: 'Feedback',
     Component: lazy(() =>
       import('../screen/parts/30-feedback.tsx').then((m) => ({ default: m.FeedbackPart })),
+    ),
+  },
+  {
+    id: 'modal',
+    label: 'Modal · CriticalModal',
+    group: 'Feedback',
+    Component: lazy(() =>
+      import('../screen/parts/31-modal.tsx').then((m) => ({ default: m.ModalPart })),
+    ),
+  },
+  {
+    id: 'drawer',
+    label: 'DrawerService',
+    group: 'Feedback',
+    Component: lazy(() =>
+      import('../screen/parts/32-drawer-service.tsx').then((m) => ({
+        default: m.DrawerServicePart,
+      })),
     ),
   },
 ];
