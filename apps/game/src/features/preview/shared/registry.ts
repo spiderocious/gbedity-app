@@ -199,6 +199,14 @@ export const PARTS: readonly PreviewPart[] = [
       })),
     ),
   },
+  {
+    id: 'sound',
+    label: 'Sound',
+    group: 'Feedback',
+    Component: lazy(() =>
+      import('../screen/parts/33-sound.tsx').then((m) => ({ default: m.SoundPart })),
+    ),
+  },
 ];
 
 export const DEFAULT_PART_ID = PARTS[0]?.id ?? '';

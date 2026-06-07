@@ -28,6 +28,9 @@ export const ERROR_CODES = {
   NOT_ENOUGH_PLAYERS: 'not_enough_players',
   GAME_ALREADY_RUNNING: 'game_already_running',
 
+  // Catalogue (admin-curated public game list)
+  CATALOGUE_ENTRY_EXISTS: 'catalogue_entry_exists',
+
   // Server
   INTERNAL_ERROR: 'internal_error',
 } as const;

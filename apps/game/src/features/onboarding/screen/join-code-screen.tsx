@@ -1,56 +1,69 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { Button, Card, DrawerService, Field, RoomCodeInput } from '@gbedity/ui';
-import { ArrowRight, QrCode } from '@icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Card, DrawerService, Field, RoomCodeInput } from "@gbedity/ui";
+import { isValidRoomCode, normalizeRoomCode, withQuery } from "@gbedity/util";
+import { ArrowRight, QrCode } from "@icons";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { ROUTES } from '../../../shared/constants/routes.ts';
-import { apiClient } from '../../../shared/services/api-client.ts';
-import { ApiError, ApiErrorCode } from '../../../shared/services/api-error.ts';
-import { LobbySnapshot } from '../../../shared/types/api.ts';
-import { AppHeader } from '../../../shared/widgets/app-header.tsx';
-
-// §1.2 — player join code entry. Validates the code against the live GET /rooms/:code, then
-// routes to nickname carrying the code. Auto-uppercase; dash is display-only and stripped
-// before the API call (backend codes are 6 chars, no dash). Deep-link /join/:code pre-fills.
-function display(raw: string): string {
-  const clean = raw.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6);
-  return clean.length > 3 ? `${clean.slice(0, 3)}-${clean.slice(3)}` : clean;
-}
+import { ROUTES } from "../../../shared/constants/routes.ts";
+import { apiClient } from "../../../shared/services/api-client.ts";
+import { ApiError, ApiErrorCode } from "../../../shared/services/api-error.ts";
+import { LobbySnapshot } from "../../../shared/types/api.ts";
+import { AppHeader } from "../../../shared/widgets/app-header.tsx";
 
 export function JoinCodeScreen() {
   const navigate = useNavigate();
+  // `code` is present only on the /join/:code route (the QR/deep-link target); on plain /join
+  // it's undefined and the user types the code in.
   const { code: codeParam } = useParams();
-  const [value, setValue] = useState(codeParam !== undefined ? display(codeParam) : '');
+  // `value` is the RAW code (no dash) — RoomCodeInput handles the display formatting itself.
+  const [value, setValue] = useState(() => normalizeRoomCode(codeParam ?? ''));
   const [shake, setShake] = useState(false);
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);
-  const raw = value.replace(/-/g, '');
-  const ready = raw.length === 6;
+  const ready = isValidRoomCode(value);
 
-  async function handleJoin() {
+  // Validate a raw code against the live room, then advance to the nickname step. Returns true
+  // when the room was found (so the auto-join effect can stay quiet on success).
+  const verifyAndAdvance = useCallback(
+    async (rawCode: string): Promise<void> => {
+      setChecking(true);
+      try {
+        const snap = LobbySnapshot.parse(await apiClient.get(`/rooms/${rawCode}`));
+        navigate(withQuery(ROUTES.JOIN_NICKNAME, { code: snap.code }));
+      } catch (e) {
+        const msg =
+          e instanceof ApiError && e.is(ApiErrorCode.ROOM_NOT_FOUND)
+            ? 'Couldn’t find that room. Check the code and try again.'
+            : e instanceof ApiError
+              ? e.message
+              : 'Couldn’t reach the room. Try again.';
+        DrawerService.toast(msg, { tone: 'danger' });
+      } finally {
+        setChecking(false);
+      }
+    },
+    [navigate],
+  );
+
+  function handleJoin() {
     if (!ready) {
       setError('Six characters needed.');
       setShake(true);
       window.setTimeout(() => setShake(false), 220);
       return;
     }
-    setChecking(true);
-    try {
-      const snap = LobbySnapshot.parse(await apiClient.get(`/rooms/${raw}`));
-      navigate(`${ROUTES.JOIN_NICKNAME}?code=${snap.code}`);
-    } catch (e) {
-      const msg =
-        e instanceof ApiError && e.is(ApiErrorCode.ROOM_NOT_FOUND)
-          ? 'Couldn’t find that room. Check the code and try again.'
-          : e instanceof ApiError
-            ? e.message
-            : 'Couldn’t reach the room. Try again.';
-      DrawerService.toast(msg, { tone: 'danger' });
-    } finally {
-      setChecking(false);
-    }
+    void verifyAndAdvance(value);
   }
+
+  // Deep-link (/join/:code): if the URL carries a valid code, try to join immediately. An
+  // invalid/not-found code surfaces the normal error so the user can fix it and retry.
+  useEffect(() => {
+    const fromUrl = normalizeRoomCode(codeParam ?? '');
+    if (isValidRoomCode(fromUrl)) {
+      void verifyAndAdvance(fromUrl);
+    }
+  }, [codeParam, verifyAndAdvance]);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -68,15 +81,19 @@ export function JoinCodeScreen() {
           </p>
 
           <div className="mt-5">
-            <Field label="Room code" htmlFor="join-code" error={error === '' ? undefined : error}>
+            <Field
+              label="Room code"
+              htmlFor="join-code"
+              error={error === "" ? undefined : error}
+            >
               <RoomCodeInput
                 id="join-code"
                 value={value}
                 placeholder="GBE-4ZK"
-                className={`max-w-none ${shake ? 'animate-[shake_0.2s_ease-in-out]' : ''}`}
-                onChange={(e) => {
-                  setValue(display(e.target.value));
-                  setError('');
+                className={`max-w-none ${shake ? "animate-[shake_0.2s_ease-in-out]" : ""}`}
+                onValueChange={(raw) => {
+                  setValue(raw);
+                  setError("");
                 }}
               />
             </Field>
@@ -87,7 +104,7 @@ export function JoinCodeScreen() {
               variant="primary"
               size="lg"
               loading={checking}
-              className={`w-full ${ready && !checking ? 'animate-[pulse-once_0.4s_ease-out]' : ''}`}
+              className={`w-full ${ready && !checking ? "animate-[pulse-once_0.4s_ease-out]" : ""}`}
               trailingIcon={<ArrowRight size={18} aria-hidden="true" />}
               onClick={() => void handleJoin()}
             >

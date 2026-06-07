@@ -9,6 +9,9 @@ import { encodeCursor, decodeCursor } from '@shared/cursor';
 import { zodFieldErrors } from '@shared/http/zod-errors';
 import { gamePlaysRepository } from '@features/game-plays/game-plays.repository';
 
+import { catalogueService } from '@features/catalogue/catalogue.service';
+import { createCatalogueSchema, updateCatalogueSchema } from '@features/catalogue/catalogue.schema';
+
 import { adminAuthService } from './admin-auth.service';
 import { contentAdminRepository } from './content-admin.repository';
 import { contentSchemaFor } from './content-schemas';
@@ -202,5 +205,57 @@ export const adminController = {
   async metrics(_req: Request, res: Response): Promise<void> {
     const byGame = await gamePlaysRepository.metricsByGame();
     ResponseUtil.ok(res, { byGame });
+  },
+
+  // ── Catalogue authoring + curation (spec: game-catalogue.md §3.2) ────────────
+  async listCatalogue(_req: Request, res: Response): Promise<void> {
+    // Every registered game joined to its entry + eligibility flags (authoring view).
+    const result = await catalogueService.listForAdmin();
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  async getCatalogue(req: Request, res: Response): Promise<void> {
+    const result = await catalogueService.getByGameId(param(req, 'gameId'));
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  async createCatalogue(req: Request, res: Response): Promise<void> {
+    const parsed = createCatalogueSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      return ResponseUtil.error(res, 422, ERROR_CODES.VALIDATION_ERROR, messages.get(MESSAGE_KEYS.common.VALIDATION_FAILED), zodFieldErrors(parsed.error, 'catalogue'));
+    }
+    const result = await catalogueService.create(parsed.data);
+    if (!result.success) return fail(res, result);
+    ResponseUtil.created(res, result.data);
+  },
+
+  async updateCatalogue(req: Request, res: Response): Promise<void> {
+    const parsed = updateCatalogueSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      return ResponseUtil.error(res, 422, ERROR_CODES.VALIDATION_ERROR, messages.get(MESSAGE_KEYS.common.VALIDATION_FAILED), zodFieldErrors(parsed.error, 'catalogue'));
+    }
+    const result = await catalogueService.update(param(req, 'gameId'), parsed.data);
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  async activateCatalogue(req: Request, res: Response): Promise<void> {
+    const result = await catalogueService.activate(param(req, 'gameId'));
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  async deactivateCatalogue(req: Request, res: Response): Promise<void> {
+    const result = await catalogueService.deactivate(param(req, 'gameId'));
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  async deleteCatalogue(req: Request, res: Response): Promise<void> {
+    const result = await catalogueService.remove(param(req, 'gameId'));
+    if (!result.success) return fail(res, result);
+    ResponseUtil.noContent(res);
   },
 };

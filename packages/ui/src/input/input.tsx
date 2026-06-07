@@ -1,5 +1,7 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'react';
 
+import { formatRoomCode, normalizeRoomCode } from '@gbedity/util';
+
 import { cn } from '../utils/cn.ts';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -81,28 +83,54 @@ export function Field({ label, helper, error, success, htmlFor, children }: Fiel
   );
 }
 
-// The Studio shows GBE-4ZK as the canonical example — 6 chars, dash-separated visually
-// but stored uppercase without the dash. Caller controls value/onChange.
-export type RoomCodeInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
+// The Studio shows GBE-4ZK as the canonical example — 6 chars, dash-separated visually but
+// stored uppercase without the dash. The component owns the formatting: it shows the dashed
+// form and emits the RAW 6-char code via onValueChange, so consumers never re-implement it.
+export interface RoomCodeInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'onChange'> {
+  /** The raw room code (no dash, uppercase, ≤6 chars). */
+  value: string;
+  /** Called with the normalized RAW code on every edit/paste. */
+  onValueChange: (rawCode: string) => void;
+}
 
 /**
  * RoomCodeInput — the six-character joiner.
  *
  * Visual spec: design-system/projects/gbedity/preview/11-inputs.html
  *
- * Tabular-spaced uppercase. Wide tracking. Centred. This is the first input
- * a brand-new player touches; it earns the bigger type.
+ * Self-formatting: auto-inserts the hyphen after the 3rd char while typing, and lands it at
+ * the centre whether the user types, pastes a 6-char code, or pastes a 7-char dashed code.
+ * `value` is the raw code; `onValueChange` receives the raw code. Tabular-spaced uppercase,
+ * wide tracking, centred — the first input a brand-new player touches earns the bigger type.
  */
 export const RoomCodeInput = forwardRef<HTMLInputElement, RoomCodeInputProps>(
-  function RoomCodeInput({ className, ...rest }, ref) {
+  function RoomCodeInput({ className, value, onValueChange, ...rest }, ref) {
+    // The display always shows the trailing dash at exactly 3 chars ("GBE" → "GBE-"), so it
+    // appears on the 3rd keypress. Backspace from "GBE-" then needs to skip past that dash and
+    // remove the 3rd char too — otherwise it'd re-render "GBE-" and feel stuck. We detect that
+    // exact case (the only change was deleting the trailing dash) and drop one extra char.
+    const displayed = formatRoomCode(value, { trailingDash: true });
+
+    function handleChange(next: string) {
+      const deletedTrailingDash =
+        displayed.endsWith('-') && next === displayed.slice(0, -1);
+      const raw = normalizeRoomCode(next);
+      onValueChange(deletedTrailingDash ? raw.slice(0, -1) : raw);
+    }
+
     return (
       <input
         ref={ref}
         type="text"
+        inputMode="text"
         autoComplete="off"
         autoCapitalize="characters"
         spellCheck={false}
+        // 7 = 6 chars + the inserted dash. Normalization caps the raw code regardless.
         maxLength={7}
+        value={displayed}
+        onChange={(e) => handleChange(e.target.value)}
         className={cn(
           'block w-full max-w-[320px] rounded-input border-2 border-ink-5 bg-surface',
           'px-[22px] py-[18px]',

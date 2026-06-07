@@ -20,14 +20,17 @@ interface AppHeaderProps {
 export function AppHeader({ backTo, right, roomCode }: AppHeaderProps) {
   return (
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-5">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {backTo !== undefined ? (
+          // 44×44 hit area (min touch target) while the visual circle stays a compact 36px.
           <Link
             to={backTo}
             aria-label="Back"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-canvas text-ink hover:bg-canvas-deep"
+            className="-m-[4px] inline-flex h-11 w-11 items-center justify-center p-[4px]"
           >
-            <ArrowLeft size={18} aria-hidden="true" />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-canvas text-ink transition-colors hover:bg-canvas-deep">
+              <ArrowLeft size={18} aria-hidden="true" />
+            </span>
           </Link>
         ) : null}
         <Link to={ROUTES.LANDING} aria-label="Gbedity home" className="inline-flex">

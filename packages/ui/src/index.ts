@@ -107,6 +107,10 @@ export type {
   CustomModalProps,
 } from './modal/index.ts';
 
+// Sound — shared hook + floating mute button + imperative service singleton
+export { useSound, SoundButton, soundService, SoundKey, SoundKind, SOUND_MANIFEST } from './sound/index.ts';
+export type { UseSound, SoundButtonProps, SoundButtonPosition, SoundAsset } from './sound/index.ts';
+
 // Imperative drawer service (toast + banner + modal singleton)
 export { DrawerService, ToastHost, BannerHost, ModalHost } from './drawer/index.ts';
 export type {

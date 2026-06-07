@@ -1,5 +1,4 @@
 import { GamesShowcase } from './parts/games-showcase.tsx';
-import { HeroConfetti } from './parts/hero-confetti.tsx';
 import { HeroDemoPanel } from './parts/hero-demo-panel.tsx';
 import { HeroCopy } from './parts/landing-hero.tsx';
 import { HostRoomCard } from './parts/host-room-card.tsx';
@@ -19,7 +18,7 @@ import { RoamingMonkeys } from './parts/roaming-monkeys.tsx';
 export function LandingScreen() {
   return (
     <div className="min-h-screen bg-canvas">
-      <HeroConfetti />
+      {/* <HeroConfetti /> */}
       <LandingTopBar />
       <main>
         {/* Entry section — hero copy, demo panel, and the two entry cards in one grid so

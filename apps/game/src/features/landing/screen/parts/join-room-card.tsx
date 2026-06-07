@@ -1,17 +1,23 @@
 import { useState } from 'react';
 
-import { Button, Card, Field, RoomCodeInput } from '@gbedity/ui';
-import { ArrowRight, QrCode } from '@icons';
+import { Button, Card, Field, RoomCodeInput, DrawerService } from '@gbedity/ui';
+import { ArrowRight } from '@icons';
 
 import { ROUTES } from '../../../../shared/constants/routes.ts';
 import { useStageNav } from '../../../../shared/widgets/use-stage-nav.tsx';
+import { isValidRoomCode } from '@gbedity/util'
 
-// C (join half) — per screens-spec §1.1: room-code input + "Join room" + "Scan QR instead"
-// ghost link. Join routes to the full join flow (/join), where validation + nickname live.
-// Scan routes to the QR scanner (§1.4).
 export function JoinRoomCard() {
   const [code, setCode] = useState('');
   const { go, curtain } = useStageNav();
+
+  function handleJoin() {
+    if (!isValidRoomCode(code)) {
+      DrawerService.toast('Please enter a valid room code.', { tone: 'danger' });
+      return;
+    }
+    go(`${ROUTES.JOIN}/${code}`);
+  }
 
   return (
     <Card size="lg" className="flex flex-col" data-monkey-perch>
@@ -32,7 +38,7 @@ export function JoinRoomCard() {
             value={code}
             placeholder="GBE-4ZK"
             className="max-w-none"
-            onChange={(e) => setCode(e.target.value)}
+            onValueChange={setCode}
           />
         </Field>
       </div>
@@ -43,17 +49,17 @@ export function JoinRoomCard() {
           size="lg"
           className="w-full"
           trailingIcon={<ArrowRight size={18} aria-hidden="true" />}
-          onClick={() => go(ROUTES.JOIN)}
+          onClick={handleJoin}
         >
           Join room
         </Button>
-        <Button
+        {/* <Button
           variant="ghost"
           leadingIcon={<QrCode size={18} aria-hidden="true" />}
           onClick={() => go(ROUTES.JOIN_QR)}
         >
           Scan QR instead
-        </Button>
+        </Button> */}
       </div>
       {curtain}
     </Card>

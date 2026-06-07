@@ -61,7 +61,7 @@ export function GameTile({
         ? { type: 'button' as const, onClick }
         : {})}
       className={cn(
-        'flex flex-col overflow-hidden rounded-[22px] bg-surface text-left',
+        'flex h-full flex-col overflow-hidden rounded-[22px] bg-surface text-left',
         isInteractive &&
           'cursor-pointer transition-transform duration-150 ease-in-out hover:-translate-y-[1px] focus:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         className,

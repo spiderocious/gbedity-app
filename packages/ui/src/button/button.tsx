@@ -1,5 +1,7 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type MouseEvent, type ReactNode } from 'react';
 
+import { SoundKey } from '../sound/sound-manifest.ts';
+import { useSound } from '../sound/use-sound.ts';
 import { cn } from '../utils/cn.ts';
 
 export type ButtonVariant =
@@ -17,6 +19,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
+  /**
+   * Tactile "raised key" treatment: a solid offset shadow at rest that the button presses
+   * down into when active (it travels down by the shadow depth and the shadow collapses),
+   * so it feels like a physical key being pushed. On by default; pass `elevated={false}` for
+   * a flat button. (The `ghost` variant has no surface, so it's never elevated.)
+   */
+  elevated?: boolean;
+  /**
+   * Play the UI click SFX on press (via the shared sound hook). Default true — every button
+   * clicks, matching the WordMaster reference. Pass `clickSound={false}` for silent buttons
+   * (e.g. inside a list where a click also fires its own sound). Respects global mute.
+   */
+  clickSound?: boolean;
 }
 
 // Visual spec: design-system/projects/gbedity/preview/10-buttons.html
@@ -92,6 +107,54 @@ const GHOST_SIZE_OVERRIDES: Record<ButtonSize, string> = {
   lg: 'px-6',
 };
 
+// ── Elevation (tactile "raised key") ────────────────────────────────────────────────────
+// A solid (blur-less) offset shadow under the button at rest. On press the button travels
+// DOWN by the shadow depth while the shadow collapses to nothing — reading as a key pushed
+// flat into the surface. Depth scales with size (sm 3 / md 4 / lg 5px).
+//
+// Shadow colour = a darker shade of the variant ("the side of the key"). Secondary (white
+// surface) uses a forest-ink tint; ghost is never elevated (handled at the call site).
+//
+// IMPORTANT: Tailwind's JIT only compiles class names it can read as COMPLETE LITERALS in the
+// source — interpolated `shadow-[0_${d}px_...]` would never be generated. So every (variant,
+// size) elevation string below is written out in full, literally.
+const ELEVATION: Record<ButtonVariant, Record<ButtonSize, string>> = {
+  primary: {
+    sm: 'shadow-[0_3px_0_0_#1F9A60] active:shadow-[0_0_0_0_#1F9A60] active:translate-y-[3px]',
+    md: 'shadow-[0_4px_0_0_#1F9A60] active:shadow-[0_0_0_0_#1F9A60] active:translate-y-[4px]',
+    lg: 'shadow-[0_5px_0_0_#1F9A60] active:shadow-[0_0_0_0_#1F9A60] active:translate-y-[5px]',
+  },
+  // Secondary keeps its 2px inset border AND gains the offset shadow — both in one box-shadow
+  // (a `shadow-[…]` utility replaces the whole property, so the inset must be re-stated here).
+  secondary: {
+    sm: 'shadow-[inset_0_0_0_2px_currentColor,0_3px_0_0_rgba(31,107,74,0.22)] active:shadow-[inset_0_0_0_2px_currentColor,0_0_0_0_rgba(31,107,74,0.22)] active:translate-y-[3px]',
+    md: 'shadow-[inset_0_0_0_2px_currentColor,0_4px_0_0_rgba(31,107,74,0.22)] active:shadow-[inset_0_0_0_2px_currentColor,0_0_0_0_rgba(31,107,74,0.22)] active:translate-y-[4px]',
+    lg: 'shadow-[inset_0_0_0_2px_currentColor,0_5px_0_0_rgba(31,107,74,0.22)] active:shadow-[inset_0_0_0_2px_currentColor,0_0_0_0_rgba(31,107,74,0.22)] active:translate-y-[5px]',
+  },
+  ghost: { sm: '', md: '', lg: '' }, // never elevated
+  celebrate: {
+    sm: 'shadow-[0_3px_0_0_#E8731A] active:shadow-[0_0_0_0_#E8731A] active:translate-y-[3px]',
+    md: 'shadow-[0_4px_0_0_#E8731A] active:shadow-[0_0_0_0_#E8731A] active:translate-y-[4px]',
+    lg: 'shadow-[0_5px_0_0_#E8731A] active:shadow-[0_0_0_0_#E8731A] active:translate-y-[5px]',
+  },
+  danger: {
+    sm: 'shadow-[0_3px_0_0_#C44035] active:shadow-[0_0_0_0_#C44035] active:translate-y-[3px]',
+    md: 'shadow-[0_4px_0_0_#C44035] active:shadow-[0_0_0_0_#C44035] active:translate-y-[4px]',
+    lg: 'shadow-[0_5px_0_0_#C44035] active:shadow-[0_0_0_0_#C44035] active:translate-y-[5px]',
+  },
+  stage: {
+    sm: 'shadow-[0_3px_0_0_#1E3FB8] active:shadow-[0_0_0_0_#1E3FB8] active:translate-y-[3px]',
+    md: 'shadow-[0_4px_0_0_#1E3FB8] active:shadow-[0_0_0_0_#1E3FB8] active:translate-y-[4px]',
+    lg: 'shadow-[0_5px_0_0_#1E3FB8] active:shadow-[0_0_0_0_#1E3FB8] active:translate-y-[5px]',
+  },
+};
+
+// Snappy, compositor-friendly transition + disabled reset, shared across all elevated buttons.
+const ELEVATION_BASE = cn(
+  'transition-[box-shadow,transform,background-color,color] duration-100 ease-out',
+  'disabled:shadow-none disabled:active:translate-y-0',
+);
+
 /**
  * Button — the primary interactive primitive.
  *
@@ -106,6 +169,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   {
     variant = 'primary',
     size = 'md',
+    elevated = true,
+    clickSound = true,
     className,
     loading,
     leadingIcon,
@@ -113,17 +178,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     children,
     disabled,
     type,
+    onClick,
     ...rest
   },
   ref,
 ) {
   const isGhost = variant === 'ghost';
+  // Ghost has no surface, so elevation is meaningless — never elevate it.
+  const isElevated = elevated && !isGhost;
+  const { play } = useSound();
+  const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
+    if (clickSound) play(SoundKey.BUTTON_CLICK);
+    onClick?.(event);
+  };
   return (
     <button
       ref={ref}
       type={type ?? 'button'}
       disabled={disabled === true || loading === true}
       aria-busy={loading === true ? true : undefined}
+      onClick={handleClick}
       className={cn(
         // `relative` anchors the ::after halo; no overflow-clip so it can sit outside.
         'relative inline-flex items-center justify-center whitespace-nowrap gap-2',
@@ -137,6 +211,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // Offset double-border halo on hover/active.
         RING_BASE,
         RING_CLASSES[variant],
+        // Tactile elevation owns the press travel; the base 1px nudge applies only when flat.
+        isElevated ? cn(ELEVATION_BASE, ELEVATION[variant][size]) : 'active:translate-y-px',
         className,
       )}
       {...rest}

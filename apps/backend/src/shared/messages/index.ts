@@ -38,6 +38,15 @@ const catalog: Record<MessageKey, string> = {
   [MESSAGE_KEYS.auth.TOKEN_INVALID]: 'Invalid token.',
   [MESSAGE_KEYS.auth.SESSION_REVOKED]: 'Session revoked — sign in again.',
   [MESSAGE_KEYS.auth.REGISTERED]: 'Account created.',
+
+  [MESSAGE_KEYS.catalogue.CREATED]: 'Catalogue entry created.',
+  [MESSAGE_KEYS.catalogue.NOT_FOUND]: "Couldn't find that catalogue entry.",
+  [MESSAGE_KEYS.catalogue.ALREADY_EXISTS]: 'That game is already in the catalogue.',
+  [MESSAGE_KEYS.catalogue.UPDATED]: 'Catalogue entry updated.',
+  [MESSAGE_KEYS.catalogue.ACTIVATED]: 'Game is now live.',
+  [MESSAGE_KEYS.catalogue.DEACTIVATED]: 'Game pulled from the catalogue.',
+  [MESSAGE_KEYS.catalogue.DELETED]: 'Catalogue entry removed.',
+  [MESSAGE_KEYS.catalogue.INVALID_GAME]: "That game isn't a registered, playable game.",
 };
 
 export const messages = {

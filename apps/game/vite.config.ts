@@ -20,6 +20,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../../packages/ui/src/styles.css'),
       },
       {
+        find: /^@gbedity\/util$/,
+        replacement: path.resolve(__dirname, '../../packages/util/src/index.ts'),
+      },
+      {
         find: /^@icons$/,
         replacement: path.resolve(__dirname, '../../packages/icons/src/index.ts'),
       },
