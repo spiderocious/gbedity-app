@@ -1,9 +1,10 @@
 import { Button, Card, DrawerService, GameId, Pill } from '@gbedity/ui';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
-import { gameById } from '../../../shared/games/games-manifest.ts';
+import { type GameKey } from '../../../shared/games/games-manifest.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket, ConnectionStatus } from '../../../shared/realtime/room-socket-context.tsx';
 import { sessionStore } from '../../../shared/services/session-store.ts';
@@ -46,8 +47,8 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
   // The host plays off its PLAYER-audience projection (it's a player seat); the host-audience
   // patch (if any) is kept separate by the F-3 fix and reserved for host-only chrome.
   const playPatch = patches[Audience.PLAYER] ?? patch ?? null;
-  const live = detectLiveGame(playPatch) ?? resolveLiveHint(hint);
-  const renderer = live ? getLiveRenderer(live.backendId) : undefined;
+  const backendId = detectLiveGame(playPatch) ?? resolveLiveHint(hint);
+  const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   const score = typeof playPatch?.yourScore === 'number' ? playPatch.yourScore : 0;
   const isBoard =
     playPatch !== null &&
@@ -87,7 +88,7 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
               <p className="font-sans text-[14px] text-ink-3">Full standings on the shared screen.</p>
             </div>
           ) : renderer !== undefined ? (
-            <renderer.Player key={live?.backendId} patch={playPatch} send={sendAction} />
+            <renderer.Player key={backendId} patch={playPatch} send={sendAction} />
           ) : (
             <p className="text-center font-sans text-[15px] text-ink-3">Waiting for the round…</p>
           )}
@@ -111,8 +112,8 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
 }
 
 function MockHost({ code, mockId }: { readonly code: string; readonly mockId: number }) {
-  const game = gameById(mockId);
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game } = useCatalogueGame(mockId);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   const navigate = useNavigate();
   if (game === undefined || content === undefined) return null;
   const gameId = game.id;

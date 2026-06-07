@@ -1,9 +1,10 @@
 import { Button, GameId, LeaderboardRows, OrangeWinnerBar } from '@gbedity/ui';
 import { useNavigate } from 'react-router-dom';
 
+import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { ROUTES, mockPath } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
-import { gameById } from '../../../shared/games/games-manifest.ts';
+import { type GameKey } from '../../../shared/games/games-manifest.ts';
 import { LEADERBOARD } from '../../../shared/mock/players.ts';
 import { useGameParam } from '../../in-game/use-game-param.ts';
 
@@ -11,8 +12,8 @@ import { useGameParam } from '../../in-game/use-game-param.ts';
 // → orange winner bar → ranked leaderboard.
 export function DisplayResultScreen() {
   const id = useGameParam();
-  const game = gameById(id);
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game } = useCatalogueGame(id);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   const navigate = useNavigate();
   if (game === undefined || content === undefined) return null;
 

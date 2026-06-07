@@ -27,6 +27,8 @@ export const ERROR_CODES = {
   NOT_HOST: 'not_host',
   NOT_ENOUGH_PLAYERS: 'not_enough_players',
   GAME_ALREADY_RUNNING: 'game_already_running',
+  SOLO_NOT_SUPPORTED: 'solo_not_supported',
+  SOLO_NOT_FOUND: 'solo_not_found',
 
   // Catalogue (admin-curated public game list)
   CATALOGUE_ENTRY_EXISTS: 'catalogue_entry_exists',

@@ -1,8 +1,9 @@
 import { GameId } from '@gbedity/ui';
 import { useParams, useSearchParams } from 'react-router-dom';
 
+import { findGame, useCatalogue, useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
-import { gameById, type GameCategory } from '../../../shared/games/games-manifest.ts';
+import { type GameCategory, type GameKey } from '../../../shared/games/games-manifest.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx';
 import { SocketRole } from '../../../shared/services/socket.ts';
@@ -30,17 +31,20 @@ export function DisplayGameScreen() {
 
 function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: string | null }) {
   const { patch, status } = useRoomSocket();
-  const live = detectLiveGame(patch) ?? resolveLiveHint(hint);
-  const renderer = live ? getLiveRenderer(live.backendId) : undefined;
+  const backendId = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  const renderer = backendId ? getLiveRenderer(backendId) : undefined;
+  // Chrome (id/title/category) joined from the central catalogue store by backend gameId.
+  const { data } = useCatalogue();
+  const game = backendId ? findGame(data ?? [], backendId) : undefined;
   // End-of-game → the full live result board; in-round reveal → the live (partial) board.
   const isFinal = patch !== null && (patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
   const isReveal = patch !== null && patch.phase === Phase.REVEAL;
 
   return (
     <Shell
-      id={live?.id ?? 0}
-      category={live?.category ?? 'casual'}
-      title={live?.title ?? 'Game'}
+      id={game?.id ?? 0}
+      category={game?.category ?? 'casual'}
+      title={game?.title ?? 'Game'}
       round={patch?.phase ?? status}
     >
       {patch === null ? (
@@ -57,8 +61,8 @@ function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: str
 }
 
 function MockDisplay({ mockId }: { readonly mockId: number }) {
-  const game = gameById(mockId);
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game } = useCatalogueGame(mockId);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   if (game === undefined || content === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas">

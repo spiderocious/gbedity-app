@@ -77,6 +77,7 @@ export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.SIMULTANEOUS,
     players: { min: 2, max: null, recommendedMax: 12 },
     capabilities: {},
+    solo: { supported: true },
   },
   configSchema,
   contentSchema,

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import {
   ClientEvent,
+  HostAction,
   ServerEvent,
   createSocket,
   type JoinPayload,
@@ -14,6 +15,7 @@ import {
   type PatchesByAudience,
   type RoomSocketValue,
 } from './room-socket-context.tsx';
+import { RoomClosedScreen } from './room-closed-screen.tsx';
 
 interface RoomSocketProviderProps {
   readonly roomCode: string;
@@ -92,9 +94,22 @@ export function RoomSocketProvider({
       patch: patches[Audience.PLAYER] ?? patches[Audience.DISPLAY] ?? patches[Audience.HOST] ?? null,
       errorCode,
       sendAction: (action) => socketRef.current?.emit(ClientEvent.ACTION, { action }),
+      // Host-only: ask the server to end the room for everyone. The server boots all sockets and
+      // emits ROOM_ENDED, which flips every client to status=ENDED (the closed screen below).
+      endSession: () => socketRef.current?.emit(ClientEvent.ACTION, { action: { type: HostAction.END_SESSION } }),
     }),
     [status, patches, errorCode],
   );
+
+  // Room ended (host ended it / grace expired) → every socket-backed screen shows the terminal
+  // closed screen in one place, no per-screen handling.
+  if (status === ConnectionStatus.ENDED) {
+    return (
+      <RoomSocketContext.Provider value={value}>
+        <RoomClosedScreen />
+      </RoomSocketContext.Provider>
+    );
+  }
 
   return <RoomSocketContext.Provider value={value}>{children}</RoomSocketContext.Provider>;
 }

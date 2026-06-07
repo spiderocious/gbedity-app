@@ -8,6 +8,7 @@ import {
   ROOM_IDLE_MS,
   ROOM_SOFT_CAP,
   RoomPhase,
+  type LobbyLineupEntry,
   type Room,
   type RoomPlayer,
 } from './room.types';
@@ -35,6 +36,7 @@ export class RoomRegistry {
       reconnectToken: ulid(),
       connected: false,
       joinedAt: at,
+      spectator: false, // the host always plays
     };
     const room: Room = {
       code,
@@ -42,6 +44,7 @@ export class RoomRegistry {
       phase: RoomPhase.LOBBY,
       players: [host],
       activeGame: null,
+      lobbyLineup: [],
       createdAt: at,
       lastActivityAt: at,
     };
@@ -56,20 +59,34 @@ export class RoomRegistry {
   }
 
   // Re-insert a room rebuilt from a Redis snapshot on boot (recovery). Does not re-persist —
-  // the snapshot it came from is already the source.
+  // the snapshot it came from is already the source. Defaults lobbyLineup for rooms snapshotted
+  // before this field existed (forward-compat on recovery).
   restore(room: Room): void {
+    if (room.lobbyLineup === undefined) room.lobbyLineup = [];
+    // Forward-compat: rooms snapshotted before `spectator` existed default to non-spectator seats.
+    for (const p of room.players) if (p.spectator === undefined) p.spectator = false;
     this.rooms.set(room.code, room);
   }
 
+  // Replace the host's published lineup (host-only/phase checks live at the service layer). The
+  // entries are already validated + bounded by the service before this is called. Write-through
+  // to Redis so it survives a restart.
+  setLineup(room: Room, lineup: LobbyLineupEntry[]): void {
+    room.lobbyLineup = lineup;
+    this.touch(room);
+  }
+
   // Add a player to the lobby. Caller is responsible for phase/duplicate-nickname checks at the
-  // service layer; this enforces only the structural soft cap.
-  addPlayer(room: Room, nickname: string): RoomPlayer {
+  // service layer; this enforces only the structural soft cap. A spectator is a real seat that
+  // never plays (excluded from the plugin roster + min-count at startGame).
+  addPlayer(room: Room, nickname: string, spectator = false): RoomPlayer {
     const player: RoomPlayer = {
       id: newId(ID_PREFIX.PLAYER),
       nickname,
       reconnectToken: ulid(),
       connected: false,
       joinedAt: now(),
+      spectator,
     };
     room.players.push(player);
     this.touch(room);

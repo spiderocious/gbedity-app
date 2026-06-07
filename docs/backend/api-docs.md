@@ -16,7 +16,8 @@ only the room/play flow is unauthenticated for players.
 `validation_error` · `not_found` · `bad_request` · `conflict` · `rate_limited` · `forbidden` ·
 `invalid_credentials` · `token_invalid` · `token_expired` · `session_revoked` · `unauthorized` ·
 `room_not_found` · `room_full` · `room_closed` · `nickname_taken` · `not_in_lobby` ·
-`game_not_found` · `not_host` · `not_enough_players` · `game_already_running` · `internal_error`
+`game_not_found` · `not_host` · `not_enough_players` · `game_already_running` ·
+`solo_not_supported` · `solo_not_found` · `internal_error`
 
 ---
 
@@ -76,6 +77,34 @@ Host starts a single game. Content is resolved **server-side** (client content i
 - **presentation**: `rounds`(rotations, 1) `presentationSeconds`(90) `rateSeconds`(20) `allowHeckle`(true) `audienceBonus`(true)
 - **millionaire**: `timePerQuestion`(30) `pollSeconds`(15) `phoneSeconds`(15) `revealSeconds`(4) `questionCount`(15) `lifelines`(subset of `fifty_fifty`|`ask_audience`|`phone_friend`) `category`
 - **investigation**: `investigateSeconds`(300) `revealSeconds`(10)
+
+---
+
+## Single-player (solo) — unauthenticated
+
+One human, no other players. Reuses the same engine; a game is solo-able only when its scoring
+depends on the player + clock + content. Refused for peer-vote/peer-rate games.
+
+### `GET /solo/games`
+List games playable solo. → **200** `{ "data": { "games": [{ "gameId", "title", "category", "mode" }] } }`.
+
+### `POST /solo/start`
+Start a solo game. Content is resolved server-side (same as multiplayer).
+**Body** `{ "nickname"?: string, "gameId": string, "config"?: object }` (nickname defaults to "You").
+**201** `{ "data": { "soloId", "gameId", "instanceId", "playerId", "reconnectToken", "wsRole": "player" } }`
+**404** `game_not_found` · **409** `solo_not_supported` (a voting game) · **422** `validation_error`.
+
+> **Solo-supported:** quizzes, bible_quiz, wordshot, scrambled_word, missing_letters, spelling_fast,
+> definition_race, synonyms, antonyms, typing_fast, plead_your_case, millionaire (its
+> ask-the-audience / phone-a-friend lifelines are stripped in solo).
+> **Refused solo (409):** word_bomb, hot_take_court, catch_the_lie, truth_or_dare, presentation.
+
+### `GET /solo/:soloId`
+Snapshot for reconnect/poll. **200** `{ "data": { "soloId", "gameId", "phase", "over" } }` · **404** `solo_not_found`.
+
+**WS:** `client.join { roomCode: soloId, role: "player", reconnectToken }`. The solo player is also
+the host, so its single socket receives the **display** projection too (question/word/topic/TTS) and
+can drive host actions. Same `client.action` shapes as multiplayer.
 
 ---
 

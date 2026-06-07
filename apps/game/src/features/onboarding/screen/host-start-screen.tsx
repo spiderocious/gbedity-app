@@ -1,4 +1,4 @@
-import { Card, DrawerService, Pill, RoomCodeChip } from '@gbedity/ui';
+import { Card, DrawerService, Pill } from '@gbedity/ui';
 import { ArrowRight, Settings2, Trophy, Zap, type LucideIcon } from '@icons';
 import { useNavigate } from 'react-router-dom';
 

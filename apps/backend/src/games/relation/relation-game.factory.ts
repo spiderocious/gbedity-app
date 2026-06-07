@@ -79,6 +79,7 @@ export const makeRelationGame = (opts: RelationGameOpts): AnyGamePlugin => {
       mode: GameMode.SIMULTANEOUS,
       players: { min: 2, max: null, recommendedMax: 10 },
       capabilities: { needsValidation: true },
+      solo: { supported: true },
     },
     configSchema,
     contentSchema,

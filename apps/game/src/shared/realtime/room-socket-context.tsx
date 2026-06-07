@@ -32,6 +32,8 @@ export interface RoomSocketValue {
   readonly errorCode: string | null;
   /** Send a game action ({ type, ... }). */
   readonly sendAction: (action: Record<string, unknown>) => void;
+  /** Host-only: end the session for everyone (server boots all clients to the closed screen). */
+  readonly endSession: () => void;
 }
 
 export const RoomSocketContext = createContext<RoomSocketValue | null>(null);

@@ -7,6 +7,11 @@ export interface QrCodeProps {
   url: string;
   /** Pixel size of the (square) code. Default 160. */
   size?: number;
+  /**
+   * Fill the wrapper's width instead of using a fixed `size` — the SVG scales to its container
+   * (height follows, staying square). Use when the QR should fill its card.
+   */
+  fluid?: boolean;
   className?: string;
 }
 
@@ -19,10 +24,17 @@ export interface QrCodeProps {
 const QR_FG = '#1F6B4A'; // Forest Ink — never pure black
 const QR_BG = '#FFFFFF';
 
-export function QrCode({ url, size = 160, className }: Readonly<QrCodeProps>) {
+export function QrCode({ url, size = 160, fluid = false, className }: Readonly<QrCodeProps>) {
   return (
-    <span className={cn('inline-flex rounded-card bg-surface p-4', className)}>
-      <QRCodeSVG value={url} size={size} fgColor={QR_FG} bgColor={QR_BG} level="M" />
+    <span className={cn('inline-flex rounded-card bg-surface p-4', fluid ? 'w-full' : '', className)}>
+      <QRCodeSVG
+        value={url}
+        size={size}
+        fgColor={QR_FG}
+        bgColor={QR_BG}
+        level="M"
+        {...(fluid ? { style: { width: '100%', height: 'auto' } } : {})}
+      />
     </span>
   );
 }

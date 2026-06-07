@@ -40,6 +40,14 @@ export interface GameManifest {
     needsAI?: boolean;
     needsTTS?: boolean;
   };
+  // Single-player support (see docs/backend/single-player-spec.md). Absent ⇒ NOT solo-playable.
+  // A game is solo-able only when its scoring depends on the player + clock + content, never on
+  // other humans (so the peer-vote/peer-rate games declare nothing here and are refused solo).
+  solo?: {
+    supported: boolean;
+    minPlayers?: number; // overrides players.min in solo (unused now; reserved)
+    disabledConfig?: string[]; // config keys forced off in solo (unused now; reserved)
+  };
 }
 
 // ── Audience & views (§2.3) ───────────────────────────────────────────────────

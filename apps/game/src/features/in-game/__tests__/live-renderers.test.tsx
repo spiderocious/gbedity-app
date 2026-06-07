@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { RealGameId } from '../../../shared/types/api.ts';
 import type { ViewPatch } from '../../../shared/types/view.ts';
 import { getLiveRenderer } from '../live/live-renderers.tsx';
+import { LiveGameId } from '../resolve-live-game.ts';
 
 // Regression for "Rendered more hooks than during the previous render": the player renderers
 // use useState and were previously CALLED as functions (renderer.player(patch)), so a changing
@@ -19,7 +19,7 @@ const PATCHES: ViewPatch[] = [
 
 describe('live player renderer is a stable component (no hook-count crash)', () => {
   it('re-renders the quizzes Player across changing patch shapes without throwing', () => {
-    const renderer = getLiveRenderer(RealGameId.QUIZZES);
+    const renderer = getLiveRenderer(LiveGameId.QUIZZES);
     expect(renderer).toBeDefined();
     const Player = renderer!.Player;
     const send = vi.fn();
@@ -35,7 +35,7 @@ describe('live player renderer is a stable component (no hook-count crash)', () 
   });
 
   it('every real game exposes a Player component and a display fn', () => {
-    for (const id of Object.values(RealGameId)) {
+    for (const id of Object.values(LiveGameId)) {
       const r = getLiveRenderer(id);
       expect(r?.Player).toBeTypeOf('function');
       expect(r?.display).toBeTypeOf('function');

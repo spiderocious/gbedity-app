@@ -68,6 +68,7 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.SIMULTANEOUS,
     players: { min: 2, max: null, recommendedMax: 12 },
     capabilities: { needsTTS: true },
+    solo: { supported: true },
   },
   configSchema,
   contentSchema,

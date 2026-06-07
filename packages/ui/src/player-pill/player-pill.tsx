@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Avatar, type AvatarSize, type SeatIndex } from '../avatar/avatar.tsx';
+import { GameAvatar } from '../avatar/game-avatar.tsx';
 import { cn } from '../utils/cn.ts';
 
 export type PlayerPillSize = 'sm' | 'md' | 'lg';
@@ -8,6 +9,11 @@ export type PlayerPillSize = 'sm' | 'md' | 'lg';
 export interface PlayerPillProps {
   /** Player nickname. */
   name: string;
+  /**
+   * Stable player id. When set, renders the distinctive DiceBear GameAvatar seeded from it
+   * (each player gets a unique character); otherwise falls back to the seat-coloured initial.
+   */
+  avatarId?: string;
   /** Avatar initial — defaults to first letter of name. */
   initial?: string;
   /** Seat colour 1–8. */
@@ -44,6 +50,7 @@ const SIZE: Record<PlayerPillSize, SizeSpec> = {
 
 export function PlayerPill({
   name,
+  avatarId,
   initial,
   seat = 1,
   meta,
@@ -54,6 +61,7 @@ export function PlayerPill({
   className,
 }: Readonly<PlayerPillProps>) {
   const s = SIZE[size];
+  const fallbackInitial = initial ?? name.slice(0, 1);
   return (
     <div
       className={cn(
@@ -64,7 +72,11 @@ export function PlayerPill({
         className,
       )}
     >
-      <Avatar initial={initial ?? name.slice(0, 1)} seat={seat} size={s.avatar} />
+      {avatarId !== undefined ? (
+        <GameAvatar id={avatarId} initial={fallbackInitial} seat={seat} size={s.avatar} />
+      ) : (
+        <Avatar initial={fallbackInitial} seat={seat} size={s.avatar} />
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-[6px]">
           <span className={cn('truncate font-serif font-semibold text-ink', s.name)}>{name}</span>

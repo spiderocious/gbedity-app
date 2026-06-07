@@ -3,7 +3,7 @@ import { ulid } from 'ulid';
 import { logger } from '@lib/logger';
 import { now, type EpochMs } from '@shared/time';
 
-import { ActorRole, AudienceKind, EffectKind, SessionEventKind, SystemActionType } from './constants';
+import { ActorRole, AudienceKind, EffectKind, HostActionType, SessionEventKind, SystemActionType } from './constants';
 import { jsonBytes, metrics, sessionLog } from './observability';
 import { makeRandom } from './prng';
 import { runAI, runValidation } from './services/service-seams';
@@ -65,6 +65,7 @@ export class GameRuntime {
   private readonly pendingRefs = new Set<string>();
   private snapshotTimer: ReturnType<typeof setTimeout> | null = null;
   private recovering = false;
+  private ended = false; // set on GAME_ENDED — stops further snapshot scheduling (SP-3)
   private eventSeq = 0; // monotonic per instance, for persisted play events
 
   constructor(opts: RuntimeOptions) {
@@ -102,6 +103,25 @@ export class GameRuntime {
   // role (host is token-verified at join), so plugins can gate host-only actions. The runtime
   // validates the action shape + capability gating here.
   dispatchAction(actor: PlayerRef, role: ActorRole, rawAction: unknown): void {
+    // Engine-level host controls (host.end_game / host.skip) are handled BEFORE the plugin's
+    // actionSchema — they aren't game actions, so they'd fail per-game validation. Only the
+    // token-verified host role is honored; anyone else's host-control attempt is a silent no-op.
+    const hostAction = this.hostActionType(rawAction);
+    if (hostAction !== undefined) {
+      if (role === ActorRole.HOST) {
+        sessionLog.emit({
+          roomCode: this.roomCode,
+          instanceId: this.instanceId,
+          kind: SessionEventKind.ACTION_IN,
+          actorId: actor.id,
+          actionType: hostAction,
+        });
+        if (hostAction === HostActionType.END_GAME) this.endGame();
+        else this.runTick(); // host.skip → advance the current phase early via onTick
+      }
+      return;
+    }
+
     const action = this.plugin.actionSchema.parse(rawAction);
     const actionType = this.actionType(action);
     sessionLog.emit({
@@ -211,6 +231,10 @@ export class GameRuntime {
         this.onRoundEnded(this.plugin.scoreRound(this.requireState()));
         return;
       case EffectKind.GAME_ENDED:
+        // Mark ended BEFORE the callback — the session's onEnded may dispose this runtime
+        // (deleting the snapshot), and applyStep would otherwise re-schedule one right after,
+        // resurrecting the snapshot of a finished game (SP-3). `ended` blocks that re-schedule.
+        this.ended = true;
         this.onGameEnded();
         return;
       default: {
@@ -286,7 +310,7 @@ export class GameRuntime {
   // ── Snapshot / recovery (§6) ──────────────────────────────────────────────────
 
   private scheduleSnapshot(): void {
-    if (this.snapshotTimer) return;
+    if (this.ended || this.snapshotTimer) return; // never snapshot a finished game (SP-3)
     this.snapshotTimer = setTimeout(() => {
       this.snapshotTimer = null;
       void this.snapshot();
@@ -344,6 +368,17 @@ export class GameRuntime {
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
 
+  // Host-initiated end (host.end_game). Stop the clock and signal the session to wind down — the
+  // same terminal path a natural GAME_ENDED takes (session.onEnded → room back to lobby). Broadcasts
+  // a final view first so every client sees the game close, not a frozen mid-round screen.
+  private endGame(): void {
+    this.ended = true; // block any post-dispose snapshot re-schedule (SP-3)
+    for (const [, t] of this.timers) clearTimeout(t.handle);
+    this.timers.clear();
+    this.broadcast();
+    this.onGameEnded();
+  }
+
   isOver(): boolean {
     return this.plugin.isOver(this.requireState());
   }
@@ -367,6 +402,15 @@ export class GameRuntime {
     this.sendToPlayer(playerId);
   }
 
+  // Re-project the DISPLAY (and HOST) views — used on a solo join/reconnect, where the single device
+  // is also the display: without this it would only get the player view and miss the question / word
+  // / topic that's shown once on the display channel (SP-2).
+  resendDisplay(): void {
+    if (this.state === undefined) return;
+    this.sink.send(this.roomCode, { kind: AudienceKind.DISPLAY }, this.viewFor({ kind: AudienceKind.DISPLAY }));
+    this.sink.send(this.roomCode, { kind: AudienceKind.HOST }, this.viewFor({ kind: AudienceKind.HOST }));
+  }
+
   // Identity + roster for a game-play record (the session supplies the final board + timing).
   playIdentity(): { id: string; roomCode: string; gameId: string; players: PlayerRef[] } {
     return { id: this.instanceId, roomCode: this.roomCode, gameId: this.plugin.manifest.id, players: this.players };
@@ -387,5 +431,11 @@ export class GameRuntime {
       return typeof t === 'string' ? t : undefined;
     }
     return undefined;
+  }
+
+  // Narrow an opaque action to an engine-level host-control type, else undefined (a game action).
+  private hostActionType(action: unknown): HostActionType | undefined {
+    const t = this.actionType(action);
+    return t === HostActionType.END_GAME || t === HostActionType.SKIP ? t : undefined;
   }
 }

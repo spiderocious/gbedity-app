@@ -12,8 +12,9 @@ import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { SocketRole } from '../../../shared/services/socket.ts';
 import { useGameQueue } from '../../../shared/games/game-queue.ts';
-import { RealGameId } from '../../../shared/types/api.ts';
+import { LiveGameId } from '../../in-game/resolve-live-game.ts';
 import { Phase } from '../../../shared/types/view.ts';
+import { LineupSummary } from '../../../shared/widgets/lineup-summary.tsx';
 import { seatForIndex } from '../seat.ts';
 
 // §2.1 — display lobby (landscape, large text). Live roster from GET /rooms/:code; the
@@ -36,9 +37,10 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
   const host = sessionStore.getHost();
   const queue = useGameQueue(code);
   const players = lobby.data?.players ?? [];
+  const lineup = lobby.data?.lineup ?? [];
   // The first BACKED game the host queued; falls back to Wordshot only if nothing's queued.
   const nextBacked = queue.find((q) => q.backendId !== undefined);
-  const nextGameId = nextBacked?.backendId ?? RealGameId.WORDSHOT;
+  const nextGameId = nextBacked?.backendId ?? LiveGameId.WORDSHOT;
 
   useEffect(() => {
     if (patch !== null && patch.phase !== Phase.LOBBY) {
@@ -82,9 +84,18 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
         <aside className="flex w-[340px] flex-col gap-3">
           <h2 className="font-sans text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink-3">Players</h2>
           {players.map((p, i) => (
-            <PlayerPill key={p.id} name={p.nickname} seat={seatForIndex(i)} size="lg" />
+            <PlayerPill key={p.id} name={p.nickname} avatarId={p.id} seat={seatForIndex(i)} size="lg" />
           ))}
           {players.length === 0 ? <p className="font-sans text-[15px] text-ink-3">Waiting for the first player…</p> : null}
+
+          {lineup.length > 0 ? (
+            <div className="mt-4">
+              <h2 className="mb-2 font-sans text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
+                Lineup
+              </h2>
+              <LineupSummary lineup={lineup} scale="display" />
+            </div>
+          ) : null}
         </aside>
       </div>
 
