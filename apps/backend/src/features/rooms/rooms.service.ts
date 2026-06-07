@@ -19,6 +19,14 @@ import { DEFAULT_RATING_FILTER, type RatingFilter } from '@features/content/cont
 
 // Room business logic. Returns ServiceResult — never throws for expected failures, never sees req.
 
+// "spectator" is a reserved word in nicknames so the server-applied "(SPECTATOR)" suffix is
+// unambiguous and can't be spoofed by a player typing it into their own name.
+const RESERVED_NICKNAME = 'spectator';
+const SPECTATOR_SUFFIX = ' (SPECTATOR)';
+
+const isReservedNickname = (nickname: string): boolean =>
+  nickname.toLowerCase().includes(RESERVED_NICKNAME);
+
 export interface CreateRoomResult {
   code: string;
   hostId: string;
@@ -29,6 +37,7 @@ export interface JoinRoomResult {
   code: string;
   playerId: string;
   reconnectToken: string;
+  spectator: boolean;
 }
 
 export interface SetLineupResult {
@@ -47,7 +56,7 @@ export class RoomsService {
     return ServiceSuccess({ code: room.code, hostId: host.id, hostToken: host.reconnectToken });
   }
 
-  joinRoom(code: string, nickname: string): ServiceResult<JoinRoomResult> {
+  joinRoom(code: string, nickname: string, spectator = false): ServiceResult<JoinRoomResult> {
     const room = this.registry.get(code);
     if (!room) {
       return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
@@ -61,13 +70,27 @@ export class RoomsService {
     if (this.registry.isFull(room)) {
       return ServiceError(ERROR_CODES.ROOM_FULL, MESSAGE_KEYS.rooms.FULL, 409);
     }
-    if (this.registry.hasNickname(room, nickname)) {
+    const trimmed = nickname.trim();
+    // "spectator" is reserved — the "(SPECTATOR)" tag is server-applied, never user-typed.
+    if (isReservedNickname(trimmed)) {
+      return ServiceError(ERROR_CODES.VALIDATION_ERROR, MESSAGE_KEYS.rooms.NICKNAME_RESERVED, 422, {
+        nickname: ['“Spectator” is reserved — pick another nickname.'],
+      });
+    }
+    // Server applies the suffix so it shows everywhere (roster, scores) and can't be spoofed.
+    const stored = spectator ? `${trimmed}${SPECTATOR_SUFFIX}` : trimmed;
+    if (this.registry.hasNickname(room, stored)) {
       return ServiceError(ERROR_CODES.NICKNAME_TAKEN, MESSAGE_KEYS.rooms.NICKNAME_TAKEN, 409, {
         nickname: ['That nickname is taken.'],
       });
     }
-    const player: RoomPlayer = this.registry.addPlayer(room, nickname.trim());
-    return ServiceSuccess({ code: room.code, playerId: player.id, reconnectToken: player.reconnectToken });
+    const player: RoomPlayer = this.registry.addPlayer(room, stored, spectator);
+    return ServiceSuccess({
+      code: room.code,
+      playerId: player.id,
+      reconnectToken: player.reconnectToken,
+      spectator: player.spectator,
+    });
   }
 
   // Publish the host's game lineup so players + display can see it in the lobby (read-only).
@@ -117,7 +140,9 @@ export class RoomsService {
     if (!plugin) {
       return ServiceError(ERROR_CODES.GAME_NOT_FOUND, MESSAGE_KEYS.games.NOT_FOUND, 404);
     }
-    if (room.players.length < plugin.manifest.players.min) {
+    // Spectators never play: excluded from the plugin roster AND the min-player count (PRD §4/§10).
+    const participants = room.players.filter((p) => !p.spectator);
+    if (participants.length < plugin.manifest.players.min) {
       return ServiceError(ERROR_CODES.NOT_ENOUGH_PLAYERS, MESSAGE_KEYS.games.NOT_ENOUGH_PLAYERS, 409);
     }
 
@@ -136,7 +161,7 @@ export class RoomsService {
     // (rating-filtered) and IGNORE any client-supplied content. Only games without a resolver
     // (e.g. the bare test games) fall back to client content.
     const resolver = getContentResolver(gameId);
-    const seed = `${code}:${room.players.length}:${gameId}`;
+    const seed = `${code}:${participants.length}:${gameId}`;
     const rawContent = resolver
       ? await resolver({ config: configCheck.data, ratingFilter, seed })
       : clientContent;
@@ -151,7 +176,8 @@ export class RoomsService {
       );
     }
 
-    const players: PlayerRef[] = room.players.map((p) => ({ id: p.id, nickname: p.nickname }));
+    // Only participants enter the plugin — spectators get views (display projection) but no seat.
+    const players: PlayerRef[] = participants.map((p) => ({ id: p.id, nickname: p.nickname }));
     const session = this.sessions.create({
       roomCode: code,
       gameId,
@@ -182,7 +208,7 @@ export class RoomsService {
   lobby(code: string): ServiceResult<{
     code: string;
     phase: Room['phase'];
-    players: { id: string; nickname: string }[];
+    players: { id: string; nickname: string; spectator: boolean }[];
     lineup: LobbyLineupEntry[];
   }> {
     const room = this.registry.get(code);
@@ -192,7 +218,7 @@ export class RoomsService {
     return ServiceSuccess({
       code: room.code,
       phase: room.phase,
-      players: room.players.map((p) => ({ id: p.id, nickname: p.nickname })),
+      players: room.players.map((p) => ({ id: p.id, nickname: p.nickname, spectator: p.spectator })),
       lineup: room.lobbyLineup,
     });
   }

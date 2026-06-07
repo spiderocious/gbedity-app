@@ -210,11 +210,27 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
         socket.emit(ServerEvent.ERROR, { code: 'seat_not_found' });
         return;
       }
+      // SPECTATOR seat: a real seat that watches but never plays. Route it to the DISPLAY channel
+      // only (answer-secret projection, no input) — never the player channel. It joins the
+      // room-wide channel above, so it still gets lifecycle signals (room ended). It is NOT in the
+      // plugin roster, so the runtime never projects a player view to it.
+      if (seat.spectator) {
+        seat.connected = true;
+        void socket.join(displayChannel(roomCode));
+        const runtime = sessionManager.activeRuntime(roomCode);
+        if (runtime) {
+          runtime.resendDisplay();
+          socket.emit(ServerEvent.RESUMED, { roomCode });
+        }
+        socket.emit(ServerEvent.JOINED, { roomCode, role });
+        return;
+      }
       bindPlayer(socket, data, roomCode, seat);
       // Solo: when the player IS the room's host (a 1-player solo room), their single device is also
       // the display — subscribe it to the display channel so it gets the question/word/topic/TTS
       // projection too. Harmless in multiplayer (players there are never the host).
-      if (seat.id === room.hostId) {
+      const isSolo = seat.id === room.hostId;
+      if (isSolo) {
         void socket.join(displayChannel(roomCode));
         void socket.join(hostChannel(roomCode));
       }
@@ -222,6 +238,10 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
       const runtime = sessionManager.activeRuntime(roomCode);
       if (runtime) {
         runtime.resendTo(seat.id);
+        // Solo also needs the DISPLAY view re-sent — one-shot-prompt games (e.g. Spelling Fast)
+        // show the question/word on the display channel once, so a join/reconnect would otherwise
+        // see nothing until the next broadcast (SP-2).
+        if (isSolo) runtime.resendDisplay();
         socket.emit(ServerEvent.RESUMED, { roomCode });
       }
     }

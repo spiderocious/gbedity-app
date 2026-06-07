@@ -65,6 +65,9 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.OPEN_PHASE,
     players: { min: 2, max: 8, recommendedMax: 8 },
     capabilities: {},
+    // Solo-able: each player investigates + accuses independently and is scored against the
+    // revealed truth — no peer dependency (SP-4: was excluded only by oversight).
+    solo: { supported: true },
   },
   configSchema,
   contentSchema,

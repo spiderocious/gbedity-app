@@ -1,10 +1,23 @@
 # Gbedity — Single-Player Mode Spec
 
-**Status:** spec only · review before build
+**Status:** BUILT · this doc is the original design; the §8 open questions were answered and the
+**decisions below override** any earlier text (it's kept for design history). See the QA handoff
+[`single-player-handoff.md`](../qa/backend/single-player-handoff.md) for the as-built behaviour.
 **Goal:** a user can pick a game, set config, hit start, **play alone**, and see their own score —
 no room of other people, no waiting on others.
 **Source of truth:** the PRD + the built engine ([`game-engine.md`](./game-engine.md)). This adds a
 *play mode*, not a new engine.
+
+> **Decisions applied (override earlier text in this doc):**
+> - **Refused solo (5):** Word Bomb + the 4 peer-vote/rate games (Hot Take Court, Catch the Lie,
+>   Truth or Dare, Presentation). Word Bomb was **excluded** (its pass-the-bomb tension is the point)
+>   — ignore the "keep Word Bomb / minPlayers:1" passages below.
+> - **Solo-supported (13):** the 12 single-player-scored games **+ Investigation** (per-player
+>   accusation, scored vs the revealed truth — no peer dependency). Millionaire strips its
+>   ask-audience / phone-a-friend lifelines in solo.
+> - **No `mode:'solo'` field** was added (it would touch the shared multiplayer persistence path);
+>   solo plays are identifiable as single-player records. Ignore the `mode:'solo'` passages below.
+> - **No personal-best / high-score store** and **no solo-league** — end-of-game total only.
 
 > The PRD's v1 is multiplayer-first (phones-as-controllers, a shared display). Single-player is an
 > additive mode: the same plugins, the same runtime, but **one human** and a **collapsed transport**

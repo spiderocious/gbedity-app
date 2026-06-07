@@ -16,6 +16,7 @@ export const MESSAGE_KEYS = {
     CLOSED: 'rooms.closed',
     JOINED: 'rooms.joined',
     NICKNAME_TAKEN: 'rooms.nickname_taken',
+    NICKNAME_RESERVED: 'rooms.nickname_reserved',
     NOT_IN_LOBBY: 'rooms.not_in_lobby',
   },
   games: {

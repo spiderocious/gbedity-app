@@ -50,10 +50,21 @@ interface State {
   words: Content['words'];
   deadline: EpochMs;
   solved: { playerId: string; at: EpochMs }[]; // correct guessers this round, in order
+  totals: Record<string, number>; // cumulative score per player across rounds (for the board)
 }
 
 const POINTS = 1000;
 const cur = (s: State): Content['words'][number] | undefined => s.words[s.idx];
+
+// Per-round points: faster solvers score more (rank order). Single source for both scoreRound (the
+// league/leaderboard seam) and the in-patch board, so they never drift.
+const roundDeltas = (solved: State['solved']): Record<string, number> => {
+  const out: Record<string, number> = {};
+  solved.forEach((s, rank) => {
+    out[s.playerId] = Math.max(100, POINTS - rank * 100);
+  });
+  return out;
+};
 
 // Masked display: revealed letters shown, others as "_".
 const masked = (w: Content['words'][number]): string =>
@@ -89,6 +100,7 @@ export const missingLettersGame: GamePlugin<Config, State, Action, Content> = {
         words: input.content.words,
         deadline,
         solved: [],
+        totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: deadline }, { kind: EffectKind.BROADCAST }],
     };
@@ -115,8 +127,13 @@ export const missingLettersGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.ROUND) {
       const d = nowMs + state.revealSeconds * 1000;
+      // Fold this round's deltas into the cumulative totals BEFORE the reveal broadcast, so the
+      // reveal patch's board shows everyone's running score incl. this round (round-scores screen).
+      const deltas = roundDeltas(state.solved);
+      const totals = { ...state.totals };
+      for (const [id, pts] of Object.entries(deltas)) totals[id] = (totals[id] ?? 0) + pts;
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: d },
+        state: { ...state, phase: Phase.REVEAL, deadline: d, totals },
         effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }],
       };
     }
@@ -134,23 +151,36 @@ export const missingLettersGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const word = cur(state);
+    // Cumulative board (running totals + this round's delta) — drives the all-players scores +
+    // the round-scores screen, for every audience incl. spectators. roundDelta is only meaningful
+    // at reveal (the round just scored); 0 during play.
+    const thisRound = state.phase === Phase.REVEAL ? roundDeltas(state.solved) : {};
+    const board = Object.entries(state.totals)
+      .map(([playerId, points]) => ({ playerId, points, roundDelta: thisRound[playerId] ?? 0 }))
+      .sort((a, b) => b.points - a.points);
     const base: ViewPatch = {
       phase: state.phase,
       idx: state.idx,
       rounds: state.rounds,
       masked: word ? masked(word) : null,
       length: word?.answer.length ?? 0,
+      deadline: state.deadline, // absolute epoch-ms — client renders the countdown ring
+      secondsPerRound: state.secondsPerRound,
+      board,
     };
     if (state.phase === Phase.REVEAL && word) base.answer = word.answer; // secrecy: only at reveal
-    if (audience.kind === AudienceKind.PLAYER) base.solved = state.solved.some((s) => s.playerId === audience.playerId);
+    if (audience.kind === AudienceKind.PLAYER) {
+      base.solved = state.solved.some((s) => s.playerId === audience.playerId);
+      base.yourScore = state.totals[audience.playerId] ?? 0;
+    }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    // faster solvers score more (rank order within the round)
-    const deltas = state.solved.map((s, rank) => ({
-      playerId: s.playerId,
-      points: Math.max(100, POINTS - rank * 100),
+    // faster solvers score more (rank order within the round) — same math as the in-patch board.
+    const deltas = Object.entries(roundDeltas(state.solved)).map(([playerId, points]) => ({
+      playerId,
+      points,
       reason: MESSAGE_KEYS.common.OK,
     }));
     return { deltas, maxPoints: POINTS };

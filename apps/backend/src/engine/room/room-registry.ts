@@ -36,6 +36,7 @@ export class RoomRegistry {
       reconnectToken: ulid(),
       connected: false,
       joinedAt: at,
+      spectator: false, // the host always plays
     };
     const room: Room = {
       code,
@@ -62,6 +63,8 @@ export class RoomRegistry {
   // before this field existed (forward-compat on recovery).
   restore(room: Room): void {
     if (room.lobbyLineup === undefined) room.lobbyLineup = [];
+    // Forward-compat: rooms snapshotted before `spectator` existed default to non-spectator seats.
+    for (const p of room.players) if (p.spectator === undefined) p.spectator = false;
     this.rooms.set(room.code, room);
   }
 
@@ -74,14 +77,16 @@ export class RoomRegistry {
   }
 
   // Add a player to the lobby. Caller is responsible for phase/duplicate-nickname checks at the
-  // service layer; this enforces only the structural soft cap.
-  addPlayer(room: Room, nickname: string): RoomPlayer {
+  // service layer; this enforces only the structural soft cap. A spectator is a real seat that
+  // never plays (excluded from the plugin roster + min-count at startGame).
+  addPlayer(room: Room, nickname: string, spectator = false): RoomPlayer {
     const player: RoomPlayer = {
       id: newId(ID_PREFIX.PLAYER),
       nickname,
       reconnectToken: ulid(),
       connected: false,
       joinedAt: now(),
+      spectator,
     };
     room.players.push(player);
     this.touch(room);

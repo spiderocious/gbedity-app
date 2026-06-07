@@ -14,6 +14,7 @@ const catalog: Record<MessageKey, string> = {
   [MESSAGE_KEYS.rooms.CLOSED]: 'That room has closed.',
   [MESSAGE_KEYS.rooms.JOINED]: "You're in.",
   [MESSAGE_KEYS.rooms.NICKNAME_TAKEN]: 'That nickname is taken — pick another.',
+  [MESSAGE_KEYS.rooms.NICKNAME_RESERVED]: '“Spectator” is reserved — pick another nickname.',
   [MESSAGE_KEYS.rooms.NOT_IN_LOBBY]: "That room's game is already in progress.",
 
   [MESSAGE_KEYS.games.STARTED]: "Let's play.",

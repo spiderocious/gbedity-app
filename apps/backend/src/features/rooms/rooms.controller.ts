@@ -52,8 +52,10 @@ export const roomsController = {
     const code = paramCode(req).toUpperCase();
     const nickname = requireString(res, req.body?.nickname, 'nickname');
     if (nickname === null) return;
+    // Optional opt-in: a spectator watches the room but never plays (PRD §4/§10).
+    const spectator = req.body?.spectator === true;
 
-    const result = roomsService.joinRoom(code, nickname);
+    const result = roomsService.joinRoom(code, nickname, spectator);
     if (!result.success) {
       fail(res, result);
       return;

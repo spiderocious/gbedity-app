@@ -28,6 +28,10 @@ export interface RoomPlayer {
   reconnectToken: string; // lets a refreshed player re-enter their seat (PRD §10)
   connected: boolean;
   joinedAt: EpochMs;
+  // A spectator is a real seat (token + WS connection + per-seat views) that NEVER plays: excluded
+  // from the plugin roster, never counts toward min-players, and receives the display projection
+  // (answer-secret, no input). PRD §4/§10. The host is never a spectator.
+  spectator: boolean;
 }
 
 export interface ActiveGame {

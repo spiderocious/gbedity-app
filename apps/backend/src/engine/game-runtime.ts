@@ -310,7 +310,7 @@ export class GameRuntime {
   // ── Snapshot / recovery (§6) ──────────────────────────────────────────────────
 
   private scheduleSnapshot(): void {
-    if (this.snapshotTimer) return;
+    if (this.ended || this.snapshotTimer) return; // never snapshot a finished game (SP-3)
     this.snapshotTimer = setTimeout(() => {
       this.snapshotTimer = null;
       void this.snapshot();
@@ -372,6 +372,7 @@ export class GameRuntime {
   // same terminal path a natural GAME_ENDED takes (session.onEnded → room back to lobby). Broadcasts
   // a final view first so every client sees the game close, not a frozen mid-round screen.
   private endGame(): void {
+    this.ended = true; // block any post-dispose snapshot re-schedule (SP-3)
     for (const [, t] of this.timers) clearTimeout(t.handle);
     this.timers.clear();
     this.broadcast();
@@ -399,6 +400,15 @@ export class GameRuntime {
   resendTo(playerId: string): void {
     if (this.state === undefined) return;
     this.sendToPlayer(playerId);
+  }
+
+  // Re-project the DISPLAY (and HOST) views — used on a solo join/reconnect, where the single device
+  // is also the display: without this it would only get the player view and miss the question / word
+  // / topic that's shown once on the display channel (SP-2).
+  resendDisplay(): void {
+    if (this.state === undefined) return;
+    this.sink.send(this.roomCode, { kind: AudienceKind.DISPLAY }, this.viewFor({ kind: AudienceKind.DISPLAY }));
+    this.sink.send(this.roomCode, { kind: AudienceKind.HOST }, this.viewFor({ kind: AudienceKind.HOST }));
   }
 
   // Identity + roster for a game-play record (the session supplies the final board + timing).

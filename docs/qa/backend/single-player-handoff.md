@@ -18,10 +18,11 @@
 A game is solo-able only when its scoring depends on the player + clock + content (never on other
 humans). Declared per-game via `manifest.solo.supported`.
 
-**✅ Solo-supported (12):** Quizzes, Bible Quiz, Wordshot, Scrambled Word, Missing Letters,
+**✅ Solo-supported (13):** Quizzes, Bible Quiz, Wordshot, Scrambled Word, Missing Letters,
 Spelling Fast, Definition Race, Synonyms, Antonyms, Typing Fast, Plead Your Case, **Millionaire**
 (lifelines that need other players — Ask-the-Audience, Phone-a-Friend — are **stripped in solo**;
-50/50 remains).
+50/50 remains), **Investigation** (per-player accusation, scored vs the revealed truth — no peer
+dependency).
 
 **❌ Refused solo (5):** Word Bomb, Hot Take Court, Catch the Lie, Truth or Dare, Presentation —
 their score *is* other humans (pass-the-bomb / voting / rating). Starting these solo returns

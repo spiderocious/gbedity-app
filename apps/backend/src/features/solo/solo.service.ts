@@ -32,7 +32,8 @@ export interface StartSoloResult {
 }
 
 // Drop disabledConfig keys from a config object (solo strips lifelines that need other humans).
-const stripDisabled = (config: unknown, disabled: string[] | undefined): unknown => {
+// Exported for regression coverage (SP-1) — it must run on the PARSED (default-filled) config.
+export const stripDisabled = (config: unknown, disabled: string[] | undefined): unknown => {
   if (!disabled || disabled.length === 0 || typeof config !== 'object' || config === null) return config;
   const out: Record<string, unknown> = { ...(config as Record<string, unknown>) };
   for (const key of disabled) delete out[key];
