@@ -54,6 +54,15 @@ export const SystemActionType = {
 } as const;
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType];
 
+// Engine-level host-control actions. Handled by the runtime BEFORE the plugin's actionSchema (so
+// they work for every game with no per-plugin code), and only honored for the token-verified host
+// role. `host.skip` advances the current phase early (fires onTick); `host.end_game` ends the game.
+export const HostActionType = {
+  END_GAME: 'host.end_game',
+  SKIP: 'host.skip',
+} as const;
+export type HostActionType = (typeof HostActionType)[keyof typeof HostActionType];
+
 // Observability event kinds (§9).
 export const SessionEventKind = {
   ACTION_IN: 'action_in',

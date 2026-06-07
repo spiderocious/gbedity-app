@@ -21,6 +21,11 @@ function set(key: string, value: string): void {
   window.sessionStorage.setItem(key, value);
 }
 
+function remove(key: string): void {
+  if (typeof window === 'undefined') return;
+  window.sessionStorage.removeItem(key);
+}
+
 export interface HostSession {
   readonly hostId: string;
   readonly hostToken: string;
@@ -68,5 +73,14 @@ export const sessionStore = {
   },
   saveNickname(nickname: string): void {
     set(KEYS.NICKNAME, nickname);
+  },
+  // Drop the room/seat identity (e.g. after a room closes) so a stale reconnect token isn't reused.
+  // Nickname is kept — it's a harmless convenience for the next room.
+  clearRoom(): void {
+    remove(KEYS.HOST_ID);
+    remove(KEYS.HOST_TOKEN);
+    remove(KEYS.PLAYER_ID);
+    remove(KEYS.RECONNECT_TOKEN);
+    remove(KEYS.ROOM_CODE);
   },
 };

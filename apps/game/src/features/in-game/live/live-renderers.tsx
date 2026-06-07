@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useLobby } from '../../../shared/api/use-lobby.ts';
-import { RealGameId } from '../../../shared/types/api.ts';
+import { LiveGameId } from '../resolve-live-game.ts';
 import type { ViewPatch } from '../../../shared/types/view.ts';
 import {
   CategoryBadge,
@@ -172,7 +172,7 @@ function PleadPlayer({ patch: p, send }: PlayerViewProps) {
 
 // Shared display renderers (public projection).
 const RENDERERS: Record<string, LiveRenderer> = {
-  [RealGameId.QUIZZES]: {
+  [LiveGameId.QUIZZES]: {
     display: (p) => (
       <div className="flex flex-col items-center gap-5 text-center">
         <RoundHeader left={`Q ${(p.qIndex ?? 0) + 1} / ${p.rounds ?? '?'}`} />
@@ -182,7 +182,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
     ),
     Player: QuizPlayer,
   },
-  [RealGameId.WORDSHOT]: {
+  [LiveGameId.WORDSHOT]: {
     display: (p) => (
       <div className="flex flex-col items-center gap-5 text-center">
         <RoundHeader left={`Round ${(p.roundIndex ?? 0) + 1} / ${p.rounds ?? '?'}`} />
@@ -193,7 +193,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
     ),
     Player: WordshotPlayer,
   },
-  [RealGameId.WORD_BOMB]: {
+  [LiveGameId.WORD_BOMB]: {
     display: (p) => (
       <div className="flex flex-col items-center gap-4 text-center">
         <CategoryBadge>{p.category ?? ''}</CategoryBadge>
@@ -204,7 +204,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
     ),
     Player: BombPlayer,
   },
-  [RealGameId.HOT_TAKE_COURT]: {
+  [LiveGameId.HOT_TAKE_COURT]: {
     display: (p) => (
       <div className="flex flex-col gap-4">
         <h2 className="text-center font-serif text-[28px] font-semibold leading-[1.15] text-ink">“{p.prompt ?? '…'}”</h2>
@@ -220,7 +220,7 @@ const RENDERERS: Record<string, LiveRenderer> = {
     ),
     Player: HotTakePlayer,
   },
-  [RealGameId.PLEAD_YOUR_CASE]: {
+  [LiveGameId.PLEAD_YOUR_CASE]: {
     display: (p) => (
       <div className="flex flex-col gap-3">
         <span className="font-sans text-[13px] font-bold uppercase tracking-[0.08em] text-ink-3">Verdict pending</span>

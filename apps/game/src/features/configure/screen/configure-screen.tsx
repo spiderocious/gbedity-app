@@ -1,42 +1,52 @@
 import { Button, Card, DrawerService, GameId, PreviewRail, Pill } from '@gbedity/ui';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
-import { backendGameId, buildStartConfig } from '../../../shared/games/config-map.ts';
+import { buildStartConfig } from '../../../shared/games/config-map.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
 import { gameQueue } from '../../../shared/games/game-queue.ts';
-import { CATEGORY_TAG, gameById } from '../../../shared/games/games-manifest.ts';
+import { CATEGORY_TAG, type GameKey } from '../../../shared/games/games-manifest.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { ConfigControlRow } from '../parts/config-control.tsx';
 
-// §4.1 — universal configure shell. Reads :gameId → game + content registry, renders the
-// per-game config groups generically + the preview rail. Configure is pure prep: "Add to
-// room" saves this game + its config to the room's queue and returns to the room. Starting
-// happens in the room, per game.
+// §4.1 — universal configure shell. Reads :gameId from the central catalogue store → game + the
+// client content registry, renders the per-game config groups + preview rail. Configure is pure
+// prep: "Add to room" saves this game + its config to the room's queue and returns to the room.
+// The game starts from the room, via its backend `gameId` (carried on the catalogue entry).
 export function ConfigureScreen() {
   const { gameId } = useParams();
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const game = gameById(gameId ?? '');
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game, isLoading } = useCatalogueGame(gameId);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   const code = search.get('code') ?? sessionStore.getHost()?.roomCode ?? '';
-  const backendId = game ? backendGameId(game.key) : undefined;
-  // Back to the catalogue, preserving the live room code so the chain doesn't fall back to mock.
   const catalogueBack = code !== '' ? `${ROUTES.HOST_CATALOGUE}?code=${code}` : ROUTES.HOST_CATALOGUE;
 
   function handleAddToRoom() {
     if (game === undefined || code === '') return;
     gameQueue.add(code, {
       gameId: game.id,
-      key: game.key,
+      key: game.key as GameKey,
       title: game.title,
-      ...(backendId !== undefined ? { backendId } : {}),
+      backendId: game.gameId, // every catalogue game is startable via its own backend gameId
       config: buildStartConfig(),
       weight: 1,
     });
     DrawerService.toast(`${game.title} added to the room.`, { tone: 'success' });
     navigate(pathWith(ROUTES.HOST_LOBBY, { code }));
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <AppHeader backTo={catalogueBack} />
+        <p role="status" className="mx-auto max-w-md px-6 pt-10 text-center font-sans text-[15px] text-ink-3">
+          Loading…
+        </p>
+      </div>
+    );
   }
 
   if (game === undefined || content === undefined) {

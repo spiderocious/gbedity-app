@@ -3,8 +3,14 @@ import { ServiceError, ServiceSuccess, type ServiceResult } from '@shared/http/s
 import { zodFieldErrors } from '@shared/http/zod-errors';
 import { MESSAGE_KEYS } from '@shared/messages';
 import { roomRegistry, type RoomRegistry } from '@engine/room/room-registry';
-import { RoomPhase, type Room, type RoomPlayer } from '@engine/room/room.types';
+import {
+  RoomPhase,
+  type LobbyLineupEntry,
+  type Room,
+  type RoomPlayer,
+} from '@engine/room/room.types';
 import { getPlugin } from '@engine/registry';
+import { toLineupEntries, type LineupInput } from './lineup';
 import { getContentResolver } from '@engine/content-resolver';
 import { sessionManager, type SessionManager } from '@engine/session/session-manager';
 import type { GameId } from '@engine/constants';
@@ -23,6 +29,11 @@ export interface JoinRoomResult {
   code: string;
   playerId: string;
   reconnectToken: string;
+}
+
+export interface SetLineupResult {
+  code: string;
+  lineup: LobbyLineupEntry[];
 }
 
 export class RoomsService {
@@ -57,6 +68,26 @@ export class RoomsService {
     }
     const player: RoomPlayer = this.registry.addPlayer(room, nickname.trim());
     return ServiceSuccess({ code: room.code, playerId: player.id, reconnectToken: player.reconnectToken });
+  }
+
+  // Publish the host's game lineup so players + display can see it in the lobby (read-only).
+  // Host-only, lobby phase. The input is validated + bounded by the lineup module; unknown game
+  // ids are dropped. Replaces the whole lineup each call (the host mirrors its local queue here,
+  // so add/remove/reorder all publish through one path).
+  setLineup(code: string, hostId: string, input: LineupInput): ServiceResult<SetLineupResult> {
+    const room = this.registry.get(code);
+    if (!room) {
+      return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
+    }
+    if (room.hostId !== hostId) {
+      return ServiceError(ERROR_CODES.NOT_HOST, MESSAGE_KEYS.games.NOT_HOST, 403);
+    }
+    if (room.phase !== RoomPhase.LOBBY) {
+      return ServiceError(ERROR_CODES.NOT_IN_LOBBY, MESSAGE_KEYS.rooms.NOT_IN_LOBBY, 409);
+    }
+    const entries = toLineupEntries(input);
+    this.registry.setLineup(room, entries);
+    return ServiceSuccess({ code: room.code, lineup: entries });
   }
 
   // Start a single game in a room. Host-only; room must be in lobby with enough players. Delegates
@@ -146,8 +177,14 @@ export class RoomsService {
     return ServiceSuccess({ code, gameId: resolvedId, instanceId: session.runtime.instanceId });
   }
 
-  // A lobby snapshot for the host dashboard (no PII beyond chosen nicknames, PRD §12).
-  lobby(code: string): ServiceResult<{ code: string; phase: Room['phase']; players: { id: string; nickname: string }[] }> {
+  // A lobby snapshot for the host dashboard + player/display lobbies (no PII beyond chosen
+  // nicknames, PRD §12). Carries the host's published lineup so players/display see what's queued.
+  lobby(code: string): ServiceResult<{
+    code: string;
+    phase: Room['phase'];
+    players: { id: string; nickname: string }[];
+    lineup: LobbyLineupEntry[];
+  }> {
     const room = this.registry.get(code);
     if (!room) {
       return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
@@ -156,6 +193,7 @@ export class RoomsService {
       code: room.code,
       phase: room.phase,
       players: room.players.map((p) => ({ id: p.id, nickname: p.nickname })),
+      lineup: room.lobbyLineup,
     });
   }
 }

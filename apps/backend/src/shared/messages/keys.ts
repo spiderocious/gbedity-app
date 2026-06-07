@@ -25,6 +25,11 @@ export const MESSAGE_KEYS = {
     NOT_ENOUGH_PLAYERS: 'games.not_enough_players',
     ALREADY_RUNNING: 'games.already_running',
   },
+  solo: {
+    STARTED: 'solo.started',
+    NOT_SUPPORTED: 'solo.not_supported',
+    NOT_FOUND: 'solo.not_found',
+  },
   admin: {
     SEEDED: 'admin.seeded',
     SEED_DISABLED: 'admin.seed_disabled',

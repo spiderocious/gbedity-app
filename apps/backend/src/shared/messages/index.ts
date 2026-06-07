@@ -22,6 +22,10 @@ const catalog: Record<MessageKey, string> = {
   [MESSAGE_KEYS.games.NOT_ENOUGH_PLAYERS]: 'Not enough players for that game yet.',
   [MESSAGE_KEYS.games.ALREADY_RUNNING]: 'A game is already running.',
 
+  [MESSAGE_KEYS.solo.STARTED]: "Let's play.",
+  [MESSAGE_KEYS.solo.NOT_SUPPORTED]: "That game can't be played solo — it needs other players.",
+  [MESSAGE_KEYS.solo.NOT_FOUND]: "Couldn't find that solo game.",
+
   [MESSAGE_KEYS.admin.SEEDED]: 'Admin created. Save this password — it is shown once.',
   [MESSAGE_KEYS.admin.SEED_DISABLED]: 'Admin seeding is disabled.',
   [MESSAGE_KEYS.admin.ALREADY_SEEDED]: 'An admin already exists.',

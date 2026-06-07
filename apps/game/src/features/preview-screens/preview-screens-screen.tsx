@@ -2,9 +2,8 @@ import { Card, Pill } from '@gbedity/ui';
 import { ArrowUpRight } from '@icons';
 import { Link } from 'react-router-dom';
 
+import { findGame, iconFor, useCatalogue } from '../../shared/catalogue/index.ts';
 import { ROUTES, mockPath } from '../../shared/constants/routes.ts';
-import { GAME_ICON } from '../../shared/games/game-icons.ts';
-import { gameById } from '../../shared/games/games-manifest.ts';
 import { AppHeader } from '../../shared/widgets/app-header.tsx';
 import {
   PER_GAME_SCREENS,
@@ -45,6 +44,7 @@ function ScreenRow({ screen }: { readonly screen: ScreenLink }) {
 }
 
 export function PreviewScreensScreen() {
+  const { data: catalogue } = useCatalogue();
   return (
     <div className="min-h-screen bg-canvas pb-16">
       <AppHeader backTo={ROUTES.LANDING} />
@@ -72,8 +72,8 @@ export function PreviewScreensScreen() {
             §9–26 · Per-game (display · player · result)
           </h2>
           {PER_GAME_SCREENS.map((g) => {
-            const game = gameById(g.id);
-            const Icon = game ? GAME_ICON[game.key] : undefined;
+            const game = findGame(catalogue ?? [], g.id);
+            const Icon = game ? iconFor(game.iconName) : undefined;
             return (
               <Card key={g.id} size="sm" className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <span className="flex min-w-[150px] items-center gap-2">

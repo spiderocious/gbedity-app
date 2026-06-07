@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { Card, Pill, Segmented } from '@gbedity/ui';
 import { useParams, useSearchParams } from 'react-router-dom';
 
+import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
-import { gameById } from '../../../shared/games/games-manifest.ts';
+import { type GameKey } from '../../../shared/games/games-manifest.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket, ConnectionStatus } from '../../../shared/realtime/room-socket-context.tsx';
 import { sessionStore } from '../../../shared/services/session-store.ts';
@@ -43,8 +44,8 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
   const { patch, status, sendAction } = useRoomSocket();
   // Game identity comes from the patch shape once it arrives; the ?live= hint covers the gap
   // before the first patch (so chrome can show a title), but detection is the real source.
-  const live = detectLiveGame(patch) ?? resolveLiveHint(hint);
-  const renderer = live ? getLiveRenderer(live.backendId) : undefined;
+  const backendId = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   const score = typeof patch?.yourScore === 'number' ? patch.yourScore : 0;
   const isBoard =
     patch !== null && (patch.phase === Phase.REVEAL || patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
@@ -75,7 +76,7 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
           ) : renderer !== undefined ? (
             // Rendered as a component (not a call) so its hooks live in a stable fiber; the
             // game key remounts cleanly if the live game changes.
-            <renderer.Player key={live?.backendId} patch={patch} send={sendAction} />
+            <renderer.Player key={backendId} patch={patch} send={sendAction} />
           ) : (
             <p className="text-center font-sans text-[15px] text-ink-3">Waiting for your turn…</p>
           )}
@@ -89,8 +90,8 @@ const PlayerState = { ACTIVE: 'Active', WAITING: 'Waiting', SPECTATOR: 'Spectati
 type PlayerState = (typeof PlayerState)[keyof typeof PlayerState];
 
 function MockPlayer({ code, mockId }: { readonly code: string; readonly mockId: number }) {
-  const game = gameById(mockId);
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game } = useCatalogueGame(mockId);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   const [state, setState] = useState<PlayerState>(PlayerState.ACTIVE);
   if (game === undefined || content === undefined) return null;
 

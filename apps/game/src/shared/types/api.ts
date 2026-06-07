@@ -15,10 +15,24 @@ export type CreateRoomResult = z.infer<typeof CreateRoomResult>;
 export const LobbyPlayer = z.object({ id: z.string(), nickname: z.string() });
 export type LobbyPlayer = z.infer<typeof LobbyPlayer>;
 
+// The host's published lineup, mirrored from PUT /rooms/:code/lineup — what players + display
+// see in the lobby. Matches the backend LobbyLineupEntry / LineupFact shape exactly (the seam).
+export const LineupFact = z.object({ label: z.string(), value: z.string() });
+export type LineupFact = z.infer<typeof LineupFact>;
+
+export const LineupEntry = z.object({
+  gameId: z.string(),
+  title: z.string(),
+  facts: z.array(LineupFact),
+});
+export type LineupEntry = z.infer<typeof LineupEntry>;
+
 export const LobbySnapshot = z.object({
   code: z.string(),
   phase: z.string(),
   players: z.array(LobbyPlayer),
+  // Older servers may omit it; default to [] so the client never crashes on an absent lineup.
+  lineup: z.array(LineupEntry).default([]),
 });
 export type LobbySnapshot = z.infer<typeof LobbySnapshot>;
 
@@ -43,14 +57,8 @@ export const LeagueStanding = z.object({ playerId: z.string(), score: z.number()
 export const LeagueStandings = z.object({ standings: z.array(LeagueStanding) });
 export type LeagueStandings = z.infer<typeof LeagueStandings>;
 
-// The 5 games the backend actually implements (api-docs §start). Named constants.
-export const RealGameId = {
-  QUIZZES: 'quizzes',
-  WORDSHOT: 'wordshot',
-  WORD_BOMB: 'word_bomb',
-  HOT_TAKE_COURT: 'hot_take_court',
-  PLEAD_YOUR_CASE: 'plead_your_case',
-} as const;
-export type RealGameId = (typeof RealGameId)[keyof typeof RealGameId];
-
-export const REAL_GAME_IDS: readonly string[] = Object.values(RealGameId);
+// NOTE: the old hardcoded `RealGameId` / `REAL_GAME_IDS` (a frontend guess at which games the
+// backend implements) was deleted. The catalogue endpoint is the per-environment source of truth:
+// every game the catalogue store returns is real and startable via its own `gameId`. Renderer
+// routing uses `LiveGameId` (features/in-game/resolve-live-game.ts) — backend ids that have a live
+// renderer, not a visibility list.

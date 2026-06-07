@@ -90,6 +90,7 @@ export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.SIMULTANEOUS,
     players: { min: 2, max: null, recommendedMax: 10 },
     capabilities: {},
+    solo: { supported: true },
   },
   configSchema,
   contentSchema,

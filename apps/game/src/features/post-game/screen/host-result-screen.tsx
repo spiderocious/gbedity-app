@@ -1,9 +1,10 @@
 import { Button, Card, DrawerService, LeaderboardRows, OrangeWinnerBar } from '@gbedity/ui';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
-import { gameById } from '../../../shared/games/games-manifest.ts';
+import { type GameKey } from '../../../shared/games/games-manifest.ts';
 import { LEADERBOARD } from '../../../shared/mock/players.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { useGameParam } from '../../in-game/use-game-param.ts';
@@ -12,8 +13,8 @@ import { useGameParam } from '../../in-game/use-game-param.ts';
 // the mock code on a real room.
 export function HostResultScreen() {
   const id = useGameParam();
-  const game = gameById(id);
-  const content = game ? getGameContent(game.key) : undefined;
+  const { game } = useCatalogueGame(id);
+  const content = game ? getGameContent(game.key as GameKey) : undefined;
   const navigate = useNavigate();
   const { code = MOCK_ROOM_CODE } = useParams();
   if (game === undefined || content === undefined) return null;

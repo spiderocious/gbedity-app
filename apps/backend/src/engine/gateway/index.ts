@@ -31,6 +31,12 @@ interface SocketData {
 const hostChannel = (code: string): string => `room:${code}:host`;
 const displayChannel = (code: string): string => `room:${code}:display`;
 const playerChannel = (code: string, playerId: string): string => `room:${code}:player:${playerId}`;
+// Room-wide channel — EVERY socket (host/display/player) joins it, so lifecycle signals that must
+// reach the whole room (room ended) fan out in one emit, not per-audience.
+const roomChannel = (code: string): string => `room:${code}`;
+
+// Host-initiated lifecycle action (no game needed — host ends from the lobby). Named, not inline.
+const HOST_ACTION = { END_SESSION: 'host.end_session' } as const;
 
 export const attachRoomGateway = (httpServer: HttpServer): Server => {
   bootstrapEngine();
@@ -70,6 +76,15 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
       }
       if (!limiter.allow(data.player.id)) {
         socket.emit(ServerEvent.ERROR, { code: 'rate_limited' });
+        return;
+      }
+      // Host-initiated end-session: a lifecycle action, not a game action — handle it before the
+      // runtime lookup so it works from the lobby (no active game). Host role is token-verified at
+      // join, so this is trustworthy; anyone else asking is ignored (not their room to close).
+      if (isHostEndSession(parsed.data.action)) {
+        if (data.role === RoomMemberRole.HOST) {
+          void endRoom(data.roomCode);
+        }
         return;
       }
       const runtime = sessionManager.activeRuntime(data.roomCode);
@@ -138,9 +153,18 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
 
   // End a room: notify, dispose any session, close the room (clears snapshots).
   const endRoom = async (code: string): Promise<void> => {
-    io.to(displayChannel(code)).emit(ServerEvent.ROOM_ENDED, { roomCode: code });
+    // Notify the WHOLE room (host + display + players), not just display — everyone is booted to
+    // the "room closed" screen. Then disconnect the room's sockets so they don't reconnect into a
+    // closed room, and clear any pending host-leave grace timer.
+    io.to(roomChannel(code)).emit(ServerEvent.ROOM_ENDED, { roomCode: code });
+    const grace = suspensionTimers.get(code);
+    if (grace) {
+      clearTimeout(grace);
+      suspensionTimers.delete(code);
+    }
     await sessionManager.end(code);
     roomRegistry.close(code);
+    io.in(roomChannel(code)).disconnectSockets(true);
     logger.info({ code }, 'room ended');
   };
 
@@ -161,6 +185,10 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
     const data = socket.data as SocketData;
     data.roomCode = roomCode;
     data.role = role;
+
+    // Every socket joins the room-wide channel so lifecycle signals (room ended) reach the whole
+    // room — host, display, and players — in a single emit.
+    void socket.join(roomChannel(roomCode));
 
     if (role === RoomMemberRole.DISPLAY) {
       void socket.join(displayChannel(roomCode));
@@ -183,6 +211,13 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
         return;
       }
       bindPlayer(socket, data, roomCode, seat);
+      // Solo: when the player IS the room's host (a 1-player solo room), their single device is also
+      // the display — subscribe it to the display channel so it gets the question/word/topic/TTS
+      // projection too. Harmless in multiplayer (players there are never the host).
+      if (seat.id === room.hostId) {
+        void socket.join(displayChannel(roomCode));
+        void socket.join(hostChannel(roomCode));
+      }
       // If a game is live, re-project current state to this seat and signal resumed (PRD §10/§12).
       const runtime = sessionManager.activeRuntime(roomCode);
       if (runtime) {
@@ -253,3 +288,9 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
 };
 
 const SWEEP_INTERVAL_MS = 60 * 1000; // reap idle rooms once a minute
+
+// Narrow an opaque client action to the host end-session lifecycle action.
+const isHostEndSession = (action: unknown): boolean =>
+  typeof action === 'object' &&
+  action !== null &&
+  (action as { type?: unknown }).type === HOST_ACTION.END_SESSION;

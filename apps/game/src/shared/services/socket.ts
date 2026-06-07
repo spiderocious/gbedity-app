@@ -11,6 +11,13 @@ export const ClientEvent = {
   ACTION: 'client.action',
 } as const;
 
+// Host-initiated lifecycle actions, sent over ClientEvent.ACTION as { action: { type } }. The
+// backend gates these to the token-verified host seat. Named constant — never inline.
+export const HostAction = {
+  END_SESSION: 'host.end_session',
+} as const;
+export type HostAction = (typeof HostAction)[keyof typeof HostAction];
+
 export const ServerEvent = {
   JOINED: 'server.joined',
   VIEW: 'server.view',

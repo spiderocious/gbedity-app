@@ -98,6 +98,7 @@ export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.SUBMIT_REVEAL,
     players: { min: 2, max: 10, recommendedMax: 10 },
     capabilities: { needsAI: true },
+    solo: { supported: true },
   },
   configSchema,
   contentSchema,

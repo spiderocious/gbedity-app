@@ -7,9 +7,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLobby } from '../../../shared/api/use-lobby.ts';
 import { useStartGame } from '../../../shared/api/use-start-game.ts';
 import { useStartLeague } from '../../../shared/api/use-start-league.ts';
+import { findGame, useCatalogue, useGameSelection } from '../../../shared/catalogue/index.ts';
 import { ROUTES, joinUrl, pathWith } from '../../../shared/constants/routes.ts';
-import { gameById } from '../../../shared/games/games-manifest.ts';
 import { gameQueue, useGameQueue, type QueuedGame } from '../../../shared/games/game-queue.ts';
+import { useSyncLineup } from '../../../shared/games/use-sync-lineup.ts';
+import { endSessionOnce } from '../../../shared/realtime/end-session.ts';
 import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
@@ -27,11 +29,25 @@ export function HostLobbyScreen() {
   const { go, curtain } = useStageNav();
   const lobby = useLobby(code);
   const queue = useGameQueue(code);
+  // Mirror the local queue to the room (add / remove / reorder) so players + display see the
+  // lineup. One-way publish; the local queue stays the editing source of truth.
+  useSyncLineup(code);
   const startGame = useStartGame();
   const startLeague = useStartLeague();
+  const { data: catalogue } = useCatalogue();
+  const { selectGame } = useGameSelection();
   const hostId = sessionStore.getHost()?.hostId ?? '';
   const players = lobby.data?.players ?? [];
   const [copied, setCopied] = useState(false);
+
+  // "Pick a game" / "Add another" → the central selection overlay (excluding already-queued
+  // games), then on to that game's configure screen carrying the room code.
+  function pickGame() {
+    const exclude = queue.map((q) => q.key as string);
+    void selectGame({ title: 'Pick a game', exclude }).then((game) => {
+      if (game) go(pathWith(ROUTES.HOST_CONFIGURE, { gameId: String(game.id) }), { code });
+    });
+  }
 
   function copyCode() {
     void navigator.clipboard?.writeText(code).then(() => {
@@ -89,7 +105,14 @@ export function HostLobbyScreen() {
       confirmPhrase: 'END',
       confirmPrompt: <>Type <strong>END</strong> to confirm</>,
       confirmLabel: 'End session',
-      onConfirm: () => navigate(ROUTES.LANDING),
+      onConfirm: () => {
+        // Tell the server to close the room — it boots every other client to the closed screen.
+        // The host lobby is socketless (it polls), so we fire a one-shot host socket to emit it,
+        // then navigate home ourselves (fire-and-forget — don't block on the socket).
+        void endSessionOnce(code);
+        sessionStore.clearRoom();
+        navigate(ROUTES.LANDING);
+      },
     });
   }
 
@@ -102,8 +125,10 @@ export function HostLobbyScreen() {
           </button>
         }
       />
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-6 pt-4">
-        {/* Top card = the marquee. The room code is the hero: the host's one job is to share it. */}
+      {/* Mobile: single stacked column. Desktop (lg): a true 2×2 grid — no scroll:
+          Marquee │ Players  /  Games │ QR. */}
+      <main className="mx-auto grid w-full max-w-md flex-1 grid-cols-1 content-start gap-4 px-6 pt-4 lg:max-w-4xl lg:grid-cols-2 lg:items-start">
+        {/* Top-left: the marquee. The room code is the hero — the host's one job is to share it. */}
         <Card size="lg" className="flex flex-col items-center gap-1 text-center">
           <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-3">
             Room code
@@ -145,6 +170,7 @@ export function HostLobbyScreen() {
               <PlayerPill
                 key={p.id}
                 name={displayName}
+                avatarId={p.id}
                 seat={seatForIndex(i)}
                 size="sm"
                 tag={isHost ? '(you · host)' : undefined}
@@ -158,7 +184,23 @@ export function HostLobbyScreen() {
               />
             );
           })}
-          {players.length === 0 ? <p className="py-3 text-center font-sans text-[13px] text-ink-3">Waiting for players to join…</p> : null}
+          {players.length === 0 ? (
+            <p className="py-3 text-center font-sans text-[13px] text-ink-3">No players yet.</p>
+          ) : null}
+
+          {/* Waiting indicator lives with the Players list — it's the players we're waiting on. */}
+          <div className="mt-1 flex items-center justify-center gap-2 pt-1" aria-label="Waiting for players">
+            <span className="font-sans text-[12px] font-semibold text-ink-3">Waiting for players</span>
+            <span className="flex items-center gap-1">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="h-[6px] w-[6px] rounded-full bg-ink-4 animate-[bob-dot_1.2s_ease-in-out_infinite]"
+                  style={{ animationDelay: `${i * 150}ms` }}
+                />
+              ))}
+            </span>
+          </div>
         </Card>
 
         <Card size="lg" className="flex flex-col gap-3">
@@ -169,7 +211,7 @@ export function HostLobbyScreen() {
           ) : (
             <div className="flex flex-col gap-2">
               {queue.map((q) => {
-                const g = gameById(q.gameId);
+                const g = findGame(catalogue ?? [], q.gameId);
                 return (
                   <div key={q.uid} className="flex items-center gap-3 rounded-card bg-canvas px-3 py-3">
                     {g !== undefined ? <GameId id={g.id} category={g.category} size="sm" /> : null}
@@ -197,7 +239,7 @@ export function HostLobbyScreen() {
             </div>
           )}
 
-          <Button variant={queue.length === 0 ? 'primary' : 'secondary'} size="lg" className="w-full" onClick={() => go(ROUTES.HOST_CATALOGUE, { code })}>
+          <Button variant={queue.length === 0 ? 'primary' : 'secondary'} size="lg" className="w-full" onClick={pickGame}>
             {queue.length === 0 ? 'Pick a game' : 'Add another game'}
           </Button>
 
@@ -208,23 +250,16 @@ export function HostLobbyScreen() {
           ) : null}
         </Card>
 
-        {/* Waiting state — gives the host something to look at + the scannable join path while
-            players trickle in (fills the lower viewport without adding chrome noise). */}
-        <div className="flex flex-col items-center gap-3 pt-2 pb-4 text-center">
-          <QrCode url={joinUrl(code)} size={132} />
+        {/* QR card (bottom-right). The QR fills the card; players scan it to join. */}
+        <Card size="lg" className="flex flex-col items-center gap-3 text-center">
+          <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
+            Scan to join
+          </p>
+          <QrCode url={joinUrl(code)} fluid className="max-w-[320px]" />
           <p className="max-w-[36ch] font-sans text-[13px] leading-[1.5] text-ink-3">
             Players join at <span className="font-bold text-ink-2">gbedity.app</span> with this code — or scan.
           </p>
-          <div className="flex items-center gap-1" aria-label="Waiting for players">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="h-2 w-2 rounded-full bg-ink-4 animate-[bob-dot_1.2s_ease-in-out_infinite]"
-                style={{ animationDelay: `${i * 150}ms` }}
-              />
-            ))}
-          </div>
-        </div>
+        </Card>
       </main>
 
       {/* End session — committed sticky bar with real elevation (border + lift shadow). */}

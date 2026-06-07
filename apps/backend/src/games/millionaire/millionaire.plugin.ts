@@ -104,6 +104,7 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
     mode: GameMode.ROUND_ROBIN,
     players: { min: 2, max: 10, recommendedMax: 10 },
     capabilities: {},
+    solo: { supported: true, disabledConfig: ['ask_audience', 'phone_friend'] },
   },
   configSchema,
   contentSchema,

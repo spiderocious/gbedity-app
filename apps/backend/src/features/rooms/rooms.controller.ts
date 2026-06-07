@@ -7,6 +7,7 @@ import { ResponseUtil } from '@shared/http/response';
 import type { ServiceResult } from '@shared/http/service-result';
 
 import { roomsService } from './rooms.service';
+import { LineupInput } from './lineup';
 
 // Thin controllers: validate shape, call the service, map ServiceResult → ResponseUtil envelope.
 
@@ -63,6 +64,27 @@ export const roomsController = {
   lobby(req: Request, res: Response): void {
     const code = paramCode(req).toUpperCase();
     const result = roomsService.lobby(code);
+    if (!result.success) {
+      fail(res, result);
+      return;
+    }
+    ResponseUtil.ok(res, result.data);
+  },
+
+  setLineup(req: Request, res: Response): void {
+    const code = paramCode(req).toUpperCase();
+    const hostId = requireString(res, req.body?.hostId, 'hostId');
+    if (hostId === null) return;
+
+    const parsed = LineupInput.safeParse({ lineup: req.body?.lineup });
+    if (!parsed.success) {
+      ResponseUtil.error(res, 422, ERROR_CODES.VALIDATION_ERROR, messages.get(MESSAGE_KEYS.common.VALIDATION_FAILED), {
+        lineup: ['Invalid lineup.'],
+      });
+      return;
+    }
+
+    const result = roomsService.setLineup(code, hostId, parsed.data);
     if (!result.success) {
       fail(res, result);
       return;
