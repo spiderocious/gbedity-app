@@ -10,6 +10,7 @@ export const ID_PREFIX = {
   ADMIN: 'a_',
   HOST: 'h_',
   CONTENT: 'c_',
+  CATALOGUE: 'cat_',
 } as const;
 
 export type IdPrefix = (typeof ID_PREFIX)[keyof typeof ID_PREFIX];

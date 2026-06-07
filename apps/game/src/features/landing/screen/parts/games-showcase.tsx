@@ -40,6 +40,9 @@ export function GamesShowcase() {
           duration: 0.4,
           ease: 'power2.out',
           stagger: 0.06,
+          // Clear GSAP's inline transform/opacity once revealed so it never overrides the
+          // dim-state style or leaves a residual transform that skews the tile's height.
+          clearProps: 'transform,opacity',
           scrollTrigger: { trigger: grid.current, start: 'top 85%', once: true },
         });
       });
@@ -85,33 +88,36 @@ export function GamesShowcase() {
         </Repeat>
       </div>
 
-      <div ref={grid} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div ref={grid} className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Repeat each={GAMES as LandingGame[]}>
           {(game) => {
             const Icon = GAME_ICON[game.key];
             const dimmed = filter !== ALL_FILTER && game.category !== filter;
             return (
-              <div
-                key={game.key}
-                data-game-tile
-                aria-hidden={dimmed ? true : undefined}
-                className={`transition-[opacity,transform] duration-200 ease-in-out ${
-                  dimmed ? 'pointer-events-none' : ''
-                }`}
-                style={{ opacity: dimmed ? 0.2 : 1, transform: dimmed ? 'scale(0.95)' : 'none' }}
-              >
-                <GameTile
-                  id={game.id}
-                  category={game.category}
-                  tag={CATEGORY_TAG[game.category]}
-                  title={game.title}
-                  meta={game.meta}
-                  description={game.description}
-                  icon={<Icon size={20} aria-hidden="true" />}
-                  onClick={() =>
-                    DrawerService.toast(`${game.title} is coming soon.`, { tone: 'info' })
-                  }
-                />
+              // Grid cell: pure layout, never transformed — so the row stays equal-height.
+              <div key={game.key} className="h-full">
+                {/* Inner wrapper owns the dim + GSAP reveal transforms, isolated from layout. */}
+                <div
+                  data-game-tile
+                  aria-hidden={dimmed ? true : undefined}
+                  className={`h-full transition-[opacity,transform] duration-200 ease-in-out ${
+                    dimmed ? 'pointer-events-none' : ''
+                  }`}
+                  style={{ opacity: dimmed ? 0.2 : 1, transform: dimmed ? 'scale(0.95)' : 'none' }}
+                >
+                  <GameTile
+                    id={game.id}
+                    category={game.category}
+                    tag={CATEGORY_TAG[game.category]}
+                    title={game.title}
+                    meta={game.meta}
+                    description={game.description}
+                    icon={<Icon size={20} aria-hidden="true" />}
+                    onClick={() =>
+                      DrawerService.toast(`${game.title} is coming soon.`, { tone: 'info' })
+                    }
+                  />
+                </div>
               </div>
             );
           }}

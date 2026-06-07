@@ -1,28 +1,33 @@
-import { Button, type ButtonSize, type ButtonVariant } from '@gbedity/ui';
-import { ArrowRight, Sparkles, Trash2 } from '@icons';
+import { Button, type ButtonSize, type ButtonVariant } from "@gbedity/ui";
+import { ArrowRight, Sparkles, Trash2 } from "@icons";
 
-import { PageHead, RefBlock, RefRow } from './preview-canvas.tsx';
+import { PageHead, RefBlock, RefRow } from "./preview-canvas.tsx";
 
 const VARIANTS: readonly ButtonVariant[] = [
-  'primary',
-  'secondary',
-  'ghost',
-  'celebrate',
-  'danger',
+  "primary",
+  "secondary",
+  "ghost",
+  "celebrate",
+  "danger",
 ];
-const SIZES: readonly ButtonSize[] = ['sm', 'md', 'lg'];
+const SIZES: readonly ButtonSize[] = ["sm", "md", "lg"];
 
 export function ButtonsPart() {
   return (
     <div>
-      <PageHead index="10 / PRIMITIVES" title="Button" subtitle="@gbedity/ui · button" />
+      <PageHead
+        index="10 / PRIMITIVES"
+        title="Button"
+        subtitle="@gbedity/ui · button"
+      />
 
       <p className="mb-6 max-w-[64ch] text-[13px] leading-[1.65] text-ink-3">
-        Six intents. Primary is forward motion (action green); secondary is the calm alternative;
-        ghost recedes. <strong>Celebrate</strong> is accent orange — reserved for celebration
-        moments, never decoration. <strong>Danger</strong> is for destructive actions; irreversible
-        ones use the CRITICAL modal idiom. <strong>Stage</strong> is the white-on-cobalt variant
-        used inside post-game stage frames.
+        Six intents. Primary is forward motion (action green); secondary is the
+        calm alternative; ghost recedes. <strong>Celebrate</strong> is accent
+        orange — reserved for celebration moments, never decoration.{" "}
+        <strong>Danger</strong> is for destructive actions; irreversible ones
+        use the CRITICAL modal idiom. <strong>Stage</strong> is the
+        white-on-cobalt variant used inside post-game stage frames.
       </p>
 
       <RefBlock title="Variants">
@@ -37,6 +42,35 @@ export function ButtonsPart() {
             </Button>
           </RefRow>
         ))}
+      </RefBlock>
+
+      <div className="h-6" />
+
+      <RefBlock title="Elevation — raised by default, presses down on click">
+        <p className="mb-3 text-[12px] leading-[1.5] text-ink-3">
+          Buttons sit on a solid offset shadow and press <em>into</em> it when
+          clicked — a tactile key feel. On by default; pass{" "}
+          <code>elevated={"{false}"}</code> for a flat button. (Ghost has no
+          surface, so it never elevates.)
+        </p>
+        <RefRow label="elevated (default)">
+          <Button>Start game</Button>
+          <Button variant="secondary">Use defaults</Button>
+          <Button variant="celebrate">+250 points</Button>
+          <Button variant="danger">Boot player</Button>
+        </RefRow>
+        <RefRow label="elevated={false}">
+          <Button elevated={false}>Start game</Button>
+          <Button variant="secondary" elevated={false}>
+            Use defaults
+          </Button>
+          <Button variant="celebrate" elevated={false}>
+            +250 points
+          </Button>
+          <Button variant="danger" elevated={false}>
+            Boot player
+          </Button>
+        </RefRow>
       </RefBlock>
 
       <div className="h-6" />

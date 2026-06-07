@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    // emitDeclarationOnly (not JS emit) is required alongside allowImportingTsExtensions, which
+    // the source uses for `.ts` import specifiers. Consumers import from src anyway (main →
+    // ./src/index.ts), so types-only output is the right build artefact here.
+    "emitDeclarationOnly": true
+  },
+  "include": ["src/**/*"]
+}

@@ -69,6 +69,9 @@ importers:
       '@gbedity/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@gbedity/util':
+        specifier: workspace:*
+        version: link:../../packages/util
       '@tanstack/react-query':
         specifier: 5.100.14
         version: 5.100.14(react@19.2.6)
@@ -209,6 +212,9 @@ importers:
       '@gbedity/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@gbedity/util':
+        specifier: workspace:*
+        version: link:../../packages/util
       '@gsap/react':
         specifier: 2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.6)
@@ -307,6 +313,9 @@ importers:
       '@fontsource/nunito':
         specifier: ^5.2.7
         version: 5.2.7
+      '@gbedity/util':
+        specifier: workspace:*
+        version: link:../util
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -344,6 +353,15 @@ importers:
       vite:
         specifier: ^6.0.0
         version: 6.4.2(@types/node@22.19.19)(jiti@1.21.7)(tsx@4.22.3)(yaml@2.8.0)
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.4(@types/node@22.19.19)(jiti@1.21.7)(jsdom@25.0.1)(tsx@4.22.3)(yaml@2.8.0)
+
+  packages/util:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
       vitest:
         specifier: ^3.0.5
         version: 3.2.4(@types/node@22.19.19)(jiti@1.21.7)(jsdom@25.0.1)(tsx@4.22.3)(yaml@2.8.0)

@@ -26,7 +26,6 @@ export function CatalogueScreen() {
   const { go, curtain } = useStageNav();
   const [search] = useSearchParams();
   const code = search.get('code') ?? '';
-  const codeQuery = code !== '' ? `?code=${code}` : '';
   const backTo = code !== '' ? pathWith(ROUTES.HOST_LOBBY, { code }) : mockPath(ROUTES.HOST_LOBBY);
 
   return (
@@ -57,7 +56,7 @@ export function CatalogueScreen() {
                 <div
                   key={game.key}
                   aria-hidden={dimmed ? true : undefined}
-                  className={`transition-[opacity,transform] duration-200 ease-in-out ${dimmed ? 'pointer-events-none' : ''}`}
+                  className={`h-full transition-[opacity,transform] duration-200 ease-in-out ${dimmed ? 'pointer-events-none' : ''}`}
                   style={{ opacity: dimmed ? 0.2 : 1, transform: dimmed ? 'scale(0.95)' : 'none' }}
                 >
                   <GameTile
@@ -68,7 +67,7 @@ export function CatalogueScreen() {
                     meta={game.meta}
                     description={game.description}
                     icon={<Icon size={20} aria-hidden="true" />}
-                    onClick={() => go(`${pathWith(ROUTES.HOST_CONFIGURE, { gameId: String(game.id) })}${codeQuery}`)}
+                    onClick={() => go(pathWith(ROUTES.HOST_CONFIGURE, { gameId: String(game.id) }), { code: code || undefined })}
                   />
                 </div>
               );

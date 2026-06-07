@@ -5,7 +5,7 @@ import { Button, Field, Input, RoomCodeInput } from '@gbedity/ui';
 import { PageHead, RefBlock, RefRow } from './preview-canvas.tsx';
 
 export function InputPart() {
-  const [room, setRoom] = useState('GBE-4ZK');
+  const [room, setRoom] = useState('GBE4ZK'); // raw; RoomCodeInput renders the dashed form
   const [nickname, setNickname] = useState('Funmi');
   const [answer, setAnswer] = useState('');
 
@@ -22,7 +22,7 @@ export function InputPart() {
       <RefBlock title="Join flow · the first inputs a player sees">
         <div className="-mx-[6px] flex flex-col gap-5 px-[6px] py-2">
           <Field label="Room code" helper="Six characters. We've removed easy-to-confuse ones (O, 0, I, 1).">
-            <RoomCodeInput value={room} onChange={(e) => setRoom(e.target.value)} />
+            <RoomCodeInput value={room} onValueChange={setRoom} />
           </Field>
           <Field label="Nickname" helper="Anything works. Emojis allowed, swearing isn't.">
             <Input

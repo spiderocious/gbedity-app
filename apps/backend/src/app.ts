@@ -7,12 +7,13 @@ import { register as registerRooms } from '@features/rooms/index';
 import { register as registerAdmin } from '@features/admin/index';
 import { register as registerHost } from '@features/host/index';
 import { register as registerLeague } from '@features/league/index';
+import { register as registerCatalogue } from '@features/catalogue/index';
 import { errorHandler } from '@middlewares/error-handler.middleware';
 import { notFoundHandler } from '@middlewares/not-found.middleware';
 import { requestContextMiddleware } from '@middlewares/request-context.middleware';
 
 // Order matters — specific feature routers register before the not-found/error handlers.
-const features = [registerHealth, registerRooms, registerAdmin, registerHost, registerLeague];
+const features = [registerHealth, registerRooms, registerAdmin, registerHost, registerLeague, registerCatalogue];
 
 export const buildApp = (): express.Express => {
   const app = express();

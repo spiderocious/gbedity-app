@@ -36,4 +36,15 @@ router.get('/content/:kind/:id', asyncHandler(async (req, res) => adminControlle
 router.patch('/content/:kind/:id', asyncHandler(async (req, res) => adminController.updateContent(req, res)));
 router.delete('/content/:kind/:id', asyncHandler(async (req, res) => adminController.deleteContent(req, res)));
 
+// Catalogue authoring + curation (game-catalogue.md §3.2). Eligible games = registered plugins;
+// admin authors the presentation + activates/deactivates. Specific `/activate` + `/deactivate`
+// before the bare `/:gameId` so they aren't matched as a gameId.
+router.get('/catalogue', asyncHandler(async (req, res) => adminController.listCatalogue(req, res)));
+router.post('/catalogue', asyncHandler(async (req, res) => adminController.createCatalogue(req, res)));
+router.post('/catalogue/:gameId/activate', asyncHandler(async (req, res) => adminController.activateCatalogue(req, res)));
+router.post('/catalogue/:gameId/deactivate', asyncHandler(async (req, res) => adminController.deactivateCatalogue(req, res)));
+router.get('/catalogue/:gameId', asyncHandler(async (req, res) => adminController.getCatalogue(req, res)));
+router.patch('/catalogue/:gameId', asyncHandler(async (req, res) => adminController.updateCatalogue(req, res)));
+router.delete('/catalogue/:gameId', asyncHandler(async (req, res) => adminController.deleteCatalogue(req, res)));
+
 export default router;

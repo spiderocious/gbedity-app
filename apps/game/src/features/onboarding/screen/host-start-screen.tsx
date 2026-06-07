@@ -1,4 +1,4 @@
-import { Card, DrawerService, Pill, Row } from '@gbedity/ui';
+import { Card, DrawerService, Pill, RoomCodeChip } from '@gbedity/ui';
 import { ArrowRight, Settings2, Trophy, Zap, type LucideIcon } from '@icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,9 @@ import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { ApiError } from '../../../shared/services/api-error.ts';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
+
+// "Made for nights like these" — compressed to inline chips beneath the decision card.
+const NIGHT_CHIPS = ['Family', 'Friends', 'Cousins'] as const;
 
 // §1.5 — host start. Three modes. Choosing one CREATES a real room (POST /rooms) then routes
 // to the catalogue (Quick/Create) or league builder, carrying the real room code.
@@ -52,15 +55,16 @@ export function HostStartScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <AppHeader backTo={ROUTES.LANDING} />
-      <main className="mx-auto flex max-w-lg flex-col px-6 pt-8">
+      {/* Centre the decision card in the remaining viewport (header floor via flex-1). */}
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-5 px-6 py-8">
         <Card size="lg" className="flex flex-col">
           <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
             Host a room
           </p>
           <h1 className="mt-1 font-serif text-[28px] font-semibold tracking-[-0.01em] text-ink">
-            Open the room
+            Pick how you want to play.
           </h1>
           <p className="mt-1 font-sans text-[14px] leading-[1.5] text-ink-3">
             Open the room on a screen the room can see. Players join from their phones.
@@ -81,10 +85,12 @@ export function HostStartScreen() {
                     <Icon size={20} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <Row gap="2" align="center">
+                    {/* Title + badge: stacked (badge on its own line, left-aligned) on mobile,
+                        inline from sm up. Keeps "League Play" from wrapping on small screens. */}
+                    <span className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
                       <span className="font-sans text-[16px] font-bold text-ink">{mode.title}</span>
                       {mode.badge !== undefined ? <Pill tone="special">{mode.badge}</Pill> : null}
-                    </Row>
+                    </span>
                     <span className="mt-[2px] block font-sans text-[13px] leading-[1.45] text-ink-3">{mode.description}</span>
                   </span>
                   <ArrowRight size={18} aria-hidden="true" className="flex-shrink-0 text-ink-4 group-hover:text-ink-3" />
@@ -97,6 +103,15 @@ export function HostStartScreen() {
             <p className="mt-4 text-center font-sans text-[13px] text-ink-3">Opening a room…</p>
           ) : null}
         </Card>
+
+        {/* Compressed "Made for nights like these" — inline chips reinforcing context. */}
+        <div className="flex items-center justify-center gap-2" aria-label="Made for nights like these">
+          {NIGHT_CHIPS.map((chip) => (
+            <Pill key={chip} tone="default">
+              {chip}
+            </Pill>
+          ))}
+        </div>
       </main>
     </div>
   );

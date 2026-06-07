@@ -44,6 +44,16 @@ export const MESSAGE_KEYS = {
     SESSION_REVOKED: 'auth.session_revoked',
     REGISTERED: 'auth.registered',
   },
+  catalogue: {
+    CREATED: 'catalogue.created',
+    NOT_FOUND: 'catalogue.not_found',
+    ALREADY_EXISTS: 'catalogue.already_exists',
+    UPDATED: 'catalogue.updated',
+    ACTIVATED: 'catalogue.activated',
+    DEACTIVATED: 'catalogue.deactivated',
+    DELETED: 'catalogue.deleted',
+    INVALID_GAME: 'catalogue.invalid_game',
+  },
 } as const;
 
 // Union of every leaf value across all slices. Mapping over each slice individually (then
