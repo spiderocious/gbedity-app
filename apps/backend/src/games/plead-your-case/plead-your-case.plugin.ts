@@ -23,6 +23,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Plead Your Case (PRD §6.4 #18) — write a legal defence; an AI scores it on a rubric (criteria +
 // weights from Mongo, prompt shell from env). Absolute scores per player → comparative ranking by
 // total. Host can override the winner. AI fail → "evaluation failed" for that player (retry handled
@@ -85,9 +87,22 @@ interface State {
   results: Result[];
   hostOverrideWinner: string | null;
   scores: Record<string, number>;
+  lastDeltas: Record<string, number>; // this round's ranking points (board roundDelta + scoreRound)
 }
 
 const scenarioOf = (s: State): Content['scenarios'][number] => s.scenarios[s.roundIndex % s.scenarios.length]!;
+
+// This round's points per player — rank successes by absolute total, 1st most descending. Single
+// source for the board AND scoreRound.
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const ranked = [...state.results].filter((r) => r.ok).sort((a, b) => b.total - a.total);
+  const n = ranked.length;
+  const out: Record<string, number> = {};
+  ranked.forEach((r, i) => {
+    out[r.playerId] = (n - i) * 100;
+  });
+  return out;
+};
 const refFor = (round: number, playerId: string): string => `pl_${round}_${playerId}`;
 
 export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
@@ -120,7 +135,8 @@ export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
         pending: [],
         results: [],
         hostOverrideWinner: null,
-        scores: {},
+        scores: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [
         { kind: EffectKind.START_TIMER, key: TimerKey.WRITING, fireAt: deadline },
@@ -209,7 +225,7 @@ export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
       }
       const deadline = nowMs + state.argumentSeconds * 1000;
       return {
-        state: { ...state, phase: Phase.WRITING, roundIndex: nextIndex, submissions: [], pending: [], results: [], hostOverrideWinner: null, deadline },
+        state: { ...state, phase: Phase.WRITING, roundIndex: nextIndex, submissions: [], pending: [], results: [], hostOverrideWinner: null, deadline, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.WRITING, fireAt: deadline }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -218,11 +234,15 @@ export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const sc = scenarioOf(state);
+    const phaseSeconds = state.phase === Phase.WRITING ? state.argumentSeconds : state.phase === Phase.EVALUATING ? EVAL_TIMEOUT_S : state.revealSeconds;
     const base: ViewPatch = {
       phase: state.phase,
       roundIndex: state.roundIndex,
       rounds: state.rounds,
       scenario: { charge: sc.charge, defendant: sc.defendant, facts: sc.facts, laws: sc.laws, precedents: sc.precedents },
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, phaseSeconds),
+      board: projectBoard(state.scores, state.lastDeltas),
     };
     if (state.phase === Phase.REVEAL) {
       const ranked = [...state.results].sort((a, b) => b.total - a.total);
@@ -231,18 +251,15 @@ export const pleadYourCaseGame: GamePlugin<Config, State, Action, Content> = {
     }
     if (audience.kind === AudienceKind.PLAYER) {
       base.submitted = state.submissions.some((s) => s.playerId === audience.playerId);
+      base.yourScore = state.scores[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const ranked = [...state.results].filter((r) => r.ok).sort((a, b) => b.total - a.total);
-    const n = ranked.length;
-    const deltas = ranked.map((r, i) => ({
-      playerId: r.playerId,
-      points: (n - i) * 100, // 1st most, descending
-      reason: MESSAGE_KEYS.common.OK,
-    }));
+    // Read the deltas captured at the eval→reveal transition — one source for board + leaderboard.
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
+    const n = Object.keys(state.lastDeltas).length;
     return { deltas, maxPoints: Math.max(100, n * 100) };
   },
 
@@ -259,8 +276,10 @@ const finishEvaluation = (state: State, nowMs: EpochMs): StepResult<State> => {
     return found ?? { playerId: s.playerId, ok: false, total: 0, perCriterion: [] };
   });
   const revealDeadline = nowMs + state.revealSeconds * 1000;
+  const deltas = roundDeltasMap({ ...state, results });
+  const scores = accrue(state.scores, deltas);
   return {
-    state: { ...state, phase: Phase.REVEAL, results, pending: [], deadline: revealDeadline },
+    state: { ...state, phase: Phase.REVEAL, results, pending: [], deadline: revealDeadline, scores, lastDeltas: deltas },
     effects: [
       { kind: EffectKind.CLEAR_TIMER, key: TimerKey.EVALUATING },
       { kind: EffectKind.BROADCAST },

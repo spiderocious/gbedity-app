@@ -402,12 +402,12 @@ const GAME_CONTENT: Partial<Record<GameKey, GameContent>> = {
         label: 'Difficulty',
         controls: [
           { kind: ControlKind.PILLS, id: 'length', label: 'Word length range', options: ['5–8', '6–10', '8–12', 'Mixed'], defaultValue: '5–8' },
-          { kind: ControlKind.STEPPER, id: 'hidden', label: 'Letters hidden', min: 1, max: 5, defaultValue: 3 },
+          { kind: ControlKind.STEPPER, id: 'hidden', label: 'Letters hidden', min: 1, max: 3, defaultValue: 2 },
           { kind: ControlKind.PILLS, id: 'hint', label: 'Hint mode', options: ['None', 'Reveal one at half time'], defaultValue: 'None' },
         ],
       },
     ],
-    previewLines: ['Estimated duration: ~6 min', 'Words: 10', 'Hidden letters: 3'],
+    previewLines: ['Estimated duration: ~6 min', 'Words: 10', 'Hidden letters: 2'],
     renderDisplay: () => (
       <div className="flex flex-col items-center gap-5 text-center">
         <TimerPill value="0:09" />

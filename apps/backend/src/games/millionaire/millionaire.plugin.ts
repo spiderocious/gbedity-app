@@ -16,6 +16,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Millionaire (PRD §6.2 #12) — graduated MCQ ladder, ROTATIONAL turns. Correct → bank the rung's
 // value + advance the ladder + next player; wrong → that player is eliminated. Time-boxed by
 // questions. Lifelines: 50/50 (hide two wrong options), Ask-the-Audience (NESTED simultaneous poll
@@ -249,6 +251,9 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
       hiddenOptions: state.hiddenOptions, // 50/50
       eliminated: state.eliminated,
       banked: state.banked,
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.timePerQuestion),
+      board: projectBoard(state.banked),
     };
     if (state.phase === Phase.AUDIENCE_POLL || state.phase === Phase.REVEAL) {
       // audience tally (counts per option) — visible to all incl. the holder for the decision.

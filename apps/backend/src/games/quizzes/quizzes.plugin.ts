@@ -22,6 +22,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Quizzes (PRD §6.1 #1) — simultaneous multiple-choice. Real catalogue game. Content (the question
 // deck) is resolved + rating-filtered server-side by the content service BEFORE init (the plugin
 // receives clean questions). Proves: content path, time-weighted scoring, answer secrecy, league.
@@ -77,10 +79,34 @@ interface State {
   questions: Content['questions'];
   deadline: EpochMs;
   answers: { playerId: string; choiceIdx: number; at: EpochMs }[];
+  totals: Record<string, number>; // cumulative score per player (for the board)
+  lastDeltas: Record<string, number>; // this round's points per player (for the board's roundDelta)
 }
 
 const POINTS_MAX = 1000;
 const currentQ = (s: State): Content['questions'][number] | undefined => s.questions[s.qIndex];
+
+// This round's points per player — the single source for both scoreRound (the league/leaderboard
+// seam) and the in-patch board, so they never drift.
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const q = currentQ(state);
+  if (!q) return {};
+  const out: Record<string, number> = {};
+  for (const a of state.answers) {
+    const correct = a.choiceIdx === q.answerIdx;
+    if (!correct) {
+      out[a.playerId] = -Math.round((state.wrongPenaltyPct / 100) * POINTS_MAX);
+    } else if (state.scoringMode === ScoringMode.FLAT) {
+      out[a.playerId] = POINTS_MAX;
+    } else {
+      const windowMs = state.secondsPerQuestion * 1000;
+      const usedMs = Math.max(0, a.at - (state.deadline - windowMs));
+      const frac = Math.max(0, 1 - usedMs / windowMs);
+      out[a.playerId] = Math.round(POINTS_MAX * (0.5 + 0.5 * frac));
+    }
+  }
+  return out;
+};
 
 export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
@@ -110,6 +136,8 @@ export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
       questions: input.content.questions,
       deadline,
       answers: [],
+      totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+      lastDeltas: {},
     };
     return {
       state,
@@ -141,8 +169,12 @@ export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.QUESTION) {
       const revealDeadline = nowMs + state.revealSeconds * 1000;
+      // Fold this round's deltas into totals BEFORE overwriting deadline (the time-weighted calc
+      // depends on the QUESTION deadline) and before the reveal broadcast (so the board is current).
+      const deltas = roundDeltasMap(state);
+      const totals = accrue(state.totals, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: revealDeadline },
+        state: { ...state, phase: Phase.REVEAL, deadline: revealDeadline, totals, lastDeltas: deltas },
         effects: [
           { kind: EffectKind.BROADCAST },
           { kind: EffectKind.ROUND_ENDED },
@@ -157,7 +189,7 @@ export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
       }
       const nextDeadline = nowMs + state.secondsPerQuestion * 1000;
       return {
-        state: { ...state, phase: Phase.QUESTION, qIndex: nextIndex, answers: [], deadline: nextDeadline },
+        state: { ...state, phase: Phase.QUESTION, qIndex: nextIndex, answers: [], deadline: nextDeadline, lastDeltas: {} },
         effects: [
           { kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: nextDeadline },
           { kind: EffectKind.BROADCAST },
@@ -175,33 +207,28 @@ export const quizzesGame: GamePlugin<Config, State, Action, Content> = {
       rounds: state.rounds,
       prompt: q?.prompt ?? null,
       options: q?.options ?? [],
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerQuestion),
+      board: projectBoard(state.totals, state.lastDeltas),
     };
     // answer secrecy: correct option only revealed at REVEAL, to any audience.
     if (state.phase === Phase.REVEAL && q) base.answerIdx = q.answerIdx;
     if (audience.kind === AudienceKind.PLAYER) {
       base.answered = state.answers.some((a) => a.playerId === audience.playerId);
+      base.yourScore = state.totals[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const q = currentQ(state);
-    if (!q) return { deltas: [], maxPoints: POINTS_MAX };
-    const deltas = state.answers.map((a) => {
-      const correct = a.choiceIdx === q.answerIdx;
-      if (!correct) {
-        const penalty = Math.round((state.wrongPenaltyPct / 100) * POINTS_MAX);
-        return { playerId: a.playerId, points: -penalty, reason: MESSAGE_KEYS.common.OK };
-      }
-      if (state.scoringMode === ScoringMode.FLAT) {
-        return { playerId: a.playerId, points: POINTS_MAX, reason: MESSAGE_KEYS.common.OK };
-      }
-      // time-weighted: fraction of the window remaining when answered.
-      const windowMs = state.secondsPerQuestion * 1000;
-      const usedMs = Math.max(0, a.at - (state.deadline - windowMs));
-      const frac = Math.max(0, 1 - usedMs / windowMs);
-      return { playerId: a.playerId, points: Math.round(POINTS_MAX * (0.5 + 0.5 * frac)), reason: MESSAGE_KEYS.common.OK };
-    });
+    // Use the deltas captured at the QUESTION→REVEAL transition (computed with the question's
+    // deadline). ROUND_ENDED fires after that transition, so recomputing here would use the reveal
+    // deadline and mis-score the time bonus. One source — board + leaderboard never drift.
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({
+      playerId,
+      points,
+      reason: MESSAGE_KEYS.common.OK,
+    }));
     return { deltas, maxPoints: POINTS_MAX };
   },
 

@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 
-import { Card, DrawerService, PlayerPill } from "@gbedity/ui";
+import { Banner, Card, Checkbox, DrawerService, PlayerPill } from "@gbedity/ui";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useLobby } from "../../../shared/api/use-lobby.ts";
+import { useSpectate } from "../../../shared/api/use-spectate.ts";
 import { ROUTES, pathWith } from "../../../shared/constants/routes.ts";
 import { RoomSocketProvider } from "../../../shared/realtime/room-socket-provider.tsx";
 import {
   useRoomSocket,
   ConnectionStatus,
 } from "../../../shared/realtime/room-socket-context.tsx";
+import { useRoomGoneGuard } from "../../../shared/realtime/use-room-gone-guard.ts";
 import { SocketRole } from "../../../shared/services/socket.ts";
 import { sessionStore } from "../../../shared/services/session-store.ts";
 import { Phase } from "../../../shared/types/view.ts";
@@ -39,15 +41,46 @@ export function PlayerLobbyScreen() {
 function PlayerLobbyContent({ code }: { readonly code: string }) {
   const navigate = useNavigate();
   const lobby = useLobby(code);
+  // Room gone (closed/swept) → reconnect-then-"room no longer exists" modal (no silent poll failure).
+  useRoomGoneGuard(lobby, { code, role: 'player' });
   const { patch, status } = useRoomSocket();
+  const spectateMutation = useSpectate();
   const myId = sessionStore.getPlayer()?.playerId;
 
-  // When the host starts a game, the socket pushes a non-lobby phase — jump into play.
+  const players = lobby.data?.players ?? [];
+  const lineup = lobby.data?.lineup ?? [];
+  const me = players.find((p) => p.id === myId);
+  const amSpectator = me?.spectator === true;
+
+  // When the host starts a game, the socket pushes a non-lobby phase — jump into play. SPECTATORS go
+  // to the DISPLAY (TV) surface instead: it's the single hands-free spectator loop (read-only flow →
+  // hold result → resume on the next game). Players go to the play surface.
   useEffect(() => {
     if (patch !== null && patch.phase !== Phase.LOBBY) {
-      navigate(pathWith(ROUTES.PLAYER_GAME, { code }));
+      navigate(pathWith(amSpectator ? ROUTES.DISPLAY_GAME : ROUTES.PLAYER_GAME, { code }));
     }
-  }, [patch, code, navigate]);
+  }, [patch, code, navigate, amSpectator]);
+
+  // Opt into spectating: convert THIS seat in place (the server flips the flag + applies the
+  // "(SPECTATOR)" suffix — no new seat). Confirm first; it's a per-room commitment for this game.
+  function spectate() {
+    if (myId === undefined) return;
+    DrawerService.confirm('Spectate this game?', {
+      description:
+        "You won't play this round — you'll watch the whole game and see everyone's scores.",
+      confirmLabel: 'Spectate',
+      cancelLabel: 'Keep playing',
+      onConfirm: () => {
+        spectateMutation.mutate(
+          { code, playerId: myId },
+          {
+            onSuccess: () => void lobby.refetch(),
+            onError: () => DrawerService.toast('Could not switch to spectating.', { tone: 'danger' }),
+          },
+        );
+      },
+    });
+  }
 
   function leave() {
     DrawerService.confirm("Leave the room?", {
@@ -59,13 +92,21 @@ function PlayerLobbyContent({ code }: { readonly code: string }) {
     });
   }
 
-  const players = lobby.data?.players ?? [];
-  const lineup = lobby.data?.lineup ?? [];
-
   return (
     <div className="min-h-screen bg-canvas">
       <AppHeader roomCode={code} />
       <main className="mx-auto flex max-w-md flex-col px-6 pt-8">
+        {/* A game is already running but you're on the lobby (refresh / navigated away) — one-tap
+            rejoin into the live game. */}
+        {lobby.data?.phase === 'in_game' ? (
+          <Banner
+            tone="info"
+            title="A game is in progress"
+            description="Jump back in to keep playing."
+            cta={{ label: 'Rejoin game', onClick: () => navigate(pathWith(ROUTES.PLAYER_GAME, { code })) }}
+            className="mb-4"
+          />
+        ) : null}
         <Card size="lg" className="flex flex-col">
           <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
             You&apos;re in
@@ -99,6 +140,7 @@ function PlayerLobbyContent({ code }: { readonly code: string }) {
                 seat={seatForIndex(i)}
                 size="sm"
                 isYou={p.id === myId}
+                {...(p.spectator ? { tag: 'spectator' } : {})}
               />
             ))}
             {players.length === 0 ? (
@@ -120,6 +162,22 @@ function PlayerLobbyContent({ code }: { readonly code: string }) {
             ))}
           </div>
         </Card>
+
+        {/* Spectate opt-in (players only; hidden once you're already a spectator). A spectator
+            watches the whole game read-only and never counts toward starting. */}
+        {amSpectator ? (
+          <p className="mt-4 self-center font-sans text-[13px] font-bold uppercase tracking-[0.1em] text-ink-3">
+            You&apos;re spectating
+          </p>
+        ) : (
+          <Card size="sm" tone="canvas" className="mt-4">
+            <Checkbox
+              checked={false}
+              onChange={spectate}
+              label="Spectate this game — watch without playing"
+            />
+          </Card>
+        )}
 
         <button
           type="button"

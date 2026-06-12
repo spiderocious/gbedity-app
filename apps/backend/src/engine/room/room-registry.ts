@@ -97,6 +97,18 @@ export class RoomRegistry {
     return room.players.length >= ROOM_SOFT_CAP;
   }
 
+  findPlayer(room: Room, playerId: string): RoomPlayer | undefined {
+    return room.players.find((p) => p.id === playerId);
+  }
+
+  // Convert an existing seat to a spectator IN PLACE (no new seat). Applies the "(SPECTATOR)"
+  // suffix to the stored nickname if not already present. Idempotent.
+  setSpectator(room: Room, player: RoomPlayer, suffix: string): void {
+    player.spectator = true;
+    if (!player.nickname.endsWith(suffix)) player.nickname = `${player.nickname}${suffix}`;
+    this.touch(room);
+  }
+
   hasNickname(room: Room, nickname: string): boolean {
     const wanted = nickname.trim().toLowerCase();
     return room.players.some((p) => p.nickname.trim().toLowerCase() === wanted);

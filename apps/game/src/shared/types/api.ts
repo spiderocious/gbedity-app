@@ -12,7 +12,8 @@ export const CreateRoomResult = z.object({
 });
 export type CreateRoomResult = z.infer<typeof CreateRoomResult>;
 
-export const LobbyPlayer = z.object({ id: z.string(), nickname: z.string() });
+// `spectator` defaults false so older servers (no flag) parse cleanly.
+export const LobbyPlayer = z.object({ id: z.string(), nickname: z.string(), spectator: z.boolean().default(false) });
 export type LobbyPlayer = z.infer<typeof LobbyPlayer>;
 
 // The host's published lineup, mirrored from PUT /rooms/:code/lineup — what players + display
@@ -27,12 +28,19 @@ export const LineupEntry = z.object({
 });
 export type LineupEntry = z.infer<typeof LineupEntry>;
 
+// The game currently running in the room (null in the lobby). Lets the host join or end an
+// in-flight game instead of hitting a dead game_already_running error. Matches backend ActiveGame.
+export const ActiveGame = z.object({ instanceId: z.string(), gameId: z.string() });
+export type ActiveGame = z.infer<typeof ActiveGame>;
+
 export const LobbySnapshot = z.object({
   code: z.string(),
   phase: z.string(),
   players: z.array(LobbyPlayer),
   // Older servers may omit it; default to [] so the client never crashes on an absent lineup.
   lineup: z.array(LineupEntry).default([]),
+  // Older servers may omit it; default null (no running game).
+  activeGame: ActiveGame.nullable().default(null),
 });
 export type LobbySnapshot = z.infer<typeof LobbySnapshot>;
 
@@ -40,6 +48,7 @@ export const JoinRoomResult = z.object({
   code: z.string(),
   playerId: z.string(),
   reconnectToken: z.string(),
+  spectator: z.boolean().default(false),
 });
 export type JoinRoomResult = z.infer<typeof JoinRoomResult>;
 

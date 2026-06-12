@@ -11,6 +11,8 @@ export const ID_PREFIX = {
   HOST: 'h_',
   CONTENT: 'c_',
   CATALOGUE: 'cat_',
+  GAME_WORD: 'gw_',
+  GAME_DEFINITION: 'gd_',
 } as const;
 
 export type IdPrefix = (typeof ID_PREFIX)[keyof typeof ID_PREFIX];

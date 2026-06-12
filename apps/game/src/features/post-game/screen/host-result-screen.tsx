@@ -1,5 +1,5 @@
 import { Button, Card, DrawerService, LeaderboardRows, OrangeWinnerBar } from '@gbedity/ui';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { MOCK_ROOM_CODE, ROUTES, pathWith } from '../../../shared/constants/routes.ts';
@@ -8,10 +8,23 @@ import { type GameKey } from '../../../shared/games/games-manifest.ts';
 import { LEADERBOARD } from '../../../shared/mock/players.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
 import { useGameParam } from '../../in-game/use-game-param.ts';
+import { GameResult } from '../game-result.tsx';
 
-// §6.2 — host post-game (preview/mock). Uses the live :code from the route so it never shows
-// the mock code on a real room.
+// §6.2 — host post-game. LIVE by default: the real final board + a 15s auto-return to the host
+// lobby (GameResult). `?mock` opts into the static preview (/preview-screens). Fixes the blank
+// host result on the live route (it used to require a mock game id and render nothing without one).
 export function HostResultScreen() {
+  const [search] = useSearchParams();
+  const { code = MOCK_ROOM_CODE } = useParams();
+
+  if (search.get('mock') === null) {
+    return <GameResult code={code} lobbyRoute={ROUTES.HOST_LOBBY} />;
+  }
+  return <MockHostResult />;
+}
+
+// Static preview (the /preview-screens gallery) — illustrative numbers only.
+function MockHostResult() {
   const id = useGameParam();
   const { game } = useCatalogueGame(id);
   const content = game ? getGameContent(game.key as GameKey) : undefined;

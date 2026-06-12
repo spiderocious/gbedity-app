@@ -16,6 +16,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Presentation (PRD §6.4 #19) — round-robin. Each player presents a topic aloud (no prep) while the
 // topic shows on the display; OTHERS rate across criteria (persuasiveness/entertainment/confidence
 // 1–5 sliders) + an optional heckle. Score = aggregate ratings (+ audience-favourite bonus).
@@ -148,6 +150,8 @@ export const presentationGame: GamePlugin<Config, State, Action, Content> = {
       presenterId: presenter(state) ?? null,
       topic: topic(state),
       heckles: state.heckles,
+      ...projectTiming(state.deadline, state.phase === Phase.RATE ? state.rateSeconds : state.presentationSeconds),
+      board: projectBoard(state.scores),
     };
     if (audience.kind === AudienceKind.PLAYER) {
       base.youArePresenting = presenter(state) === audience.playerId;

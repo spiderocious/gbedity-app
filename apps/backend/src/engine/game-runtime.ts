@@ -235,6 +235,7 @@ export class GameRuntime {
         // (deleting the snapshot), and applyStep would otherwise re-schedule one right after,
         // resurrecting the snapshot of a finished game (SP-3). `ended` blocks that re-schedule.
         this.ended = true;
+        this.sink.gameOver?.(this.roomCode); // tell clients to leave the in-game screen
         this.onGameEnded();
         return;
       default: {
@@ -376,6 +377,7 @@ export class GameRuntime {
     for (const [, t] of this.timers) clearTimeout(t.handle);
     this.timers.clear();
     this.broadcast();
+    this.sink.gameOver?.(this.roomCode); // tell clients to leave the in-game screen → lobby
     this.onGameEnded();
   }
 

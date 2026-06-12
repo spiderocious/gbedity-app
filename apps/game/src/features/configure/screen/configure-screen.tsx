@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
+
 import { Button, Card, DrawerService, GameId, PreviewRail, Pill } from '@gbedity/ui';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { buildStartConfig } from '../../../shared/games/config-map.ts';
+import { configValues } from '../../../shared/games/config-values.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
 import { gameQueue } from '../../../shared/games/game-queue.ts';
 import { CATEGORY_TAG, type GameKey } from '../../../shared/games/games-manifest.ts';
@@ -24,6 +27,12 @@ export function ConfigureScreen() {
   const code = search.get('code') ?? sessionStore.getHost()?.roomCode ?? '';
   const catalogueBack = code !== '' ? `${ROUTES.HOST_CATALOGUE}?code=${code}` : ROUTES.HOST_CATALOGUE;
 
+  // Reset the shared config-values store whenever a different game is configured, so one game's
+  // control values never leak into another's start config. Controls re-seed their defaults on mount.
+  useEffect(() => {
+    configValues.reset();
+  }, [game?.key]);
+
   function handleAddToRoom() {
     if (game === undefined || code === '') return;
     gameQueue.add(code, {
@@ -31,7 +40,7 @@ export function ConfigureScreen() {
       key: game.key as GameKey,
       title: game.title,
       backendId: game.gameId, // every catalogue game is startable via its own backend gameId
-      config: buildStartConfig(),
+      config: buildStartConfig(game.key as GameKey),
       weight: 1,
     });
     DrawerService.toast(`${game.title} added to the room.`, { tone: 'success' });

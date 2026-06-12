@@ -1,3 +1,7 @@
+import { useRef } from 'react';
+
+import { log } from '../../shared/observability/logger.ts';
+import { LogEvent } from '../../shared/observability/events.ts';
 import type { ViewPatch } from '../../shared/types/view.ts';
 
 // Resolve which backed game a live screen is showing — by backend gameId only. This is renderer
@@ -14,6 +18,7 @@ export const LiveGameId = {
   WORD_BOMB: 'word_bomb',
   QUIZZES: 'quizzes',
   WORDSHOT: 'wordshot',
+  MISSING_LETTERS: 'missing_letters',
 } as const;
 export type LiveGameId = (typeof LiveGameId)[keyof typeof LiveGameId];
 
@@ -35,6 +40,8 @@ export function detectLiveGame(patch: ViewPatch | null): string | undefined {
   if (patch.holderId !== undefined || patch.used !== undefined) return LiveGameId.WORD_BOMB;
   if (patch.options !== undefined || patch.qIndex !== undefined) return LiveGameId.QUIZZES;
   if (patch.letter !== undefined || patch.ranked !== undefined) return LiveGameId.WORDSHOT;
+  // Missing Letters: a masked word + per-round index, no letter/options/holder.
+  if (patch.masked !== undefined || patch.length !== undefined) return LiveGameId.MISSING_LETTERS;
   return undefined;
 }
 
@@ -43,4 +50,28 @@ export function detectLiveGame(patch: ViewPatch | null): string | undefined {
 // store is the source of truth for whether it's a real game; an unknown id simply has no renderer.
 export function resolveLiveHint(liveParam: string | null): string | undefined {
   return liveParam === null || liveParam === '' ? undefined : liveParam;
+}
+
+// LATCHED game id for the lifetime of a live screen. Shape-detection (`detectLiveGame`) is per-patch:
+// some phases (board-only scores, transitional beats) carry none of the discriminant fields, so it
+// returns undefined for them — and the host/player audiences can carry different shapes. If a screen
+// derived its game id straight from that, the id would flicker undefined → game → undefined, which
+// UNMOUNTS and REMOUNTS the per-game flow component (resetting its stage machine back to intro →
+// "question flash → 3·2·1 → stuck on Go!"). A room never changes games mid-session, so once we know
+// the id we keep it: detect → else hint → else the last id we saw. It only resets on a fresh mount.
+export function useLatchedLiveGame(patch: ViewPatch | null, hint: string | null): string | undefined {
+  const latched = useRef<string | undefined>(undefined);
+  const detected = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  if (detected !== undefined && detected !== latched.current) {
+    // A change here that ISN'T the initial undefined→id set means the game id flipped mid-screen —
+    // the canary for the flow unmount/remount bug. Logged loudly so it's obvious in a capture.
+    log.event(LogEvent.FLOW_BACKEND_ID_CHANGED, {
+      from: latched.current,
+      to: detected,
+      via: detectLiveGame(patch) !== undefined ? 'patch-shape' : 'hint',
+      phase: patch?.phase,
+    }, { component: 'useLatchedLiveGame' });
+    latched.current = detected;
+  }
+  return latched.current;
 }

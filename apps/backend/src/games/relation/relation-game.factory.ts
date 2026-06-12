@@ -17,6 +17,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Shared factory for Synonyms + Antonyms (PRD §6.1 #10/#11) — identical mechanics, opposite
 // relation. A prompt word shown; players race to type a valid synonym/antonym; each correct one
 // scores; faster scores more. Validation goes to the validation service (mode: 'relation',
@@ -52,10 +54,22 @@ interface State {
   words: string[];
   deadline: EpochMs;
   accepted: Accepted[]; // valid answers this round (all players)
+  totals: Record<string, number>; // cumulative score per player (board)
+  lastDeltas: Record<string, number>; // this round's points per player (board roundDelta + scoreRound)
 }
 
 const POINTS = 1000;
 const cur = (s: State): string | undefined => s.words[s.idx];
+
+// This round's points per player — single source for the in-patch board AND scoreRound. Earliness
+// bonus by acceptance order (same as the original scoreRound).
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  state.accepted.forEach((a, rank) => {
+    out[a.playerId] = (out[a.playerId] ?? 0) + Math.max(100, POINTS - rank * 50);
+  });
+  return out;
+};
 
 export interface RelationGameOpts {
   id: typeof GameId.SYNONYMS | typeof GameId.ANTONYMS;
@@ -99,6 +113,8 @@ export const makeRelationGame = (opts: RelationGameOpts): AnyGamePlugin => {
           words: input.content.words.map((w) => w.toLowerCase()),
           deadline: d,
           accepted: [],
+          totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+          lastDeltas: {},
         },
         effects: [{ kind: EffectKind.START_TIMER, key: 'round', fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
@@ -147,8 +163,10 @@ export const makeRelationGame = (opts: RelationGameOpts): AnyGamePlugin => {
     onTick(state, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
       if (state.phase === Phase.ROUND) {
         const d = nowMs + state.revealSeconds * 1000;
+        const deltas = roundDeltasMap(state);
+        const totals = accrue(state.totals, deltas);
         return {
-          state: { ...state, phase: Phase.REVEAL, deadline: d },
+          state: { ...state, phase: Phase.REVEAL, deadline: d, totals, lastDeltas: deltas },
           effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: 'reveal', fireAt: d }],
         };
       }
@@ -157,7 +175,7 @@ export const makeRelationGame = (opts: RelationGameOpts): AnyGamePlugin => {
         if (next >= state.rounds) return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
         const d = nowMs + state.secondsPerRound * 1000;
         return {
-          state: { ...state, phase: Phase.ROUND, idx: next, accepted: [], deadline: d },
+          state: { ...state, phase: Phase.ROUND, idx: next, accepted: [], deadline: d, lastDeltas: {} },
           effects: [{ kind: EffectKind.START_TIMER, key: 'round', fireAt: d }, { kind: EffectKind.BROADCAST }],
         };
       }
@@ -172,20 +190,20 @@ export const makeRelationGame = (opts: RelationGameOpts): AnyGamePlugin => {
         prompt: cur(state) ?? null,
         relation: opts.relation,
         acceptedCount: state.accepted.length,
+        revealSeconds: state.revealSeconds,
+        ...projectTiming(state.deadline, state.secondsPerRound),
+        board: projectBoard(state.totals, state.lastDeltas),
       };
       if (audience.kind === AudienceKind.PLAYER) {
         base.yourAccepted = state.accepted.filter((a) => a.playerId === audience.playerId).length;
+        base.yourScore = state.totals[audience.playerId] ?? 0;
       }
       return base;
     },
 
     scoreRound(state): RoundScore {
-      // points per accepted answer, with an earliness bonus by acceptance order.
-      const deltas = state.accepted.map((a, rank) => ({
-        playerId: a.playerId,
-        points: Math.max(100, POINTS - rank * 50),
-        reason: MESSAGE_KEYS.common.OK,
-      }));
+      // Read the deltas captured at ROUND→REVEAL — one source for board + leaderboard.
+      const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
       return { deltas, maxPoints: POINTS };
     },
 

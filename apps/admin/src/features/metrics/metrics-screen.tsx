@@ -1,11 +1,15 @@
 import { Card, Score } from '@gbedity/ui';
+import { useNavigate } from 'react-router-dom';
 
-import { useGamePlays, useMetrics } from '../../shared/api/admin-api.ts';
+import { useMetrics } from '../../shared/api/admin-api.ts';
+import { useGamePlays } from '../history/api/history-api.ts';
+import { ROUTES } from '../../shared/constants/routes.ts';
 
 // Metrics home — per-game play counts + recent game-plays (api-docs §metrics + §game-plays).
 export function MetricsScreen() {
+  const navigate = useNavigate();
   const metrics = useMetrics();
-  const plays = useGamePlays();
+  const plays = useGamePlays({});
 
   return (
     <div className="flex flex-col gap-8">
@@ -41,15 +45,15 @@ export function MetricsScreen() {
           <p className="font-sans text-[14px] text-ink-3">Loading…</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {(plays.data ?? []).slice(0, 20).map((p) => (
-              <Card key={p.id} size="sm" className="flex items-center justify-between">
+            {(plays.data?.data ?? []).slice(0, 20).map((p) => (
+              <Card key={p.id} size="sm" className="flex cursor-pointer items-center justify-between hover:bg-canvas" onClick={() => navigate(ROUTES.HISTORY_DETAIL(p.id))}>
                 <span className="font-sans text-[14px] font-bold text-ink">{p.gameId}</span>
                 <span className="font-sans text-[12px] text-ink-3">
                   {p.roomCode} · {p.players.length} players
                 </span>
               </Card>
             ))}
-            {(plays.data?.length ?? 0) === 0 ? (
+            {(plays.data?.data.length ?? 0) === 0 ? (
               <p className="font-sans text-[14px] text-ink-3">No game-plays yet.</p>
             ) : null}
           </div>

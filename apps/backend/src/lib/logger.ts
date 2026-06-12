@@ -13,10 +13,20 @@ const LEVELS = { trace: 10, debug: 20, info: 30, warn: 40, error: 50 } as const;
 // Field names whose values are replaced with [REDACTED] (shallow — these are the PII we carry).
 const REDACT_KEYS = new Set(['password', 'pin', 'otp', 'email', 'phone', 'authorization']);
 
+// Error objects carry `message`/`stack`/`name` as NON-enumerable props, so JSON.stringify(err)
+// yields `{}` — the actual failure is invisible. Serialize them explicitly to a plain object so
+// startup/runtime errors are diagnosable. Applies at any depth a field directly holds an Error.
+const serializeValue = (value: unknown): unknown => {
+  if (value instanceof Error) {
+    return { name: value.name, message: value.message, stack: value.stack };
+  }
+  return value;
+};
+
 const redact = (fields: LogFields): LogFields => {
   const out: LogFields = {};
   for (const [k, v] of Object.entries(fields)) {
-    out[k] = REDACT_KEYS.has(k.toLowerCase()) ? '[REDACTED]' : v;
+    out[k] = REDACT_KEYS.has(k.toLowerCase()) ? '[REDACTED]' : serializeValue(v);
   }
   return out;
 };

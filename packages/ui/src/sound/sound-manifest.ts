@@ -13,6 +13,8 @@ export const SoundKey = {
   GAME_START: 'game_start',
   SUCCESS: 'success',
   ERROR: 'error',
+  COUNTDOWN_TICK: 'countdown_tick',
+  ROUND_WIN: 'round_win',
 } as const;
 export type SoundKey = (typeof SoundKey)[keyof typeof SoundKey];
 
@@ -39,4 +41,6 @@ export const SOUND_MANIFEST: readonly SoundAsset[] = [
   { key: SoundKey.GAME_START, url: 'https://www.joshwcomeau.com/sounds/fanfare.mp3', kind: SoundKind.SFX, gain: 0.8 },
   { key: SoundKey.SUCCESS, url: 'https://www.joshwcomeau.com/sounds/switch-on.mp3', kind: SoundKind.SFX, gain: 0.7 },
   { key: SoundKey.ERROR, url: 'https://www.joshwcomeau.com/sounds/disable-sound.mp3', kind: SoundKind.SFX, gain: 0.6 },
+  { key: SoundKey.COUNTDOWN_TICK, url: 'https://www.joshwcomeau.com/sounds/pop-down.mp3', kind: SoundKind.SFX, gain: 0.4 },
+  { key: SoundKey.ROUND_WIN, url: 'https://www.joshwcomeau.com/sounds/fanfare.mp3', kind: SoundKind.SFX, gain: 0.6 },
 ] as const;

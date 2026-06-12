@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { GameId } from '@gbedity/ui';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -7,9 +9,11 @@ import { type GameCategory, type GameKey } from '../../../shared/games/games-man
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx';
 import { SocketRole } from '../../../shared/services/socket.ts';
-import { Phase } from '../../../shared/types/view.ts';
+import { Phase, type ViewPatch } from '../../../shared/types/view.ts';
 import { getLiveRenderer, LiveBoard } from '../live/live-renderers.tsx';
 import { LiveResult } from '../live/live-result.tsx';
+import { getGameFlow } from '../flow/flow-registry.tsx';
+import '../flow/register-flows.ts';
 import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-live-game.ts';
 
 // §5.1 — display in-game. LIVE by default: a display socket renders server.view patches.
@@ -30,27 +34,49 @@ export function DisplayGameScreen() {
 }
 
 function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: string | null }) {
-  const { patch, status } = useRoomSocket();
+  const { patch, status, gameOver } = useRoomSocket();
+
+  // The display/spectator surface is a HANDS-FREE LOOP — a TV can be left on it:
+  //   spectating a game → game ends → hold the final result board → host starts the next game →
+  //   the fresh live patch resets gameOver (in the socket provider) → resume spectating. We NEVER
+  //   navigate away on game-over (that dropped to a mock result + broke the loop). A true session end
+  //   (the room was ended) flips the socket to ENDED → the provider renders the closed screen for us.
   const backendId = detectLiveGame(patch) ?? resolveLiveHint(hint);
   const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   // Chrome (id/title/category) joined from the central catalogue store by backend gameId.
   const { data } = useCatalogue();
   const game = backendId ? findGame(data ?? [], backendId) : undefined;
-  // End-of-game → the full live result board; in-round reveal → the live (partial) board.
-  const isFinal = patch !== null && (patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
+  // Hold the result board when the game is over (the latch) OR the terminal phase is showing — until
+  // the next game's first live patch arrives (which clears gameOver and swaps in a live phase).
+  const isFinal = gameOver || (patch !== null && (patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE));
   const isReveal = patch !== null && patch.phase === Phase.REVEAL;
+
+  // Keep the freshest board-bearing patch so the held result survives a between-games LOBBY patch
+  // (which carries no board) — otherwise the board would flash to "Tallying…" while we wait.
+  const lastBoardPatch = useRef<ViewPatch | null>(null);
+  if (patch !== null && Array.isArray(patch.board) && patch.board.length > 0) lastBoardPatch.current = patch;
+  const resultPatch = patch !== null && Array.isArray(patch.board) && patch.board.length > 0 ? patch : lastBoardPatch.current;
+
+  // Games with a dedicated animated flow render as a SPECTATOR (read-only, no input) — the same
+  // sequence players see, sized for the shared screen. Resolved from the registry by backend gameId.
+  // While holding the final result we don't hand the patch to the flow (it would re-run its intro).
+  const Flow = getGameFlow(backendId);
 
   return (
     <Shell
       id={game?.id ?? 0}
       category={game?.category ?? 'casual'}
       title={game?.title ?? 'Game'}
-      round={patch?.phase ?? status}
+      round={isFinal ? 'Final scores' : (patch?.phase ?? status)}
     >
-      {patch === null ? (
+      {isFinal && resultPatch !== null ? (
+        <LiveResult patch={resultPatch} code={code} />
+      ) : Flow !== undefined ? (
+        // Keyed by game id so a new game in the loop remounts the flow cleanly (fresh intro), rather
+        // than reusing the previous game's stage machine.
+        <Flow key={backendId} patch={patch} send={() => undefined} audience="spectator" code={code} />
+      ) : patch === null ? (
         <p className="text-center font-sans text-[16px] text-ink-3">Setting up…</p>
-      ) : isFinal ? (
-        <LiveResult patch={patch} code={code} />
       ) : isReveal ? (
         <LiveBoard patch={patch} code={code} />
       ) : (

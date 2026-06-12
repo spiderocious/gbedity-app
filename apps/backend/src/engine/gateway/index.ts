@@ -4,6 +4,7 @@ import { Server, type Socket } from 'socket.io';
 
 import { logger } from '@lib/logger';
 
+import { env } from '../../env';
 import { bootstrapEngine } from '../index';
 import { roomRegistry } from '../room/room-registry';
 import { HOST_LEAVE_GRACE_MS, RoomMemberRole, RoomPhase, type RoomPlayer } from '../room/room.types';
@@ -53,6 +54,11 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
   const sink: OutputSink = {
     send(roomCode: string, audience: Audience, patch: ViewPatch): void {
       io.to(channelFor(roomCode, audience)).emit(ServerEvent.VIEW, { audience: audience.kind, patch });
+    },
+    // Game ended (natural finish or host end_game) → tell the whole room to leave the in-game
+    // screen. The room itself stays open (back to lobby); this is NOT room_ended.
+    gameOver(roomCode: string): void {
+      io.to(roomChannel(roomCode)).emit(ServerEvent.GAME_OVER, { roomCode });
     },
   };
   sessionManager.setSink(sink);
@@ -119,14 +125,22 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
     });
   });
 
-  // Host disconnected: suspend the room and arm a grace timer. If the host doesn't return within
-  // HOST_LEAVE_GRACE_MS, end the room (PRD §10).
+  // Host disconnected: suspend the room and (when room sweeping is enabled) arm a grace timer that
+  // ends the room if the host doesn't return within HOST_LEAVE_GRACE_MS (PRD §10). When sweeping is
+  // OFF, the room is the persistent thing the operator asked for: we still mark it suspended + notify
+  // (so a returning host resumes), but we DON'T auto-end — a host refresh/navigation (a brief socket
+  // disconnect) must never silently close the room. This is the fix for "rooms auto-close with sweep
+  // off" — that close was the host-leave grace, not the idle sweeper.
   const suspendRoom = (code: string): void => {
     const room = roomRegistry.get(code);
     if (!room || suspensionTimers.has(code)) return;
     room.phase = RoomPhase.SUSPENDED;
     roomRegistry.touch(room);
     io.to(displayChannel(code)).emit(ServerEvent.ROOM_SUSPENDED, { roomCode: code });
+    if (!env.ROOM_SWEEP_ENABLED) {
+      logger.info({ code }, 'room suspended — host left (auto-end disabled; room persists)');
+      return;
+    }
     const timer = setTimeout(() => {
       suspensionTimers.delete(code);
       void endRoom(code);
@@ -203,6 +217,17 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
       void socket.join(hostChannel(roomCode));
       bindPlayer(socket, data, roomCode, host);
       resumeRoom(roomCode); // host returned — cancel any grace countdown (PRD §10)
+      // If a game is already live when the host joins (it plays off its own player seat AND drives
+      // host chrome), re-project the CURRENT state immediately — both the player-seat view and the
+      // host/display views. Without this, the host gets no patch until the next phase transition, so
+      // joining mid-round it misses the live round entirely and only "wakes up" at reveal/next round
+      // ("host sees a question, then 3·2·1·GO until round 2"). Mirrors the player branch below.
+      const hostRuntime = sessionManager.activeRuntime(roomCode);
+      if (hostRuntime) {
+        hostRuntime.resendTo(host.id);
+        hostRuntime.resendDisplay();
+        socket.emit(ServerEvent.RESUMED, { roomCode });
+      }
     } else {
       // PLAYER — reconnect into an existing seat by token, else they must have been added via HTTP.
       const seat = resolvePlayer(roomCode, reconnectToken, playerId);
@@ -286,17 +311,21 @@ export const attachRoomGateway = (httpServer: HttpServer): Server => {
     }
   };
 
-  // Periodic maintenance (PRD §4): reap idle rooms — ending their sessions and clearing any
-  // lingering suspension timer — and evict stale rate-limiter buckets. setInterval is unref'd so
-  // it never keeps the process alive on its own.
+  // Periodic maintenance: evict stale rate-limiter buckets (always — a memory-leak guard), and —
+  // when ROOM_SWEEP_ENABLED — reap idle rooms (PRD §4), ending their sessions + clearing any
+  // lingering suspension timer. The idle reap is toggleable (off by default) so rooms can persist
+  // during dev/testing; bucket eviction is unaffected. setInterval is unref'd so it never keeps the
+  // process alive on its own.
   const sweeper = setInterval(() => {
-    for (const code of roomRegistry.sweepIdle()) {
-      const timer = suspensionTimers.get(code);
-      if (timer) {
-        clearTimeout(timer);
-        suspensionTimers.delete(code);
+    if (env.ROOM_SWEEP_ENABLED) {
+      for (const code of roomRegistry.sweepIdle()) {
+        const timer = suspensionTimers.get(code);
+        if (timer) {
+          clearTimeout(timer);
+          suspensionTimers.delete(code);
+        }
+        void sessionManager.end(code);
       }
-      void sessionManager.end(code);
     }
     limiter.sweepStale();
   }, SWEEP_INTERVAL_MS);

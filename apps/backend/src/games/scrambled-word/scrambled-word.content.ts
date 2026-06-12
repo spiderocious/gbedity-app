@@ -1,7 +1,7 @@
 import { registerContentResolver, type ResolveInput } from '@engine/content-resolver';
 import { GameId } from '@engine/constants';
 
-import { pickWords } from '../shared/word-picker';
+import { pickGameWords } from '../shared/word-picker';
 
 interface SWConfig {
   rounds: number;
@@ -27,7 +27,7 @@ const scramble = (word: string, seed: string): string => {
 export const installScrambledWordContent = (): void => {
   registerContentResolver(GameId.SCRAMBLED_WORD, async (input: ResolveInput): Promise<unknown> => {
     const config = input.config as SWConfig;
-    const words = await pickWords({ count: config.rounds, minLen: config.minLen ?? 5, maxLen: config.maxLen ?? 8 });
+    const words = await pickGameWords({ count: config.rounds, minLen: config.minLen ?? 5, maxLen: config.maxLen ?? 8 });
     const list = words.length > 0 ? words : ['planet', 'guitar', 'orange', 'silver'];
     return { words: list.map((answer) => ({ answer, scrambled: scramble(answer, `${input.seed}:${answer}`) })) };
   });

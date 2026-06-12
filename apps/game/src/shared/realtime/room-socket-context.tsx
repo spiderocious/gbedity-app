@@ -28,6 +28,9 @@ export interface RoomSocketValue {
   /** Convenience: the patch this client should render — player projection if present (host or
    *  player seat both play off it), else display, else host. Null until the first view. */
   readonly patch: ViewPatch | null;
+  /** True once the active game ends (natural finish or host end_game). The room stays open (back to
+   *  lobby) — in-game screens navigate off the play surface when this flips true. */
+  readonly gameOver: boolean;
   /** Last server.error code, if any. */
   readonly errorCode: string | null;
   /** Send a game action ({ type, ... }). */

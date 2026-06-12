@@ -12,9 +12,12 @@ export const ClientEvent = {
 } as const;
 
 // Host-initiated lifecycle actions, sent over ClientEvent.ACTION as { action: { type } }. The
-// backend gates these to the token-verified host seat. Named constant — never inline.
+// backend gates these to the token-verified host seat (engine-level, before per-game validation).
+// Named constants — never inline.
 export const HostAction = {
-  END_SESSION: 'host.end_session',
+  END_SESSION: 'host.end_session', // close the whole room (lobby + in-game)
+  END_GAME: 'host.end_game', // end the active game → room returns to lobby
+  SKIP: 'host.skip', // advance the current phase early
 } as const;
 export type HostAction = (typeof HostAction)[keyof typeof HostAction];
 
@@ -25,6 +28,7 @@ export const ServerEvent = {
   ROOM_SUSPENDED: 'server.room_suspended',
   ROOM_ENDED: 'server.room_ended',
   RESUMED: 'server.resumed',
+  GAME_OVER: 'server.game_over', // the active game ended → leave the in-game screen (room stays open)
 } as const;
 
 export const SocketRole = {

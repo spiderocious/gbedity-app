@@ -16,6 +16,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Catch the Lie (PRD §6.3 #14) — each player submits 2 truths + 1 lie about themselves; the display
 // reveals one player's 3 statements ANONYMOUSLY (which is the lie is server-only); others vote which
 // is the lie; points for guessing correctly + bonus for fooling people. Player-generated content
@@ -151,7 +153,13 @@ export const catchTheLieGame: GamePlugin<Config, State, Action, Content> = {
   },
 
   view(state: State, audience: Audience): ViewPatch {
-    const base: ViewPatch = { phase: state.phase, revealIdx: state.revealIdx, totalSubjects: state.order.length };
+    const base: ViewPatch = {
+      phase: state.phase,
+      revealIdx: state.revealIdx,
+      totalSubjects: state.order.length,
+      ...projectTiming(state.deadline, state.phase === Phase.SUBMISSION ? state.submissionSeconds : state.votingSeconds),
+      board: projectBoard(state.scores),
+    };
     if (state.phase === Phase.REVEAL) {
       const subject = subjectOf(state);
       // statements shown WITHOUT which-is-the-lie. lieIdx is server-only until... we only reveal the

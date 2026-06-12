@@ -1,7 +1,7 @@
 import { registerContentResolver, type ResolveInput } from '@engine/content-resolver';
 import { GameId } from '@engine/constants';
 
-import { pickWords } from '../shared/word-picker';
+import { pickGameWords } from '../shared/word-picker';
 
 interface MLConfig {
   rounds: number;
@@ -26,7 +26,7 @@ export const installMissingLettersContent = (): void => {
   registerContentResolver(GameId.MISSING_LETTERS, async (input: ResolveInput): Promise<unknown> => {
     const config = input.config as MLConfig;
     const hidden = config.hiddenCount ?? 3;
-    const words = await pickWords({
+    const words = await pickGameWords({
       count: config.rounds,
       minLen: config.minLen ?? 4,
       maxLen: config.maxLen ?? 8,

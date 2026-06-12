@@ -1,4 +1,6 @@
-import { Card, DrawerService, Pill } from '@gbedity/ui';
+import { useState } from 'react';
+
+import { Card, DrawerService, Field, Input, Pill } from '@gbedity/ui';
 import { ArrowRight, Settings2, Trophy, Zap, type LucideIcon } from '@icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,10 +35,23 @@ const MODES: readonly ModeTile[] = [
 export function HostStartScreen() {
   const navigate = useNavigate();
   const createRoom = useCreateRoom();
+  // Collect the host's name so they show up as themselves in the roster + scores (not "Host").
+  const [name, setName] = useState(() => sessionStore.getNickname() ?? '');
+  const [nameError, setNameError] = useState('');
 
   function choose(mode: Mode) {
     if (createRoom.isPending) return;
-    const nickname = sessionStore.getNickname() ?? 'Host';
+    const nickname = name.trim();
+    if (nickname === '') {
+      setNameError('Enter your name first.');
+      return;
+    }
+    if (nickname.toLowerCase().includes('spectator')) {
+      setNameError('“Spectator” is reserved — pick another name.');
+      return;
+    }
+    setNameError('');
+    sessionStore.saveNickname(nickname);
     createRoom.mutate(nickname, {
       onSuccess: (room) => {
         // All modes land on the host lobby (room dashboard) — the single working hub: it shows
@@ -69,6 +84,19 @@ export function HostStartScreen() {
           <p className="mt-1 font-sans text-[14px] leading-[1.5] text-ink-3">
             Open the room on a screen the room can see. Players join from their phones.
           </p>
+
+          <div className="mt-5">
+            <Field label="Your name" htmlFor="host-name" error={nameError === '' ? undefined : nameError}>
+              <Input
+                id="host-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Ada"
+                maxLength={16}
+                error={nameError !== ''}
+              />
+            </Field>
+          </div>
 
           <div className="mt-6 flex flex-col gap-3">
             {MODES.map((mode) => {

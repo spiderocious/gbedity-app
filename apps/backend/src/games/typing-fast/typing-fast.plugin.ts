@@ -15,6 +15,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Typing Fast (PRD §6.1 #4) — a passage on display; players type it; score = WPM × accuracy
 // (accuracyWeight slides speed↔accuracy). Pure in-plugin scoring (no validation service). Players
 // submit their typed text (the client may send the final text on done or on timeout).
@@ -56,6 +58,8 @@ interface State {
   roundStartedAt: EpochMs;
   deadline: EpochMs;
   submissions: Submission[];
+  totals: Record<string, number>; // cumulative score per player (board)
+  lastDeltas: Record<string, number>; // this round's points per player (board roundDelta + scoreRound)
 }
 
 const POINTS = 1000;
@@ -67,6 +71,22 @@ const accuracy = (typed: string, target: string): number => {
   let correct = 0;
   for (let i = 0; i < target.length; i += 1) if (typed[i] === target[i]) correct += 1;
   return correct / target.length;
+};
+
+// This round's points per player — single source for the in-patch board AND scoreRound (WPM×accuracy).
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const target = cur(state) ?? '';
+  const aw = state.accuracyWeight / 100;
+  const out: Record<string, number> = {};
+  for (const s of state.submissions) {
+    const acc = accuracy(s.text, target);
+    const minutes = Math.max(0.001, (s.at - state.roundStartedAt) / 60000);
+    const wpm = s.text.trim().split(/\s+/).filter(Boolean).length / minutes;
+    const speedScore = Math.min(1, wpm / 80);
+    const combined = aw * acc + (1 - aw) * speedScore;
+    out[s.playerId] = Math.round(POINTS * combined);
+  }
+  return out;
 };
 
 export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
@@ -98,6 +118,8 @@ export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
         roundStartedAt: input.startedAt,
         deadline: d,
         submissions: [],
+        totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
     };
@@ -117,8 +139,10 @@ export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.ROUND) {
       const d = nowMs + state.revealSeconds * 1000;
+      const deltas = roundDeltasMap(state);
+      const totals = accrue(state.totals, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: d },
+        state: { ...state, phase: Phase.REVEAL, deadline: d, totals, lastDeltas: deltas },
         effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }],
       };
     }
@@ -127,7 +151,7 @@ export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
       if (next >= state.rounds) return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
       const d = nowMs + state.secondsPerPassage * 1000;
       return {
-        state: { ...state, phase: Phase.ROUND, idx: next, roundStartedAt: nowMs, submissions: [], deadline: d },
+        state: { ...state, phase: Phase.ROUND, idx: next, roundStartedAt: nowMs, submissions: [], deadline: d, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -136,24 +160,24 @@ export const typingFastGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const passage = cur(state);
-    const base: ViewPatch = { phase: state.phase, idx: state.idx, rounds: state.rounds, passage: passage ?? null };
+    const base: ViewPatch = {
+      phase: state.phase,
+      idx: state.idx,
+      rounds: state.rounds,
+      passage: passage ?? null,
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerPassage),
+      board: projectBoard(state.totals, state.lastDeltas),
+    };
     if (audience.kind === AudienceKind.PLAYER) {
       base.submitted = state.submissions.some((s) => s.playerId === audience.playerId);
+      base.yourScore = state.totals[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const target = cur(state) ?? '';
-    const aw = state.accuracyWeight / 100;
-    const deltas = state.submissions.map((s) => {
-      const acc = accuracy(s.text, target);
-      const minutes = Math.max(0.001, (s.at - state.roundStartedAt) / 60000);
-      const wpm = s.text.trim().split(/\s+/).filter(Boolean).length / minutes;
-      const speedScore = Math.min(1, wpm / 80); // 80 wpm ≈ full speed credit
-      const combined = aw * acc + (1 - aw) * speedScore;
-      return { playerId: s.playerId, points: Math.round(POINTS * combined), reason: MESSAGE_KEYS.common.OK };
-    });
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
     return { deltas, maxPoints: POINTS };
   },
 

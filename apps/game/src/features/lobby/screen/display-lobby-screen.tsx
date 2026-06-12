@@ -1,25 +1,20 @@
 import { useEffect } from 'react';
 
-import { Button, DrawerService, Logo, PlayerPill, QrCode, RoomCodeChip } from '@gbedity/ui';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Logo, PlayerPill, QrCode, RoomCodeChip } from '@gbedity/ui';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useLobby } from '../../../shared/api/use-lobby.ts';
-import { useStartGame } from '../../../shared/api/use-start-game.ts';
 import { ROUTES, joinUrl, pathWith } from '../../../shared/constants/routes.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket } from '../../../shared/realtime/room-socket-context.tsx';
-import { ApiError } from '../../../shared/services/api-error.ts';
-import { sessionStore } from '../../../shared/services/session-store.ts';
 import { SocketRole } from '../../../shared/services/socket.ts';
-import { useGameQueue } from '../../../shared/games/game-queue.ts';
-import { LiveGameId } from '../../in-game/resolve-live-game.ts';
 import { Phase } from '../../../shared/types/view.ts';
 import { LineupSummary } from '../../../shared/widgets/lineup-summary.tsx';
 import { seatForIndex } from '../seat.ts';
 
-// §2.1 — display lobby (landscape, large text). Live roster from GET /rooms/:code; the
-// display socket auto-advances to the display game when the host starts. A host-control
-// strip (this device is also the host) starts a game directly via POST /rooms/:code/start.
+// §2.1 — display lobby (landscape, large text). A pure SPECTATOR surface: live roster from
+// GET /rooms/:code + the QR/code to join. No host controls — it auto-advances to the display game
+// when the host starts (the first non-lobby view patch arrives over the socket).
 export function DisplayLobbyScreen() {
   const { code = '' } = useParams();
   return (
@@ -33,36 +28,16 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
   const navigate = useNavigate();
   const lobby = useLobby(code);
   const { patch } = useRoomSocket();
-  const startGame = useStartGame();
-  const host = sessionStore.getHost();
-  const queue = useGameQueue(code);
   const players = lobby.data?.players ?? [];
   const lineup = lobby.data?.lineup ?? [];
-  // The first BACKED game the host queued; falls back to Wordshot only if nothing's queued.
-  const nextBacked = queue.find((q) => q.backendId !== undefined);
-  const nextGameId = nextBacked?.backendId ?? LiveGameId.WORDSHOT;
 
+  // Auto-advance into the display game when the host starts. The game id is detected from the
+  // first patch shape on the game screen (no host queue here — this is a spectator surface).
   useEffect(() => {
     if (patch !== null && patch.phase !== Phase.LOBBY) {
-      navigate(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${nextGameId}`);
-    }
-  }, [patch, code, navigate, nextGameId]);
-
-  function start() {
-    if (host === undefined) {
-      // Not the host on this device — just preview the display game shell.
       navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
-      return;
     }
-    // Launch the host's queued game (F-5) — not a hardcoded Wordshot.
-    startGame.mutate(
-      { code, hostId: host.hostId, gameId: nextGameId, config: nextBacked?.config ?? {} },
-      {
-        onSuccess: () => navigate(`${pathWith(ROUTES.DISPLAY_GAME, { code })}?live=${nextGameId}`),
-        onError: (e) => DrawerService.toast(e instanceof ApiError ? e.message : 'Could not start.', { tone: 'danger' }),
-      },
-    );
-  }
+  }, [patch, code, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -99,18 +74,12 @@ function DisplayLobbyContent({ code }: { readonly code: string }) {
         </aside>
       </div>
 
-      <footer className="flex items-center justify-between gap-4 bg-surface px-10 py-5">
+      {/* The display is a SPECTATOR surface — no host controls. It auto-advances into the game when
+          the host starts (the phase-change effect above). Footer is a passive status line. */}
+      <footer className="flex items-center justify-center gap-4 bg-surface px-10 py-5">
         <span className="font-serif text-[24px] font-semibold text-ink">
-          Waiting for players · {players.length} joined
+          Waiting for the host to start · {players.length} joined
         </span>
-        <div className="flex items-center gap-3">
-          <Link to={pathWith(ROUTES.HOST_LOBBY, { code })} className="font-sans text-[14px] font-bold text-ink-3 hover:text-ink">
-            Configure
-          </Link>
-          <Button variant="primary" loading={startGame.isPending} onClick={start}>
-            Start game
-          </Button>
-        </div>
       </footer>
     </div>
   );

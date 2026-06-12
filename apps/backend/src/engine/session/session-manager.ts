@@ -2,7 +2,7 @@ import { logger } from '@lib/logger';
 
 import { getPlugin } from '../registry';
 import { noopSink, type OutputSink } from '../output-sink';
-import { listActiveSnapshots, readSnapshot } from '../snapshot';
+import { deleteSnapshot, listActiveSnapshots, readSnapshot } from '../snapshot';
 import { roomRegistry, type RoomRegistry } from '../room/room-registry';
 import { listActiveRooms, readRoomSnapshot } from '../room/room-snapshot';
 import { RoomPhase } from '../room/room.types';
@@ -115,31 +115,41 @@ export class SessionManager {
       }
     }
 
-    // 2. Restore in-flight games.
+    // 2. Restore in-flight games. Best-effort + ISOLATED: a snapshot that can't be rehydrated
+    // (unknown plugin, or an incompatible/partial state shape from an older plugin version) is
+    // logged and skipped — one bad snapshot must NEVER take down the whole boot (which it did:
+    // a stale state crashed a plugin's view() during rehydrate). The bad snapshot is deleted so
+    // it can't wedge every subsequent restart.
     for (const code of await listActiveSnapshots()) {
-      const snapshot = await readSnapshot(code);
-      if (!snapshot) continue;
-      const plugin = getPlugin(snapshot.gameId);
-      if (!plugin) {
-        logger.warn({ code, gameId: snapshot.gameId }, 'recovery skipped: unknown plugin');
-        continue;
+      try {
+        const snapshot = await readSnapshot(code);
+        if (!snapshot) continue;
+        const plugin = getPlugin(snapshot.gameId);
+        if (!plugin) {
+          logger.warn({ code, gameId: snapshot.gameId }, 'recovery skipped: unknown plugin');
+          continue;
+        }
+        const room = this.registry.get(code);
+        const session = SingleSession.recover({
+          plugin,
+          snapshot,
+          sink: this.sink,
+          onEnded: (): void => {
+            if (room) {
+              room.phase = RoomPhase.LOBBY;
+              room.activeGame = null;
+              this.registry.touch(room);
+            }
+            void this.end(code);
+          },
+        });
+        this.sessions.set(code, session);
+        recoveredGames += 1;
+      } catch (err) {
+        // Drop the un-rehydratable snapshot so it doesn't crash this boot AND every future one.
+        logger.error({ code, err }, 'recovery skipped: snapshot could not be rehydrated');
+        void deleteSnapshot(code);
       }
-      const room = this.registry.get(code);
-      const session = SingleSession.recover({
-        plugin,
-        snapshot,
-        sink: this.sink,
-        onEnded: (): void => {
-          if (room) {
-            room.phase = RoomPhase.LOBBY;
-            room.activeGame = null;
-            this.registry.touch(room);
-          }
-          void this.end(code);
-        },
-      });
-      this.sessions.set(code, session);
-      recoveredGames += 1;
     }
 
     if (recoveredRooms > 0 || recoveredGames > 0) {

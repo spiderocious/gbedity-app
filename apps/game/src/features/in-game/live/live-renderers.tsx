@@ -170,6 +170,22 @@ function PleadPlayer({ patch: p, send }: PlayerViewProps) {
   );
 }
 
+// --- missing_letters (fallback) ---
+// The rich Missing Letters experience is the dedicated flow module (games/missing-letters/). This
+// minimal renderer is the generic-path fallback so getLiveRenderer covers every LiveGameId.
+function MissingLettersPlayerFallback({ patch: p, send }: PlayerViewProps) {
+  const [text, setText] = useState('');
+  const masked = typeof p.masked === 'string' ? p.masked : '';
+  if (p.solved === true) return <p className="text-center font-sans text-[15px] font-bold text-action-deep">Locked in.</p>;
+  return (
+    <div className="flex flex-col gap-3 text-center">
+      <p className="font-serif text-[24px] font-semibold tracking-[0.2em] text-ink">{masked}</p>
+      <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type the full word…" className="rounded-input border-2 border-mist-soft bg-surface px-4 py-3 text-center font-sans text-[17px] text-ink focus:border-action focus:outline-none" />
+      <button type="button" onClick={() => { if (text.trim() !== '') { send({ type: 'missing_letters.guess', text: text.trim() }); setText(''); } }} className="rounded-btn bg-action py-3 font-sans text-[15px] font-bold text-white hover:bg-action-deep">Submit</button>
+    </div>
+  );
+}
+
 // Shared display renderers (public projection).
 const RENDERERS: Record<string, LiveRenderer> = {
   [LiveGameId.QUIZZES]: {
@@ -229,6 +245,17 @@ const RENDERERS: Record<string, LiveRenderer> = {
       </div>
     ),
     Player: PleadPlayer,
+  },
+  [LiveGameId.MISSING_LETTERS]: {
+    display: (p) => (
+      <div className="flex flex-col items-center gap-4 text-center">
+        <RoundHeader left={`Round ${(p.idx ?? 0) + 1} / ${p.rounds ?? '?'}`} />
+        <p className="font-serif text-[40px] font-semibold tracking-[0.2em] text-ink">
+          {typeof p.answer === 'string' ? p.answer.toUpperCase() : typeof p.masked === 'string' ? p.masked : '…'}
+        </p>
+      </div>
+    ),
+    Player: MissingLettersPlayerFallback,
   },
 };
 

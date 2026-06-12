@@ -35,6 +35,12 @@ export function NicknameScreen() {
       setError('Enter a nickname.');
       return;
     }
+    // "spectator" is reserved — the server applies the "(SPECTATOR)" tag, so a player can't claim
+    // it. Client check is UX-only; the server enforces it too (the seam rule).
+    if (trimmed.toLowerCase().includes('spectator')) {
+      setError('“Spectator” is reserved — pick another nickname.');
+      return;
+    }
     if (BANNED_NICKNAMES.some((b) => trimmed.toLowerCase().includes(b))) {
       setError('Pick another nickname.');
       return;

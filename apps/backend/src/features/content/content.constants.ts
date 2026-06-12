@@ -42,6 +42,12 @@ export const ContentCollection = {
   QUIZ_DECKS: 'quiz_decks',
   WORDS: 'words',
   ALLWORDS: 'allwords',
+  DICTIONARY: 'dictionary', // common-English word→definition source (Webster import) for the word games
+  // Operational sets — the curated, RANKED words/definitions the live games actually draw from.
+  // Fed by the seed script + admin promotion from the reference collections above.
+  GAME_WORDS: 'game_words', // Missing Letters / Scrambled Word / Spelling Fast
+  GAME_DEFINITIONS: 'game_definitions', // Definition Race
+
   HOT_TAKE_PROMPTS: 'hot_take_prompts',
   PLEAD_SCENARIOS: 'plead_scenarios',
   PLEAD_RUBRIC: 'plead_rubric',

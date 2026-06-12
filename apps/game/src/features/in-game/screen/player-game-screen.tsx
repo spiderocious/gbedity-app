@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Card, Pill, Segmented } from '@gbedity/ui';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
+import { findGame, useCatalogue, useCatalogueGame } from '../../../shared/catalogue/index.ts';
+import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
 import { type GameKey } from '../../../shared/games/games-manifest.ts';
+import { useLobby } from '../../../shared/api/use-lobby.ts';
 import { RoomSocketProvider } from '../../../shared/realtime/room-socket-provider.tsx';
 import { useRoomSocket, ConnectionStatus } from '../../../shared/realtime/room-socket-context.tsx';
 import { sessionStore } from '../../../shared/services/session-store.ts';
 import { SocketRole } from '../../../shared/services/socket.ts';
 import { Phase } from '../../../shared/types/view.ts';
 import { AppHeader } from '../../../shared/widgets/app-header.tsx';
+import { log, useLogMount } from '../../../shared/observability/logger.ts';
+import { LogEvent } from '../../../shared/observability/events.ts';
 import { getLiveRenderer } from '../live/live-renderers.tsx';
-import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-live-game.ts';
+import { getGameFlow } from '../flow/flow-registry.tsx';
+import '../flow/register-flows.ts';
+import { resolveMockGame, useLatchedLiveGame } from '../resolve-live-game.ts';
+import { WaitingForRound } from '../widgets/waiting-for-round.tsx';
 
 // §5.3 — player in-game. LIVE by default: connects the room socket, renders the player patch,
 // sends client.action. `?mock=<catalogueId>` opts into the static preview registry (the 13
@@ -41,30 +48,63 @@ export function PlayerGameScreen() {
 }
 
 function LivePlayer({ code, hint }: { readonly code: string; readonly hint: string | null }) {
-  const { patch, status, sendAction } = useRoomSocket();
-  // Game identity comes from the patch shape once it arrives; the ?live= hint covers the gap
-  // before the first patch (so chrome can show a title), but detection is the real source.
-  const backendId = detectLiveGame(patch) ?? resolveLiveHint(hint);
+  useLogMount('LivePlayer', { code, hint });
+  const navigate = useNavigate();
+  const { patch, status, sendAction, gameOver } = useRoomSocket();
+
+  // Game ended → leave the play surface for the result screen (the room stays open / back to lobby).
+  useEffect(() => {
+    if (gameOver) navigate(pathWith(ROUTES.PLAYER_RESULT, { code }));
+  }, [gameOver, code, navigate]);
+  // Game identity comes from the patch shape once it arrives; the ?live= hint covers the gap before
+  // the first patch. Latched so a board-only / transitional patch can't drop the id and remount the
+  // flow mid-game (which would reset its stage machine → "question flash → 3·2·1 → stuck on Go!").
+  const backendId = useLatchedLiveGame(patch, hint);
   const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   const score = typeof patch?.yourScore === 'number' ? patch.yourScore : 0;
   const isBoard =
     patch !== null && (patch.phase === Phase.REVEAL || patch.phase === Phase.LEADERBOARD || patch.phase === Phase.DONE);
 
+  // Chrome for the waiting beat: game title (catalogue join by backend id) + roster (lobby snapshot).
+  const { data: catalogue } = useCatalogue();
+  const waitingTitle = (backendId ? findGame(catalogue ?? [], backendId)?.title : undefined) ?? 'The round';
+  const lobby = useLobby(code, code !== '', false);
+  const roster = (lobby.data?.players ?? []).filter((p) => !p.spectator).map((p) => ({ id: p.id, name: p.nickname }));
+
+  // SPECTATOR guard: a player who opted to spectate belongs on the DISPLAY (TV) loop, not the play
+  // surface. If they land here (e.g. a direct refresh on the player game URL), send them across.
+  const myId = sessionStore.getPlayer()?.playerId;
+  const amSpectator = lobby.data?.players.find((p) => p.id === myId)?.spectator === true;
+  useEffect(() => {
+    if (amSpectator) navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
+  }, [amSpectator, code, navigate]);
+
+  // Games with a dedicated animated flow own the play surface (intro plays even before the first
+  // patch arrives). Resolved from the registry by backend gameId.
+  const Flow = getGameFlow(backendId);
+  log.event(LogEvent.FLOW_RESOLVED, { audience: 'player', backendId, hasFlow: Flow !== undefined, hasPatch: patch !== null, status }, { component: 'LivePlayer' });
+
   return (
     <div className="min-h-screen bg-canvas">
       <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-2">
+      <main className="mx-auto flex w-full max-w-xl flex-col gap-4 px-6 pt-2">
         {status === ConnectionStatus.RECONNECTING ? (
           <Card size="lg" className="text-center">
             <p className="font-sans text-[14px] text-warn-deep">Reconnecting…</p>
           </Card>
         ) : null}
+        {Flow !== undefined ? (
+          <Flow patch={patch} send={sendAction} audience="player" code={code} />
+        ) : patch === null && status === ConnectionStatus.ERROR ? (
+          <Card size="lg">
+            <p className="text-center font-sans text-[15px] text-ink-3">Couldn’t join this game.</p>
+          </Card>
+        ) : patch === null ? (
+          // Designed waiting beat — not a tiny loading card. (Spec: Screen 2.)
+          <WaitingForRound title={waitingTitle} players={roster} />
+        ) : (
         <Card size="lg">
-          {patch === null ? (
-            <p className="text-center font-sans text-[15px] text-ink-3">
-              {status === ConnectionStatus.ERROR ? 'Couldn’t join this game.' : 'Waiting for the round to start…'}
-            </p>
-          ) : isBoard ? (
+          {isBoard ? (
             <div className="flex flex-col items-center gap-2 py-6 text-center">
               <p className="font-serif text-[20px] font-semibold text-ink">
                 {patch.phase === Phase.DONE ? 'That’s a wrap' : 'Round over'}
@@ -81,6 +121,7 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
             <p className="text-center font-sans text-[15px] text-ink-3">Waiting for your turn…</p>
           )}
         </Card>
+        )}
       </main>
     </div>
   );

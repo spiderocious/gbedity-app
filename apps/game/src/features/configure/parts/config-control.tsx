@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button, DrawerService, Segmented, Slider, Switch } from '@gbedity/ui';
 import { Minus, Plus } from '@icons';
 
 import { ControlKind, type ConfigControl } from '../../../shared/games/config-schema.ts';
+import { configValues } from '../../../shared/games/config-values.ts';
 
 // §4.2 — the universal config controls. One component renders any ConfigControl from the
 // data-driven schema, so every game's configure screen is generated, not hand-built.
-// Local state only (UI-only build); changes are visual.
+// Each control writes its live value to the shared config-values store (keyed by control id), so
+// buildStartConfig() can collect them and map to the backend config (otherwise host config is
+// silently dropped — the values never left the controls).
 
 interface ConfigControlRowProps {
   readonly control: ConfigControl;
@@ -34,17 +37,17 @@ export function ConfigControlRow({ control }: ConfigControlRowProps) {
 function ControlInput({ control }: ConfigControlRowProps) {
   switch (control.kind) {
     case ControlKind.STEPPER:
-      return <Stepper min={control.min} max={control.max} step={control.step ?? 1} initial={control.defaultValue} unit={control.unit} />;
+      return <Stepper id={control.id} min={control.min} max={control.max} step={control.step ?? 1} initial={control.defaultValue} unit={control.unit} />;
     case ControlKind.PILLS:
-      return <PillsInput options={control.options} initial={control.defaultValue} />;
+      return <PillsInput id={control.id} options={control.options} initial={control.defaultValue} />;
     case ControlKind.MULTI:
-      return <MultiInput options={control.options} initial={control.defaultSelected} />;
+      return <MultiInput id={control.id} options={control.options} initial={control.defaultSelected} />;
     case ControlKind.DROPDOWN:
-      return <DropdownInput options={control.options} initial={control.defaultValue} />;
+      return <DropdownInput id={control.id} options={control.options} initial={control.defaultValue} />;
     case ControlKind.SLIDER:
-      return <SliderInput leftLabel={control.leftLabel} rightLabel={control.rightLabel} initial={control.defaultValue} />;
+      return <SliderInput id={control.id} leftLabel={control.leftLabel} rightLabel={control.rightLabel} initial={control.defaultValue} />;
     case ControlKind.SWITCH:
-      return <SwitchInput initial={control.defaultValue} />;
+      return <SwitchInput id={control.id} initial={control.defaultValue} />;
     case ControlKind.CUSTOM_CONTENT:
       return <CustomOpener noun={control.noun} />;
     default:
@@ -52,40 +55,49 @@ function ControlInput({ control }: ConfigControlRowProps) {
   }
 }
 
-function Stepper({ min, max, step, initial, unit }: { min: number; max: number; step: number; initial: number; unit?: string }) {
+function Stepper({ id, min, max, step, initial, unit }: { id: string; min: number; max: number; step: number; initial: number; unit?: string }) {
   const [v, setV] = useState(initial);
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
+  const update = (next: number): void => { setV(next); configValues.set(id, next); };
   return (
     <div className="inline-flex items-center gap-3 rounded-full bg-canvas px-2 py-1">
-      <button type="button" aria-label="Decrease" onClick={() => setV((x) => Math.max(min, x - step))} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-ink hover:bg-surface-soft disabled:opacity-40" disabled={v <= min}>
+      <button type="button" aria-label="Decrease" onClick={() => update(Math.max(min, v - step))} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-ink hover:bg-surface-soft disabled:opacity-40" disabled={v <= min}>
         <Minus size={14} aria-hidden="true" />
       </button>
       <span className="min-w-[44px] text-center font-sans text-[15px] font-bold tabular-nums text-ink">
         {v}{unit ?? ''}
       </span>
-      <button type="button" aria-label="Increase" onClick={() => setV((x) => Math.min(max, x + step))} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-ink hover:bg-surface-soft disabled:opacity-40" disabled={v >= max}>
+      <button type="button" aria-label="Increase" onClick={() => update(Math.min(max, v + step))} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-ink hover:bg-surface-soft disabled:opacity-40" disabled={v >= max}>
         <Plus size={14} aria-hidden="true" />
       </button>
     </div>
   );
 }
 
-function PillsInput({ options, initial }: { options: readonly string[]; initial: string }) {
+function PillsInput({ id, options, initial }: { id: string; options: readonly string[]; initial: string }) {
   const [v, setV] = useState(initial);
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
+  const update = (next: string): void => { setV(next); configValues.set(id, next); };
   return (
     <Segmented
       size="sm"
       value={v}
-      onChange={setV}
+      onChange={update}
       ariaLabel="Choose option"
       options={options.map((o) => ({ value: o, label: o }))}
     />
   );
 }
 
-function MultiInput({ options, initial }: { options: readonly string[]; initial: readonly string[] }) {
+function MultiInput({ id, options, initial }: { id: string; options: readonly string[]; initial: readonly string[] }) {
   const [selected, setSelected] = useState<readonly string[]>(initial);
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
   function toggle(o: string) {
-    setSelected((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]));
+    setSelected((s) => {
+      const next = s.includes(o) ? s.filter((x) => x !== o) : [...s, o];
+      configValues.set(id, next);
+      return next;
+    });
   }
   return (
     <div className="flex max-w-[260px] flex-wrap justify-end gap-[6px]">
@@ -107,8 +119,9 @@ function MultiInput({ options, initial }: { options: readonly string[]; initial:
   );
 }
 
-function DropdownInput({ options, initial }: { options: readonly string[]; initial: string }) {
+function DropdownInput({ id, options, initial }: { id: string; options: readonly string[]; initial: string }) {
   const [v, setV] = useState(initial);
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
   function open() {
     DrawerService.openModal(
       <div className="flex flex-col gap-1">
@@ -117,7 +130,7 @@ function DropdownInput({ options, initial }: { options: readonly string[]; initi
           <button
             key={o}
             type="button"
-            onClick={() => { setV(o); DrawerService.closeModal(); }}
+            onClick={() => { setV(o); configValues.set(id, o); DrawerService.closeModal(); }}
             className={`rounded-card px-4 py-3 text-left font-sans text-[15px] font-semibold ${o === v ? 'bg-action-soft text-action-deep' : 'text-ink hover:bg-canvas'}`}
           >
             {o}
@@ -134,8 +147,10 @@ function DropdownInput({ options, initial }: { options: readonly string[]; initi
   );
 }
 
-function SliderInput({ leftLabel, rightLabel, initial }: { leftLabel: string; rightLabel: string; initial: number }) {
+function SliderInput({ id, leftLabel, rightLabel, initial }: { id: string; leftLabel: string; rightLabel: string; initial: number }) {
   const [v, setV] = useState(initial);
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
+  const update = (next: number): void => { setV(next); configValues.set(id, next); };
   return (
     <div className="w-[200px]">
       <div className="mb-1 flex justify-between font-sans text-[11px] font-bold text-ink-3">
@@ -143,14 +158,16 @@ function SliderInput({ leftLabel, rightLabel, initial }: { leftLabel: string; ri
         <span className="tabular-nums text-ink">{v}</span>
         <span>{rightLabel}</span>
       </div>
-      <Slider value={v} onChange={setV} ariaLabel={`${leftLabel} to ${rightLabel}`} />
+      <Slider value={v} onChange={update} ariaLabel={`${leftLabel} to ${rightLabel}`} />
     </div>
   );
 }
 
-function SwitchInput({ initial }: { initial: boolean }) {
+function SwitchInput({ id, initial }: { id: string; initial: boolean }) {
   const [v, setV] = useState(initial);
-  return <Switch checked={v} onChange={setV} ariaLabel="Toggle" />;
+  useEffect(() => configValues.seed(id, initial), [id, initial]);
+  const update = (next: boolean): void => { setV(next); configValues.set(id, next); };
+  return <Switch checked={v} onChange={update} ariaLabel="Toggle" />;
 }
 
 function CustomOpener({ noun }: { noun: string }) {

@@ -15,6 +15,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Bible Quiz (PRD §6.1 #2) — same mechanic as Quizzes (4-option MCQ, time-weighted, answer secrecy)
 // but scripture decks with translation + testament filters. Own plugin + own decks. Content resolved
 // server-side from `bible_quiz_decks`.
@@ -51,10 +53,29 @@ interface State {
   questions: Content['questions'];
   deadline: EpochMs;
   answers: { playerId: string; choiceIdx: number; at: EpochMs }[];
+  totals: Record<string, number>; // cumulative score per player (board)
+  lastDeltas: Record<string, number>; // this round's points per player (board roundDelta + scoreRound)
 }
 
 const POINTS_MAX = 1000;
 const cur = (s: State): Content['questions'][number] | undefined => s.questions[s.qIndex];
+
+// This round's points per player — the single source for both the in-patch board and scoreRound, so
+// they never drift. Computed with the QUESTION deadline, so capture it before the reveal transition
+// overwrites deadline.
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const q = cur(state);
+  if (!q) return {};
+  const windowMs = state.secondsPerQuestion * 1000;
+  const out: Record<string, number> = {};
+  for (const a of state.answers) {
+    if (a.choiceIdx !== q.answerIdx) continue;
+    const usedMs = Math.max(0, a.at - (state.deadline - windowMs));
+    const frac = Math.max(0, 1 - usedMs / windowMs);
+    out[a.playerId] = Math.round(POINTS_MAX * (0.5 + 0.5 * frac));
+  }
+  return out;
+};
 
 export const bibleQuizGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
@@ -83,6 +104,8 @@ export const bibleQuizGame: GamePlugin<Config, State, Action, Content> = {
         questions: input.content.questions,
         deadline,
         answers: [],
+        totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: deadline }, { kind: EffectKind.BROADCAST }],
     };
@@ -104,8 +127,11 @@ export const bibleQuizGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.QUESTION) {
       const d = nowMs + state.revealSeconds * 1000;
+      // Capture this round's deltas (using the QUESTION deadline) before overwriting deadline.
+      const deltas = roundDeltasMap(state);
+      const totals = accrue(state.totals, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: d },
+        state: { ...state, phase: Phase.REVEAL, deadline: d, totals, lastDeltas: deltas },
         effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }],
       };
     }
@@ -114,7 +140,7 @@ export const bibleQuizGame: GamePlugin<Config, State, Action, Content> = {
       if (next >= state.rounds) return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
       const d = nowMs + state.secondsPerQuestion * 1000;
       return {
-        state: { ...state, phase: Phase.QUESTION, qIndex: next, answers: [], deadline: d },
+        state: { ...state, phase: Phase.QUESTION, qIndex: next, answers: [], deadline: d, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -123,23 +149,27 @@ export const bibleQuizGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const q = cur(state);
-    const base: ViewPatch = { phase: state.phase, qIndex: state.qIndex, rounds: state.rounds, prompt: q?.prompt ?? null, options: q?.options ?? [] };
+    const base: ViewPatch = {
+      phase: state.phase,
+      qIndex: state.qIndex,
+      rounds: state.rounds,
+      prompt: q?.prompt ?? null,
+      options: q?.options ?? [],
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerQuestion),
+      board: projectBoard(state.totals, state.lastDeltas),
+    };
     if (state.phase === Phase.REVEAL && q) base.answerIdx = q.answerIdx;
-    if (audience.kind === AudienceKind.PLAYER) base.answered = state.answers.some((a) => a.playerId === audience.playerId);
+    if (audience.kind === AudienceKind.PLAYER) {
+      base.answered = state.answers.some((a) => a.playerId === audience.playerId);
+      base.yourScore = state.totals[audience.playerId] ?? 0;
+    }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const q = cur(state);
-    if (!q) return { deltas: [], maxPoints: POINTS_MAX };
-    const windowMs = state.secondsPerQuestion * 1000;
-    const deltas = state.answers
-      .filter((a) => a.choiceIdx === q.answerIdx)
-      .map((a) => {
-        const usedMs = Math.max(0, a.at - (state.deadline - windowMs));
-        const frac = Math.max(0, 1 - usedMs / windowMs);
-        return { playerId: a.playerId, points: Math.round(POINTS_MAX * (0.5 + 0.5 * frac)), reason: MESSAGE_KEYS.common.OK };
-      });
+    // Read the deltas captured at the QUESTION→REVEAL transition — one source for board + leaderboard.
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
     return { deltas, maxPoints: POINTS_MAX };
   },
 

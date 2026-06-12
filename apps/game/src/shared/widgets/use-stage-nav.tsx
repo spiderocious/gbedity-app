@@ -3,6 +3,8 @@ import { useState, type ReactElement } from 'react';
 import { withQuery, type QueryParams } from '@gbedity/util';
 import { useNavigate } from 'react-router-dom';
 
+import { log } from '../observability/logger.ts';
+import { LogEvent } from '../observability/events.ts';
 import { StageFrameTransition } from './stage-frame-transition.tsx';
 
 // Convenience around StageFrameTransition: returns a `go(path, params?)` that plays the cobalt
@@ -21,7 +23,9 @@ export function useStageNav(): StageNav {
   const [target, setTarget] = useState<string>('');
 
   function go(path: string, params?: QueryParams) {
-    setTarget(withQuery(path, params));
+    const dest = withQuery(path, params);
+    log.event(LogEvent.NAV_STAGE_GO, { path, params, dest }, { component: 'useStageNav' });
+    setTarget(dest);
     setActive(true);
   }
 
@@ -29,7 +33,10 @@ export function useStageNav(): StageNav {
     <StageFrameTransition
       active={active}
       onMidpoint={() => {
-        if (target !== '') navigate(target);
+        if (target !== '') {
+          log.event(LogEvent.NAV_STAGE_NAVIGATE, { dest: target }, { component: 'useStageNav' });
+          navigate(target);
+        }
       }}
       onDone={() => setActive(false)}
     />

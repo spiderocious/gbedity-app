@@ -5,6 +5,7 @@ import { MESSAGE_KEYS } from '@shared/messages';
 import { roomRegistry, type RoomRegistry } from '@engine/room/room-registry';
 import {
   RoomPhase,
+  type ActiveGame,
   type LobbyLineupEntry,
   type Room,
   type RoomPlayer,
@@ -51,6 +52,20 @@ export class RoomsService {
     private readonly sessions: SessionManager = sessionManager,
   ) {}
 
+  // Self-heal a wedged `suspended` room. `suspended` is the host-left grace state (PRD §10), and
+  // the ONLY thing that clears it is the host re-joining over WebSocket (gateway resumeRoom). But
+  // the host LOBBY screen holds no socket — it polls REST — so a host who returns to the lobby
+  // never triggers resume, and the room stays suspended forever: every start then 409s with the
+  // misleading game_already_running. Any host-driven REST touch (lobby read / start) is proof the
+  // host is present, so if a suspended room has no active game we return it to the lobby here.
+  // (A suspended room WITH an active game is a real in-flight game mid-grace — left untouched.)
+  private healSuspended(room: Room): void {
+    if (room.phase === RoomPhase.SUSPENDED && room.activeGame === null) {
+      room.phase = RoomPhase.LOBBY;
+      this.registry.touch(room);
+    }
+  }
+
   createRoom(hostNickname: string): ServiceResult<CreateRoomResult> {
     const { room, host } = this.registry.create(hostNickname.trim());
     return ServiceSuccess({ code: room.code, hostId: host.id, hostToken: host.reconnectToken });
@@ -93,6 +108,28 @@ export class RoomsService {
     });
   }
 
+  // Convert an EXISTING seat to a spectator in place (the player opted to spectate from the lobby).
+  // No new seat — flips the flag + applies the server-side "(SPECTATOR)" suffix. Lobby phase only
+  // (you can't switch to spectating mid-game). The host can't spectate (they run the room).
+  spectate(code: string, playerId: string): ServiceResult<{ code: string; playerId: string; spectator: boolean }> {
+    const room = this.registry.get(code);
+    if (!room) {
+      return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
+    }
+    if (room.phase !== RoomPhase.LOBBY) {
+      return ServiceError(ERROR_CODES.NOT_IN_LOBBY, MESSAGE_KEYS.rooms.NOT_IN_LOBBY, 409);
+    }
+    if (playerId === room.hostId) {
+      return ServiceError(ERROR_CODES.NOT_HOST, MESSAGE_KEYS.games.NOT_HOST, 403);
+    }
+    const player = this.registry.findPlayer(room, playerId);
+    if (!player) {
+      return ServiceError(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.common.NOT_FOUND, 404);
+    }
+    this.registry.setSpectator(room, player, SPECTATOR_SUFFIX);
+    return ServiceSuccess({ code: room.code, playerId: player.id, spectator: true });
+  }
+
   // Publish the host's game lineup so players + display can see it in the lobby (read-only).
   // Host-only, lobby phase. The input is validated + bounded by the lineup module; unknown game
   // ids are dropped. Replaces the whole lineup each call (the host mirrors its local queue here,
@@ -132,6 +169,9 @@ export class RoomsService {
     if (room.hostId !== hostId) {
       return ServiceError(ERROR_CODES.NOT_HOST, MESSAGE_KEYS.games.NOT_HOST, 403);
     }
+    // A suspended room with no active game is effectively in the lobby (the host is here, starting
+    // a game) — heal it so we don't 409 game_already_running when nothing is running.
+    this.healSuspended(room);
     if (room.phase !== RoomPhase.LOBBY) {
       return ServiceError(ERROR_CODES.GAME_ALREADY_RUNNING, MESSAGE_KEYS.games.ALREADY_RUNNING, 409);
     }
@@ -210,17 +250,45 @@ export class RoomsService {
     phase: Room['phase'];
     players: { id: string; nickname: string; spectator: boolean }[];
     lineup: LobbyLineupEntry[];
+    activeGame: ActiveGame | null;
   }> {
     const room = this.registry.get(code);
     if (!room) {
       return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
     }
+    // Self-heal a room wedged in `suspended` with no active game: the host polling the lobby is
+    // proof they're present, but the lobby holds no socket to trigger gateway resume. Without this
+    // the room never leaves suspended and every start 409s. (Healing is safe for any caller — a
+    // suspended room with no game has nothing to preserve.)
+    this.healSuspended(room);
     return ServiceSuccess({
       code: room.code,
       phase: room.phase,
       players: room.players.map((p) => ({ id: p.id, nickname: p.nickname, spectator: p.spectator })),
       lineup: room.lobbyLineup,
+      // Surface the running game so the host can join or end it instead of hitting a dead
+      // game_already_running error (the room already tracks it; we just expose it here).
+      activeGame: room.activeGame,
     });
+  }
+
+  // End the game currently running in a room and return it to the lobby. Host-only. Idempotent:
+  // if no game is running it just confirms the lobby state (no error), so a double-tap is safe.
+  // Disposes the session (clears timers + the Redis game snapshot) via the SessionManager — the
+  // same teardown the natural onEnded path uses.
+  async endGame(code: string, hostId: string): Promise<ServiceResult<{ code: string; phase: Room['phase'] }>> {
+    const room = this.registry.get(code);
+    if (!room) {
+      return ServiceError(ERROR_CODES.ROOM_NOT_FOUND, MESSAGE_KEYS.rooms.NOT_FOUND, 404);
+    }
+    if (room.hostId !== hostId) {
+      return ServiceError(ERROR_CODES.NOT_HOST, MESSAGE_KEYS.games.NOT_HOST, 403);
+    }
+    await this.sessions.end(code);
+    room.phase = RoomPhase.LOBBY;
+    room.activeGame = null;
+    this.registry.touch(room);
+    return ServiceSuccess({ code: room.code, phase: room.phase });
   }
 }
 

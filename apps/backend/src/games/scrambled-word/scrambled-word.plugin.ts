@@ -15,6 +15,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Scrambled Word (PRD §6.1 #7) — a scrambled word; players guess; LIVE ranking by closeness to the
 // answer (Levenshtein), top-N on display. Closest correct (or fastest) wins. Closeness is a pure,
 // in-plugin computation (the plugin knows the answer) — deterministic, no async round-trip.
@@ -59,10 +61,21 @@ interface State {
   words: Content['words'];
   deadline: EpochMs;
   guesses: Guess[]; // latest guess per player this round
+  totals: Record<string, number>; // cumulative score per player (board)
+  lastDeltas: Record<string, number>; // this round's points per player (board roundDelta + scoreRound)
 }
 
 const POINTS = 1000;
 const cur = (s: State): Content['words'][number] | undefined => s.words[s.idx];
+
+// This round's points per player — single source for the in-patch board AND scoreRound.
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const g of state.guesses) {
+    out[g.playerId] = g.correct ? POINTS : Math.round(g.closeness * (POINTS * 0.5));
+  }
+  return out;
+};
 
 // Pure Levenshtein closeness in [0,1] — kept in-plugin so the plugin stays pure (no @features import).
 const closeness = (a: string, b: string): number => {
@@ -109,6 +122,8 @@ export const scrambledWordGame: GamePlugin<Config, State, Action, Content> = {
         words: input.content.words,
         deadline: d,
         guesses: [],
+        totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
     };
@@ -136,8 +151,10 @@ export const scrambledWordGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.ROUND) {
       const d = nowMs + state.revealSeconds * 1000;
+      const deltas = roundDeltasMap(state);
+      const totals = accrue(state.totals, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: d },
+        state: { ...state, phase: Phase.REVEAL, deadline: d, totals, lastDeltas: deltas },
         effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }],
       };
     }
@@ -146,7 +163,7 @@ export const scrambledWordGame: GamePlugin<Config, State, Action, Content> = {
       if (next >= state.rounds) return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
       const d = nowMs + state.secondsPerRound * 1000;
       return {
-        state: { ...state, phase: Phase.ROUND, idx: next, guesses: [], deadline: d },
+        state: { ...state, phase: Phase.ROUND, idx: next, guesses: [], deadline: d, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -165,22 +182,22 @@ export const scrambledWordGame: GamePlugin<Config, State, Action, Content> = {
       rounds: state.rounds,
       scrambled: word?.scrambled ?? null,
       ranked, // live top-N closeness (display)
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerRound),
+      board: projectBoard(state.totals, state.lastDeltas),
     };
     if (state.phase === Phase.REVEAL && word) base.answer = word.answer; // secrecy: only at reveal
     if (audience.kind === AudienceKind.PLAYER) {
       const own = state.guesses.find((g) => g.playerId === audience.playerId);
       base.yourClosest = own ? Math.round(own.closeness * 100) : null;
+      base.yourScore = state.totals[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    // correct guesses score by speed; near-misses score proportional to closeness (closeness×base).
-    const deltas = state.guesses.map((g) => ({
-      playerId: g.playerId,
-      points: g.correct ? POINTS : Math.round(g.closeness * (POINTS * 0.5)),
-      reason: MESSAGE_KEYS.common.OK,
-    }));
+    // Read the deltas captured at ROUND→REVEAL — one source for board + leaderboard.
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
     return { deltas, maxPoints: POINTS };
   },
 

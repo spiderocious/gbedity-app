@@ -34,7 +34,8 @@ export function LiveResult({ patch, code }: { readonly patch: ViewPatch; readonl
   const lobby = useLobby(code, true, false);
   const nameOf = (id: string) => lobby.data?.players.find((p) => p.id === id)?.nickname ?? 'Player';
   const rows = rowsFromPatch(patch, nameOf);
-  const winner = rows[0];
+  // No winner when nobody scored (top score is 0).
+  const winner = rows[0] !== undefined && rows[0].score > 0 ? rows[0] : undefined;
 
   if (rows.length === 0) {
     return <p className="text-center font-serif text-[20px] font-semibold text-ink">Tallying the scores…</p>;

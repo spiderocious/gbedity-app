@@ -22,6 +22,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Wordshot (PRD §6.1 #5) — simultaneous, letter+category, live top-N ranking, real validation.
 // Content (the round plan: letter+category per round) is resolved server-side. Submissions go to
 // the validation service via REQUEST_VALIDATION; verdicts re-enter as synthetic actions (§5).
@@ -79,6 +81,16 @@ const cur = (s: State): Content['plan'][number] | undefined => s.plan[s.roundInd
 
 const refFor = (roundIndex: number, playerId: string): string => `ws_${roundIndex}_${playerId}`;
 
+// This round's points per player (submissions reset each round, so the current round's valid scores
+// ARE the round deltas) — feeds the board's roundDelta. Totals come from `scored` (already cumulative).
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const s of state.submissions) {
+    if (s.valid && typeof s.score === 'number') out[s.playerId] = (out[s.playerId] ?? 0) + s.score;
+  }
+  return out;
+};
+
 export const wordshotGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
     id: GameId.WORDSHOT,
@@ -108,7 +120,7 @@ export const wordshotGame: GamePlugin<Config, State, Action, Content> = {
         plan: input.content.plan,
         deadline,
         submissions: [],
-        scored: {},
+        scored: Object.fromEntries(input.players.map((p) => [p.id, 0])),
       },
       effects: [
         { kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: deadline },
@@ -203,6 +215,9 @@ export const wordshotGame: GamePlugin<Config, State, Action, Content> = {
       letter: round?.letter ?? null,
       category: round?.category ?? null,
       ranked, // live top-N (display)
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerRound),
+      board: projectBoard(state.scored, roundDeltasMap(state)),
     };
     if (audience.kind === AudienceKind.PLAYER) {
       const own = state.submissions.find((s) => s.playerId === audience.playerId);

@@ -16,6 +16,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Truth or Dare (PRD §6.3 #13) — round-robin. The active player picks Truth or Dare; a
 // rating-filtered prompt shows on the display; OTHERS vote whether they completed it. Points for
 // completion (per the threshold), bonus for choosing Dare. Composes round-robin (Word Bomb) + vote
@@ -153,6 +155,8 @@ export const truthOrDareGame: GamePlugin<Config, State, Action, Content> = {
       holderId: holder(state) ?? null,
       choice: state.choice,
       prompt: state.phase === Phase.VOTE ? state.prompt : null,
+      ...projectTiming(state.deadline, state.phase === Phase.VOTE ? state.voteSeconds : state.chooseSeconds),
+      board: projectBoard(state.scores),
     };
     if (audience.kind === AudienceKind.PLAYER) {
       base.yourTurn = holder(state) === audience.playerId;

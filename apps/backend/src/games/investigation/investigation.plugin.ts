@@ -15,6 +15,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Investigation (PRD §6.4 #17) — OPEN_PHASE mode. A case is shown; players freely explore the case
 // materials (brief, suspects, evidence, timeline) on their phones at their own pace within a time
 // window, then privately submit an accusation (a suspect id). When the window closes the truth is
@@ -54,8 +56,21 @@ interface State {
   revealSeconds: number;
   deadline: EpochMs;
   startedAt: EpochMs;
+  investigateSeconds: number;
   accusations: { playerId: string; suspectId: string; at: EpochMs }[];
 }
+
+// Final points per player — correct accusers score, fastest gets a bonus. Single source for the
+// reveal board AND scoreRound.
+const scoreMap = (state: State): Record<string, number> => {
+  const solution = state.case.solutionSuspectId;
+  const correct = state.accusations.filter((a) => a.suspectId === solution).sort((a, b) => a.at - b.at);
+  const out: Record<string, number> = {};
+  correct.forEach((a, rank) => {
+    out[a.playerId] = rank === 0 ? 1000 : 600;
+  });
+  return out;
+};
 
 export const investigationGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
@@ -82,6 +97,7 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
         revealSeconds: input.config.revealSeconds,
         deadline: d,
         startedAt: input.startedAt,
+        investigateSeconds: input.config.investigateSeconds,
         accusations: [],
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.INVESTIGATE, fireAt: d }, { kind: EffectKind.BROADCAST }],
@@ -125,25 +141,25 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
       suspects: c.suspects,
       evidence: c.evidence,
       timeline: c.timeline,
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.phase === Phase.REVEAL ? state.revealSeconds : state.investigateSeconds),
     };
     if (state.phase === Phase.REVEAL) {
       base.solutionSuspectId = c.solutionSuspectId;
       base.accusations = state.accusations.map((a) => ({ playerId: a.playerId, suspectId: a.suspectId }));
+      // The board only becomes meaningful once the truth is out (correct accusers score).
+      const final = scoreMap(state);
+      base.board = projectBoard(final, final);
     }
     if (audience.kind === AudienceKind.PLAYER) {
       base.yourAccusation = state.accusations.find((a) => a.playerId === audience.playerId)?.suspectId ?? null;
+      if (state.phase === Phase.REVEAL) base.yourScore = scoreMap(state)[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const solution = state.case.solutionSuspectId;
-    const correct = state.accusations.filter((a) => a.suspectId === solution).sort((a, b) => a.at - b.at);
-    const deltas = correct.map((a, rank) => ({
-      playerId: a.playerId,
-      points: rank === 0 ? 1000 : 600, // fastest-correct bonus
-      reason: MESSAGE_KEYS.common.OK,
-    }));
+    const deltas = Object.entries(scoreMap(state)).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
     return { deltas, maxPoints: 1000 };
   },
 

@@ -22,6 +22,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Hot Take Court (PRD §6.3 #16) — submit a one-line defence to a (rating-filtered) prompt, then
 // vote anonymously for the most convincing. Always-vote (Q-final). Integrity: defence authorship is
 // SERVER-ONLY (never in player/display views); only rating-filtered prompts are served.
@@ -74,9 +76,19 @@ interface State {
   votes: { voterId: string; defenceId: string }[];
   nicknames: Record<string, string>; // playerId → nickname (server-only; revealed only if not anonymous)
   scores: Record<string, number>;
+  lastDeltas: Record<string, number>; // this round's votes-per-defence points (board roundDelta + scoreRound)
 }
 
 const prompt = (s: State): string => s.prompts[s.roundIndex % s.prompts.length] ?? '';
+
+// This round's points per player = votes received on their defence. Single source for board + scoreRound.
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const d of state.defences) {
+    out[d.playerId] = state.votes.filter((v) => v.defenceId === d.id).length;
+  }
+  return out;
+};
 
 export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
@@ -107,7 +119,8 @@ export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
         defences: [],
         votes: [],
         nicknames: Object.fromEntries(input.players.map((p) => [p.id, p.nickname])),
-        scores: {},
+        scores: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [
         { kind: EffectKind.START_TIMER, key: TimerKey.SUBMISSION, fireAt: deadline },
@@ -156,8 +169,11 @@ export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
     }
     if (state.phase === Phase.VOTING) {
       const deadline = nowMs + state.revealSeconds * 1000;
+      // Fold this round's vote points into cumulative scores (for the board + scoreRound).
+      const deltas = roundDeltasMap(state);
+      const scores = accrue(state.scores, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline },
+        state: { ...state, phase: Phase.REVEAL, deadline, scores, lastDeltas: deltas },
         effects: [
           { kind: EffectKind.BROADCAST },
           { kind: EffectKind.ROUND_ENDED },
@@ -172,7 +188,7 @@ export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
       }
       const deadline = nowMs + state.submissionSeconds * 1000;
       return {
-        state: { ...state, phase: Phase.SUBMISSION, roundIndex: nextIndex, defences: [], votes: [], deadline },
+        state: { ...state, phase: Phase.SUBMISSION, roundIndex: nextIndex, defences: [], votes: [], deadline, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.SUBMISSION, fireAt: deadline }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -182,12 +198,16 @@ export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
   view(state: State, audience: Audience): ViewPatch {
     // ANONYMITY: defences are projected WITHOUT playerId. Tally only shown at reveal.
     const anonDefences = state.defences.map((d) => ({ id: d.id, text: d.text }));
+    const phaseSeconds = state.phase === Phase.SUBMISSION ? state.submissionSeconds : state.phase === Phase.VOTING ? state.votingSeconds : state.revealSeconds;
     const base: ViewPatch = {
       phase: state.phase,
       roundIndex: state.roundIndex,
       rounds: state.rounds,
       prompt: prompt(state),
       defences: state.phase === Phase.SUBMISSION ? [] : anonDefences,
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, phaseSeconds),
+      board: projectBoard(state.scores, state.lastDeltas),
     };
     if (state.phase === Phase.REVEAL) {
       base.tally = state.defences.map((d) => ({
@@ -202,17 +222,15 @@ export const hotTakeCourtGame: GamePlugin<Config, State, Action, Content> = {
       base.submitted = state.defences.some((d) => d.playerId === audience.playerId);
       base.voted = state.votes.some((v) => v.voterId === audience.playerId);
       base.ownDefenceId = state.defences.find((d) => d.playerId === audience.playerId)?.id ?? null;
+      base.yourScore = state.scores[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const deltas = state.defences.map((d) => ({
-      playerId: d.playerId,
-      points: state.votes.filter((v) => v.defenceId === d.id).length,
-      reason: MESSAGE_KEYS.common.OK,
-    }));
-    const maxPoints = Math.max(1, state.defences.length - 1); // most votes a single defence could get
+    // Read the deltas captured at VOTING→REVEAL — one source for board + leaderboard.
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
+    const maxPoints = Math.max(1, state.defences.length - 1);
     return { deltas, maxPoints };
   },
 

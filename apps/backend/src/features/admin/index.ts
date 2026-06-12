@@ -1,5 +1,7 @@
 import type { Express } from 'express';
 
+import { wordBankRepository } from '@features/word-bank/word-bank.repository';
+
 import { adminRepository } from './admin.repository';
 import adminRoutes from './admin.routes';
 
@@ -10,4 +12,5 @@ export const register = (app: Express): void => {
 // Ensure indexes at boot (called from bootstrap).
 export const ensureAdminIndexes = async (): Promise<void> => {
   await adminRepository.ensureIndexes();
+  await wordBankRepository.ensureIndexes();
 };

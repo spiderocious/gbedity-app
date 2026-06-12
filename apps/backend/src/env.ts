@@ -67,6 +67,13 @@ const EnvSchema = z.object({
     .default('false')
     .transform((v) => v === 'true'),
 
+  // Idle-room sweeper (PRD §4 — reap rooms idle > 30 min). Toggleable so it can be turned off
+  // during dev/testing where rooms should persist. Default OFF for now.
+  ROOM_SWEEP_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+
   // Auth (admin + host JWTs). Defaults are dev-only; production must override.
   JWT_SECRET: z.string().min(16).default('dev-only-access-secret-change-me'),
   JWT_REFRESH_SECRET: z.string().min(16).default('dev-only-refresh-secret-change-me'),

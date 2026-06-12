@@ -63,6 +63,19 @@ export const roomsController = {
     ResponseUtil.created(res, result.data);
   },
 
+  // Convert the caller's existing seat to a spectator in place (no new seat).
+  spectate(req: Request, res: Response): void {
+    const code = paramCode(req).toUpperCase();
+    const playerId = requireString(res, req.body?.playerId, 'playerId');
+    if (playerId === null) return;
+    const result = roomsService.spectate(code, playerId);
+    if (!result.success) {
+      fail(res, result);
+      return;
+    }
+    ResponseUtil.ok(res, result.data);
+  },
+
   lobby(req: Request, res: Response): void {
     const code = paramCode(req).toUpperCase();
     const result = roomsService.lobby(code);
@@ -112,5 +125,18 @@ export const roomsController = {
       return;
     }
     ResponseUtil.created(res, result.data);
+  },
+
+  async endGame(req: Request, res: Response): Promise<void> {
+    const code = paramCode(req).toUpperCase();
+    const hostId = requireString(res, req.body?.hostId, 'hostId');
+    if (hostId === null) return;
+
+    const result = await roomsService.endGame(code, hostId);
+    if (!result.success) {
+      fail(res, result);
+      return;
+    }
+    ResponseUtil.ok(res, result.data);
   },
 };

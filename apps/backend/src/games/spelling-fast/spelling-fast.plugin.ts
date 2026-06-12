@@ -15,6 +15,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { accrue, projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Spelling Fast (PRD §6.1 #3) — a word is READ ALOUD on the display via client-side TTS and NEVER
 // shown. Players race to type the correct spelling. Critical secrecy: the word goes to the DISPLAY
 // audience only (so the display can speak it); players receive only "speak"/length cues, never the
@@ -55,10 +57,21 @@ interface State {
   words: string[];
   deadline: EpochMs;
   solved: { playerId: string; at: EpochMs }[];
+  totals: Record<string, number>; // cumulative score per player (board)
+  lastDeltas: Record<string, number>; // this round's points per player (board roundDelta + scoreRound)
 }
 
 const POINTS = 1000;
 const cur = (s: State): string | undefined => s.words[s.idx];
+
+// This round's points per player — single source for the in-patch board AND scoreRound (speed-ranked).
+const roundDeltasMap = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  state.solved.forEach((s, rank) => {
+    out[s.playerId] = Math.max(100, POINTS - rank * 100);
+  });
+  return out;
+};
 
 export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
   manifest: {
@@ -89,6 +102,8 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
         words: input.content.words.map((w) => w.toLowerCase()),
         deadline: d,
         solved: [],
+        totals: Object.fromEntries(input.players.map((p) => [p.id, 0])),
+        lastDeltas: {},
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
     };
@@ -115,8 +130,10 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
     if (state.phase === Phase.ROUND) {
       const d = nowMs + state.revealSeconds * 1000;
+      const deltas = roundDeltasMap(state);
+      const totals = accrue(state.totals, deltas);
       return {
-        state: { ...state, phase: Phase.REVEAL, deadline: d },
+        state: { ...state, phase: Phase.REVEAL, deadline: d, totals, lastDeltas: deltas },
         effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }],
       };
     }
@@ -125,7 +142,7 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
       if (next >= state.rounds) return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.GAME_ENDED }] };
       const d = nowMs + state.secondsPerRound * 1000;
       return {
-        state: { ...state, phase: Phase.ROUND, idx: next, solved: [], deadline: d },
+        state: { ...state, phase: Phase.ROUND, idx: next, solved: [], deadline: d, lastDeltas: {} },
         effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.ROUND, fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
     }
@@ -134,7 +151,14 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const word = cur(state);
-    const base: ViewPatch = { phase: state.phase, idx: state.idx, rounds: state.rounds };
+    const base: ViewPatch = {
+      phase: state.phase,
+      idx: state.idx,
+      rounds: state.rounds,
+      revealSeconds: state.revealSeconds,
+      ...projectTiming(state.deadline, state.secondsPerRound),
+      board: projectBoard(state.totals, state.lastDeltas),
+    };
     // SECRECY: the word + TTS instruction go to the DISPLAY ONLY (it speaks it). Players never get
     // the word during the round (the word IS the answer). Revealed to all only at REVEAL.
     if (audience.kind === AudienceKind.DISPLAY) {
@@ -148,16 +172,13 @@ export const spellingFastGame: GamePlugin<Config, State, Action, Content> = {
     if (audience.kind === AudienceKind.PLAYER) {
       base.length = state.phase === Phase.ROUND && word ? word.length : 0; // cue only, not the word
       base.solved = state.solved.some((s) => s.playerId === audience.playerId);
+      base.yourScore = state.totals[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
-    const deltas = state.solved.map((s, rank) => ({
-      playerId: s.playerId,
-      points: Math.max(100, POINTS - rank * 100),
-      reason: MESSAGE_KEYS.common.OK,
-    }));
+    const deltas = Object.entries(state.lastDeltas).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
     return { deltas, maxPoints: POINTS };
   },
 

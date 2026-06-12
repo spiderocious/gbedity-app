@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAdminLogin } from '../../shared/api/admin-api.ts';
 import { ApiError } from '../../shared/services/api-client.ts';
+import { ROUTES } from '../../shared/constants/routes.ts';
+import { SeedPanel } from './parts/seed-panel.tsx';
 
 // Admin login. invalid_credentials → inline error; other failures → toast.
 export function LoginScreen() {
@@ -19,7 +21,7 @@ export function LoginScreen() {
     login.mutate(
       { email: email.trim(), password },
       {
-        onSuccess: () => navigate('/'),
+        onSuccess: () => navigate(ROUTES.METRICS),
         onError: (e) => {
           if (e instanceof ApiError && e.code === 'invalid_credentials') {
             setError('Wrong email or password.');
@@ -32,7 +34,7 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-canvas px-6">
       <Card size="lg" className="flex w-full max-w-sm flex-col">
         <div className="mb-2 flex items-center gap-2">
           <Logo size="md" />
@@ -51,6 +53,7 @@ export function LoginScreen() {
           </Button>
         </div>
       </Card>
+      <SeedPanel />
     </div>
   );
 }

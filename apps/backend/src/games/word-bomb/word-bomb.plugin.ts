@@ -22,6 +22,8 @@ import type {
   ViewPatch,
 } from '@engine/types';
 
+import { projectBoard, projectTiming } from '../shared/view-helpers';
+
 // Word Bomb (PRD §6.1 #6, updated rule) — round-robin, decaying bomb, hold-time scoring, no lives.
 // Reuses the validation service (category fit, NO startsWith) + no-repeat set. Validation re-enters
 // as a synthetic action (§5). The round-robin shape was de-risked by the engine's test game.
@@ -172,6 +174,8 @@ export const wordBombGame: GamePlugin<Config, State, Action, Content> = {
       category: state.category,
       holderId: holder(state) ?? null,
       used: state.used,
+      ...projectTiming(state.deadline, Math.round(bombMs(state) / 1000)),
+      board: projectBoard(state.scores),
     };
     if (audience.kind === AudienceKind.PLAYER) {
       base.yourTurn = holder(state) === audience.playerId && state.phase === Phase.HOLDING;
