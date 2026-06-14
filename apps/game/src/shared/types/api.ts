@@ -62,6 +62,19 @@ export type StartGameResult = z.infer<typeof StartGameResult>;
 export const StartLeagueResult = z.object({ code: z.string(), games: z.number() });
 export type StartLeagueResult = z.infer<typeof StartLeagueResult>;
 
+// POST /solo/start — single-device session. The backend collapses host+player+display onto one
+// socket; `wsRole` is the role to join with (always 'player'). `soloId` IS the room code, so the
+// existing in-game player surface (/p/:code/game) renders solo with no changes.
+export const StartSoloResult = z.object({
+  soloId: z.string(),
+  gameId: z.string(),
+  instanceId: z.string(),
+  playerId: z.string(),
+  reconnectToken: z.string(),
+  wsRole: z.string(),
+});
+export type StartSoloResult = z.infer<typeof StartSoloResult>;
+
 export const LeagueStanding = z.object({ playerId: z.string(), score: z.number() });
 export const LeagueStandings = z.object({ standings: z.array(LeagueStanding) });
 export type LeagueStandings = z.infer<typeof LeagueStandings>;

@@ -31,6 +31,20 @@ export const MESSAGE_KEYS = {
     NOT_SUPPORTED: 'solo.not_supported',
     NOT_FOUND: 'solo.not_found',
   },
+  soloMl: {
+    OVER: 'solo_ml.over',
+    ALREADY_ANSWERED: 'solo_ml.already_answered',
+  },
+  soloWs: {
+    OVER: 'solo_ws.over',
+    ALREADY_ANSWERED: 'solo_ws.already_answered',
+  },
+  soloWwtbam: {
+    OVER: 'solo_wwtbam.over',
+    ALREADY_ANSWERED: 'solo_wwtbam.already_answered',
+    LIFELINE_USED: 'solo_wwtbam.lifeline_used',
+    NO_LIFELINE: 'solo_wwtbam.no_lifeline',
+  },
   admin: {
     SEEDED: 'admin.seeded',
     SEED_DISABLED: 'admin.seed_disabled',

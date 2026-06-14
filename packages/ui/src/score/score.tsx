@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { cn } from '../utils/cn.ts';
 
 export type ScoreSize = 'sm' | 'md' | 'lg' | 'hero';
-export type ScoreTone = 'ink' | 'accent' | 'danger' | 'warn' | 'action';
+export type ScoreTone = 'ink' | 'accent' | 'danger' | 'warn' | 'action' | 'light';
 
 export interface ScoreProps {
   /** The number (or string for things like "78/100") to render. */
@@ -31,6 +31,7 @@ const SIZE_CLASSES: Record<ScoreSize, string> = {
 };
 
 const TONE_CLASSES: Record<ScoreTone, string> = {
+  light: 'text-white',
   ink: 'text-ink',
   accent: 'text-accent-deep',
   danger: 'text-danger',

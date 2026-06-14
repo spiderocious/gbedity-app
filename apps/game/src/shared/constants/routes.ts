@@ -10,6 +10,10 @@ export const ROUTES = {
   LANDING: '/',
   PREVIEW: '/preview',
 
+  // Game-first entry: clicking a game on the landing page lands here to choose how to play
+  // (solo "Play Now" · multiplayer create/join). :gameId is the PRD numeric id (catalogue routing).
+  PLAY_MODE: '/play/:gameId',
+
   // Player join flow
   JOIN: '/join',
   // Deep-link the backend hands out as join_url (QR target): /join/:code pre-fills the code.
@@ -46,6 +50,26 @@ export const ROUTES = {
 
   // Dev jump page — index of every screen with direct links
   PREVIEW_SCREENS: '/preview-screens',
+
+  // Per-game bare-UI design surface (kinetic preview): every screen of the Missing Letters slice,
+  // no logic. Going forward each game slice gets one of these.
+  MISSING_LETTERS_PREVIEW: '/preview-ui',
+
+  // Client-driven solo Missing Letters — its own self-contained slice (no socket). The screen
+  // self-manages: it calls /solo/missing-letters/start on intro, so no :soloId is needed up front.
+  MISSING_LETTERS_SOLO: '/games/missing-letters/solo',
+
+  // Wordshot bare-UI design surface (kinetic preview).
+  WORDSHOT_PREVIEW: '/wordshot-preview',
+
+  // Client-driven solo Wordshot — self-contained slice (no socket).
+  WORDSHOT_SOLO: '/games/wordshot/solo',
+
+  // WWTBAM bare-UI design surface (kinetic preview): every screen of the WWTBAM slice, no logic.
+  WWTBAM_PREVIEW: '/wwtbam-preview',
+
+  // Client-driven solo WWTBAM — self-contained slice (no socket).
+  WWTBAM_SOLO: '/games/millionaire/solo',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

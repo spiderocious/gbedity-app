@@ -76,6 +76,36 @@ const ConfigureScreen = lazyDefault(
   "ConfigureScreen",
 );
 
+const PlayModeScreen = lazyDefault(
+  () => import("./features/play/screen/play-mode-screen.tsx"),
+  "PlayModeScreen",
+);
+
+const MissingLettersPreviewScreen = lazyDefault(
+  () => import("./features/games/missing-letters/preview/preview-ui-screen.tsx"),
+  "PreviewUiScreen",
+);
+
+const MissingLettersSoloRoute = lazyDefault(
+  () => import("./features/games/missing-letters/solo/routes.tsx"),
+  "MissingLettersSoloRoute",
+);
+
+const WordshotPreviewUiScreen = lazyDefault(
+  () => import("./features/games/wordshot/preview/preview-ui-screen.tsx"),
+  "WordshotPreviewUiScreen",
+);
+
+const WordshotSoloRoute = lazyDefault(
+  () => import("./features/games/wordshot/solo/routes.tsx"),
+  "WordshotSoloRoute",
+);
+
+const WwtbamPreviewScreen = lazyDefault(
+  () => import("./features/games/millionaire/preview/preview-ui-screen.tsx"),
+  "PreviewUiScreen",
+);
+
 const DisplayGameScreen = lazyDefault(
   () => import("./features/in-game/screen/display-game-screen.tsx"),
   "DisplayGameScreen",
@@ -122,6 +152,12 @@ const PreviewScreensScreen = lazyDefault(
 const routes: RouteObject[] = [
   { path: ROUTES.LANDING, Component: LandingScreen },
   { path: ROUTES.PREVIEW, Component: PreviewScreen },
+  { path: ROUTES.PLAY_MODE, Component: PlayModeScreen },
+  { path: ROUTES.MISSING_LETTERS_PREVIEW, Component: MissingLettersPreviewScreen },
+  { path: ROUTES.MISSING_LETTERS_SOLO, Component: MissingLettersSoloRoute },
+  { path: ROUTES.WORDSHOT_PREVIEW, Component: WordshotPreviewUiScreen },
+  { path: ROUTES.WORDSHOT_SOLO, Component: WordshotSoloRoute },
+  { path: ROUTES.WWTBAM_PREVIEW, Component: WwtbamPreviewScreen },
 
   { path: ROUTES.JOIN, Component: JoinCodeScreen },
   // Backend's join_url is /join/:code — the QR target. Reuses the code-entry screen, which

@@ -21,6 +21,7 @@ import { getGameFlow } from '../flow/flow-registry.tsx';
 import '../flow/register-flows.ts';
 import { resolveMockGame, useLatchedLiveGame } from '../resolve-live-game.ts';
 import { WaitingForRound } from '../widgets/waiting-for-round.tsx';
+import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
 
 // §5.3 — player in-game. LIVE by default: connects the room socket, renders the player patch,
 // sends client.action. `?mock=<catalogueId>` opts into the static preview registry (the 13
@@ -52,14 +53,19 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
   const navigate = useNavigate();
   const { patch, status, sendAction, gameOver } = useRoomSocket();
 
-  // Game ended → leave the play surface for the result screen (the room stays open / back to lobby).
-  useEffect(() => {
-    if (gameOver) navigate(pathWith(ROUTES.PLAYER_RESULT, { code }));
-  }, [gameOver, code, navigate]);
   // Game identity comes from the patch shape once it arrives; the ?live= hint covers the gap before
   // the first patch. Latched so a board-only / transitional patch can't drop the id and remount the
   // flow mid-game (which would reset its stage machine → "question flash → 3·2·1 → stuck on Go!").
   const backendId = useLatchedLiveGame(patch, hint);
+  // New self-contained slices own their whole surface (incl. game-over nav). Until every game is
+  // migrated, the generic screen branches to the new slice by backend id and skips its own flow path.
+  const isNewSlice = backendId === MpGameId.MISSING_LETTERS;
+
+  // Game ended → leave the play surface for the result screen (the room stays open / back to lobby).
+  // New-slice games handle their own game-over navigation, so skip it here for them.
+  useEffect(() => {
+    if (gameOver && !isNewSlice) navigate(pathWith(ROUTES.PLAYER_RESULT, { code }));
+  }, [gameOver, isNewSlice, code, navigate]);
   const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   const score = typeof patch?.yourScore === 'number' ? patch.yourScore : 0;
   const isBoard =
@@ -78,6 +84,16 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
   useEffect(() => {
     if (amSpectator) navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
   }, [amSpectator, code, navigate]);
+
+  // New self-contained slice (Missing Letters): render its multiplayer surface instead of the old
+  // flow. It consumes the same useRoomSocket() this provider supplies — just a different renderer.
+  if (isNewSlice && !amSpectator) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <MpMissingLettersScreen audience={MpAudience.PLAYER} code={code} />
+      </div>
+    );
+  }
 
   // Games with a dedicated animated flow own the play surface (intro plays even before the first
   // patch arrives). Resolved from the registry by backend gameId.
