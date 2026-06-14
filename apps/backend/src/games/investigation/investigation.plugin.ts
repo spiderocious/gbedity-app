@@ -44,8 +44,10 @@ const Confidence = { HUNCH: 'hunch', SOLID: 'solid', CERTAIN: 'certain' } as con
 type Confidence = (typeof Confidence)[keyof typeof Confidence];
 
 const configSchema = z.object({
-  investigateSeconds: z.number().int().positive().default(300), // 5 min default (PRD: 15/30/45/60)
+  investigateSeconds: z.number().int().positive().default(300), // default 5 min (host picks 5–30)
   revealSeconds: z.number().int().positive().default(12),
+  // Optional: the host chose a specific case by key. Empty ⇒ the resolver draws a random one.
+  caseKey: z.string().default(''),
 });
 type Config = z.infer<typeof configSchema>;
 
@@ -136,6 +138,7 @@ interface State {
   startedAt: EpochMs;
   investigateSeconds: number;
   rosterSize: number; // total players at start — drives early-advance when everyone has locked in
+  playerIds: string[]; // every player at start — so the final board includes 0-scorers, not just solvers
   accusations: Accusation[];
 }
 
@@ -160,6 +163,16 @@ const scoreMap = (state: State): Record<string, number> => {
     const bonus = keyEvidence !== '' && a.evidenceId === keyEvidence ? EVIDENCE_BONUS : 0;
     out[a.playerId] = Math.round(withConfidence + bonus);
   });
+  return out;
+};
+
+// The final board must show EVERY player — solvers AND those who guessed wrong / never accused
+// (score 0) — so the result standings aren't just the winner. Seed all roster ids to 0, overlay the
+// solvers' scores.
+const boardScores = (state: State): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const id of state.playerIds) out[id] = 0;
+  for (const [id, pts] of Object.entries(scoreMap(state))) out[id] = pts;
   return out;
 };
 
@@ -198,6 +211,7 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
         startedAt: input.startedAt,
         investigateSeconds: input.config.investigateSeconds,
         rosterSize: input.players.length,
+        playerIds: input.players.map((p) => p.id),
         accusations: [],
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.INVESTIGATE, fireAt: d }, { kind: EffectKind.BROADCAST }],
@@ -288,8 +302,8 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
       base.keyEvidenceId = c.keyEvidenceId;
       base.explanation = c.explanation;
       base.accusations = state.accusations.map((a) => ({ playerId: a.playerId, suspectId: a.suspectId, evidenceId: a.evidenceId }));
-      const final = scoreMap(state);
-      base.board = projectBoard(final, final);
+      // Board = ALL players (0 for non-solvers); roundDelta = the solver deltas (so winners light up).
+      base.board = projectBoard(boardScores(state), scoreMap(state));
     }
     if (audience.kind === AudienceKind.PLAYER) {
       const mine = state.accusations.find((a) => a.playerId === audience.playerId);

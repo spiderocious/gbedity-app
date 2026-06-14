@@ -42,8 +42,13 @@ describe('scoreAccusation', () => {
 describe('normalizeConfig', () => {
   it('defaults + clamps', () => {
     expect(normalizeConfig({}).investigateSeconds).toBe(300);
-    expect(normalizeConfig({ investigateSeconds: 5 }).investigateSeconds).toBe(60);
+    expect(normalizeConfig({ investigateSeconds: 5 }).investigateSeconds).toBe(30); // clamped to 30s floor
     expect(normalizeConfig({ investigateSeconds: 99999 }).investigateSeconds).toBe(3600);
+  });
+
+  it('reads caseKey (empty default)', () => {
+    expect(normalizeConfig({}).caseKey).toBe('');
+    expect(normalizeConfig({ caseKey: 'the-last-pour' }).caseKey).toBe('the-last-pour');
   });
 });
 

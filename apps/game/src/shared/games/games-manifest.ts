@@ -227,7 +227,7 @@ export const GAMES: readonly LandingGame[] = [
     id: 20,
     key: GameKey.GUESS_THE_WORD,
     category: GameCategory.PARTY,
-    meta: '3–12 · 10m',
+    meta: '2–12 · 10m',
     title: 'Guess The Word',
     description: 'One player guesses a secret word using only voice questions. Score by time and questions left.',
   },

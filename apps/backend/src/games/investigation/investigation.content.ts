@@ -43,8 +43,15 @@ const FALLBACK = {
 
 export const installInvestigationContent = (): void => {
   registerContentResolver(GameId.INVESTIGATION, async (input: ResolveInput): Promise<unknown> => {
-    const cases = await contentService.resolveInvestigationCases({ filter: input.ratingFilter, sample: 1 });
-    const c = cases[0];
+    // The host may have chosen a specific case (caseKey); otherwise draw a random one. A chosen case
+    // that doesn't exist or is rating-filtered out falls through to a random draw.
+    const caseKey = typeof (input.config as { caseKey?: unknown })?.caseKey === 'string' ? (input.config as { caseKey: string }).caseKey : '';
+    let c: Record<string, unknown> | null = null;
+    if (caseKey !== '') c = await contentService.investigationCaseByKey(caseKey, { filter: input.ratingFilter });
+    if (!c) {
+      const cases = await contentService.resolveInvestigationCases({ filter: input.ratingFilter, sample: 1 });
+      c = cases[0] ?? null;
+    }
     if (!c) return FALLBACK;
     return {
       title: c.title,

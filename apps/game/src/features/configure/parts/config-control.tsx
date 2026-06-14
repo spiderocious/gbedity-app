@@ -5,6 +5,7 @@ import { Minus, Plus } from '@icons';
 
 import { ControlKind, type ConfigControl } from '../../../shared/games/config-schema.ts';
 import { configValues } from '../../../shared/games/config-values.ts';
+import { InvestigationCasePicker } from './investigation-case-picker.tsx';
 
 // §4.2 — the universal config controls. One component renders any ConfigControl from the
 // data-driven schema, so every game's configure screen is generated, not hand-built.
@@ -49,6 +50,8 @@ function ControlInput({ control }: ConfigControlRowProps) {
     case ControlKind.SWITCH:
       return <SwitchInput id={control.id} initial={control.defaultValue} />;
     case ControlKind.CUSTOM_CONTENT:
+      // The Investigation case picker is a real bespoke control (lists actual DB cases in a modal).
+      if (control.id === 'caseKey') return <InvestigationCasePicker />;
       return <CustomOpener noun={control.noun} />;
     default:
       return null;

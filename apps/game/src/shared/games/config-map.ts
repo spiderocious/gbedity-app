@@ -48,6 +48,16 @@ const MAPPERS: Partial<Record<GameKey, (u: UiValues) => BackendConfig>> = {
     if (hidden !== undefined) out.hiddenCount = hidden; // 'hidden' control → backend hiddenCount
     return out;
   },
+  // Investigation: 'duration' pills are MINUTES → backend investigateSeconds; 'caseKey' (empty ⇒
+  // random) passes through so the host can start a chosen case.
+  [GameKey.INVESTIGATION]: (u) => {
+    const out: BackendConfig = {};
+    const minutes = num(u.duration) ?? Number(str(u.duration));
+    if (Number.isFinite(minutes) && minutes > 0) out.investigateSeconds = Math.round(minutes * 60);
+    const caseKey = str(u.caseKey);
+    if (caseKey !== undefined && caseKey !== '') out.caseKey = caseKey;
+    return out;
+  },
 };
 
 // Builds the config sent to POST /rooms/:code/start for the game currently being configured.

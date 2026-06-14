@@ -16,6 +16,13 @@ const fail = (res: Response, r: Extract<ServiceResult<unknown>, { success: false
 const soloId = (req: Request): string => (typeof req.body?.soloId === 'string' ? req.body.soloId : '');
 
 export const invSoloController = {
+  // GET /solo/investigation/cases — the case list for the picker (no spoilers).
+  async cases(_req: Request, res: Response): Promise<void> {
+    const result = await invSoloService.listCases();
+    if (!result.success) return fail(res, result);
+    ResponseUtil.ok(res, result.data);
+  },
+
   // POST /solo/investigation/start — body: { config? } → { soloId, investigateSeconds, theCase }
   async start(req: Request, res: Response): Promise<void> {
     const result = await invSoloService.start(req.body?.config ?? {});

@@ -11,8 +11,11 @@ import type { MockCase } from '../preview/mock-case.ts';
 // the evidence that proves it, and set your confidence. Reasoned accusations score more than a
 // coin-flip. Pure UI — the parent owns what happens on lock-in.
 
-const Confidence = { HUNCH: 'Hunch', SOLID: 'Solid', CERTAIN: 'Certain' } as const;
+// Values are the backend enum (lowercase — the plugin actionSchema is z.nativeEnum on these); labels
+// are display-cased. Sending the label raw was the `invalid_action` bug.
+const Confidence = { HUNCH: 'hunch', SOLID: 'solid', CERTAIN: 'certain' } as const;
 type Confidence = (typeof Confidence)[keyof typeof Confidence];
+const CONFIDENCE_LABEL: Record<Confidence, string> = { hunch: 'Hunch', solid: 'Solid', certain: 'Certain' };
 
 interface AccuseScreenProps {
   readonly theCase: MockCase;
@@ -75,7 +78,7 @@ export function AccuseScreen({ theCase, onBack, onSubmit }: AccuseScreenProps) {
             value={confidence}
             onChange={setConfidence}
             ariaLabel="Confidence"
-            options={[Confidence.HUNCH, Confidence.SOLID, Confidence.CERTAIN].map((c) => ({ value: c, label: c }))}
+            options={[Confidence.HUNCH, Confidence.SOLID, Confidence.CERTAIN].map((c) => ({ value: c, label: CONFIDENCE_LABEL[c] }))}
           />
           <p className="font-sans text-[12px] text-ink-3">Higher confidence scores more if you’re right — and costs more if you’re wrong.</p>
         </section>

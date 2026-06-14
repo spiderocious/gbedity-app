@@ -6,7 +6,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useCatalogueGame } from '../../../shared/catalogue/index.ts';
 import { ROUTES, pathWith } from '../../../shared/constants/routes.ts';
 import { useStartSolo } from '../../../shared/api/use-start-solo.ts';
-import { clientDrivenSoloRoute } from '../../games/solo-entry.ts';
+import { clientDrivenSoloRoute, withSoloConfig } from '../../games/solo-entry.ts';
 import { buildStartConfig } from '../../../shared/games/config-map.ts';
 import { configValues } from '../../../shared/games/config-values.ts';
 import { getGameContent } from '../../../shared/games/game-content.tsx';
@@ -69,7 +69,9 @@ export function ConfigureScreen() {
     if (game === undefined || startSolo.isPending) return;
     const clientRoute = clientDrivenSoloRoute(game.gameId);
     if (clientRoute !== null) {
-      navigate(clientRoute);
+      // Client-driven slices self-start via REST — carry the chosen config in the URL so the slice
+      // can send it to its own /start.
+      navigate(withSoloConfig(clientRoute, buildStartConfig(game.key as GameKey)));
       return;
     }
     startSolo.mutate(

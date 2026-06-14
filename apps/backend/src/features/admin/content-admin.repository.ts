@@ -21,6 +21,7 @@ const COLLECTION_BY_KIND: Record<string, string> = {
   typing_passage: ContentCollection.TYPING_PASSAGES,
   presentation_topic: ContentCollection.PRESENTATION_TOPICS,
   investigation_case: ContentCollection.INVESTIGATION_CASES,
+  guess_the_word_pack: ContentCollection.GUESS_THE_WORD_PACKS,
 };
 
 export interface ContentDoc {

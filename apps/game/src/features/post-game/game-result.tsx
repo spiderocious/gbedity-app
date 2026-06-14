@@ -68,10 +68,11 @@ export function GameResult({ code, lobbyRoute }: GameResultProps) {
     <div className="min-h-screen bg-canvas">
       <AppHeader roomCode={code} />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-8">
-        {/* Your standing (when the viewer is a ranked player). */}
+        {/* Your standing (when the viewer is a ranked player). A 0 score never reads as "You won" —
+            rank 1 with no points means nobody actually scored. */}
         {me !== undefined ? (
           <Card size="lg" className="flex flex-col items-center gap-2 text-center">
-            <h1 className="font-serif text-[28px] font-semibold tracking-[-0.01em] text-ink">{rankLabel(myRank + 1)}</h1>
+            <h1 className="font-serif text-[28px] font-semibold tracking-[-0.01em] text-ink">{rankLabel(myRank + 1, me.score)}</h1>
             <Score value={me.score} size="lg" tone="ink" unit="pts" />
           </Card>
         ) : null}
@@ -100,7 +101,9 @@ export function GameResult({ code, lobbyRoute }: GameResultProps) {
   );
 }
 
-function rankLabel(rank: number): string {
+function rankLabel(rank: number, score: number): string {
+  // No points → nobody really "won" or placed; keep it neutral.
+  if (score <= 0) return 'No points this time';
   if (rank === 1) return 'You won';
   const suffix = rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
   return `You came ${rank}${suffix}`;

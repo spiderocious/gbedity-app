@@ -149,4 +149,24 @@ describe('investigation: reveal projects the answer', () => {
     expect(v.explanation).toBe('Emeka poured the dosed glass.');
     expect(Array.isArray(v.board)).toBe(true);
   });
+
+  it('the final board includes EVERY player — solvers AND wrong/non-accusers (score 0)', () => {
+    // a accuses correctly, b accuses wrong, c never accuses. All three must appear on the board.
+    const roster = [
+      { id: 'a', nickname: 'Ada' },
+      { id: 'b', nickname: 'Ben' },
+      { id: 'c', nickname: 'Cee' },
+    ];
+    let state = start(1000 as EpochMs, roster).state;
+    state = investigationGame.onAction(state, accuse('s3', 'r2', 'certain'), ctx('a', 1100 as EpochMs)).state;
+    state = investigationGame.onAction(state, accuse('s1', '', 'solid'), ctx('b', 1200 as EpochMs)).state;
+    // c never accuses; the window closes.
+    state = investigationGame.onTick(state, 999999 as EpochMs, tickCtx()).state;
+    const board = playerView(state, 'a').board as { playerId: string; points: number }[];
+    const ids = board.map((r) => r.playerId).sort();
+    expect(ids).toEqual(['a', 'b', 'c']); // all three present
+    expect(board.find((r) => r.playerId === 'b')?.points).toBe(0); // wrong = 0, still listed
+    expect(board.find((r) => r.playerId === 'c')?.points).toBe(0); // no accusation = 0, still listed
+    expect((board.find((r) => r.playerId === 'a')?.points ?? 0) > 0).toBe(true);
+  });
 });

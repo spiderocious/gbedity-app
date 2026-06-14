@@ -7,13 +7,14 @@ interface MilConfig {
   category?: string;
 }
 
-// Reuses the quiz_decks content (difficulty-graded MCQs). The ladder ordering is by the deck's
-// natural order; admins can author dedicated graduated decks.
+// Reuses the quiz_decks content (difficulty-graded MCQs). The resolver RANDOM-samples questions and
+// orders them easy→hard so the ladder climbs and every game is a fresh mix. With no category set we
+// draw from ALL categories (never starve the game on a category mismatch); a room may pin one.
 export const installMillionaireContent = (): void => {
   registerContentResolver(GameId.MILLIONAIRE, async (input: ResolveInput): Promise<unknown> => {
     const config = input.config as MilConfig;
     const questions = await contentService.resolveQuizQuestions({
-      category: config.category ?? 'general',
+      ...(config.category !== undefined && config.category !== '' ? { category: config.category } : {}),
       sample: Math.max(1, config.questionCount ?? 15),
     });
     return {

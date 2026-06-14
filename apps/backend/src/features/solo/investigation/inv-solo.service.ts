@@ -44,6 +44,7 @@ export const scoreAccusation = (
 // ── Config ───────────────────────────────────────────────────────────────────
 export interface InvSoloConfig {
   investigateSeconds: number;
+  caseKey: string; // '' ⇒ draw a random case
 }
 
 const clampInt = (v: unknown, min: number, max: number, fallback: number): number => {
@@ -53,7 +54,10 @@ const clampInt = (v: unknown, min: number, max: number, fallback: number): numbe
 
 export const normalizeConfig = (raw: unknown): InvSoloConfig => {
   const c = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
-  return { investigateSeconds: clampInt(c.investigateSeconds, 60, 3600, 300) };
+  return {
+    investigateSeconds: clampInt(c.investigateSeconds, 30, 3600, 300),
+    caseKey: typeof c.caseKey === 'string' ? c.caseKey : '',
+  };
 };
 
 // The case as stored (loose — it comes from the DB). We only need the answer fields server-side.
@@ -141,11 +145,24 @@ export class InvSoloService {
     return s;
   }
 
-  // POST /start — draw a case, serve the file (no solution), open the session.
+  // GET /cases — the lightweight case list for the picker (no spoilers).
+  async listCases(): Promise<ServiceResult<{ cases: { key: string; title: string; category: string; difficulty: number; suspectCount: number }[] }>> {
+    const cases = await contentService.listInvestigationCases({ filter: DEFAULT_RATING_FILTER });
+    return ServiceSuccess({ cases });
+  }
+
+  // POST /start — draw a case (the chosen caseKey, else random), serve the file (no solution), open
+  // the session.
   async start(rawConfig: unknown): Promise<ServiceResult<InvStartResult>> {
     const config = normalizeConfig(rawConfig);
-    const cases = await contentService.resolveInvestigationCases({ filter: DEFAULT_RATING_FILTER, sample: 1 });
-    const theCase = (cases[0] ?? null) as StoredCase | null;
+    let theCase: StoredCase | null = null;
+    if (config.caseKey !== '') {
+      theCase = (await contentService.investigationCaseByKey(config.caseKey, { filter: DEFAULT_RATING_FILTER })) as StoredCase | null;
+    }
+    if (!theCase) {
+      const cases = await contentService.resolveInvestigationCases({ filter: DEFAULT_RATING_FILTER, sample: 1 });
+      theCase = (cases[0] ?? null) as StoredCase | null;
+    }
     if (!theCase || typeof theCase.solutionSuspectId !== 'string') {
       return ServiceError(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.soloInv.NO_CASE, 404);
     }

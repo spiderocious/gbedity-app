@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { ROUTES, pathWith } from '../../../../../shared/constants/routes.ts';
 import { sessionStore } from '../../../../../shared/services/session-store.ts';
+import { useLobby } from '../../../../../shared/api/use-lobby.ts';
+import { seatForIndex } from '../../../../lobby/seat.ts';
 import { InvestigateScreen } from '../../screens/investigate-screen.tsx';
 import { AccuseScreen } from '../../screens/accuse-screen.tsx';
 import { RevealScreen } from '../../screens/reveal-screen.tsx';
@@ -47,6 +49,15 @@ export function MpInvestigationScreen({ audience, code }: MpInvestigationScreenP
   const isSpectator = audience === MpAudience.SPECTATOR;
   const myId = sessionStore.getPlayer()?.playerId;
 
+  // Player names + seats for the final board (the patch board carries playerId + points only).
+  const lobby = useLobby(code, code !== '', false);
+  const roster = lobby.data?.players ?? [];
+  const nameOf = (id: string): string => roster.find((p) => p.id === id)?.nickname ?? 'Player';
+  const seatOf = (id: string): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 => {
+    const idx = roster.findIndex((p) => p.id === id);
+    return seatForIndex(idx >= 0 ? idx : 0);
+  };
+
   // Client-local sub-view during the backend `investigate` phase: workspace ↔ accuse.
   const [accusing, setAccusing] = useState(false);
   const shownAtRef = useRef(Date.now());
@@ -88,12 +99,20 @@ export function MpInvestigationScreen({ audience, code }: MpInvestigationScreenP
       explanation: view.explanation,
     });
     if (view.phase === InvBackendPhase.DONE) {
-      const myRow = myId ? view.board.find((r) => r.playerId === myId) : undefined;
-      const total = isSpectator ? (view.board[0]?.points ?? 0) : (myRow?.points ?? view.yourScore);
-      const correct = view.yourAccusation === view.solutionSuspectId;
+      // The full standings — every player from the patch board (already sorted desc), named from the
+      // lobby. "You" marks the local player. A non-zero score means they named the culprit (wrong = 0).
+      const rows = view.board.map((r) => {
+        const mine = r.playerId === myId;
+        return {
+          name: mine ? `${nameOf(r.playerId)} (You)` : nameOf(r.playerId),
+          score: r.points,
+          seat: seatOf(r.playerId),
+          detail: r.points > 0 ? 'cracked the case' : 'wrong call',
+        };
+      });
       return withHostControls(
         <FinalBoardScreen
-          rows={[{ name: isSpectator ? 'Top detective' : 'You', score: total, detail: isSpectator ? '' : correct ? 'cracked the case' : 'wrong call', seat: 1 }]}
+          rows={rows.length > 0 ? rows : [{ name: 'No detectives', score: 0, seat: 1 as const }]}
           onReplay={() => navigate(pathWith(isHost ? ROUTES.HOST_LOBBY : ROUTES.PLAYER_LOBBY, { code }))}
           onHome={() => navigate(isHost ? pathWith(ROUTES.HOST_LOBBY, { code }) : ROUTES.LANDING)}
         />,

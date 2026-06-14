@@ -110,7 +110,7 @@ export const guessTheWordGame: GamePlugin<Config, State, Action, Content> = {
     title: 'Guess The Word',
     category: GameCategory.PARTY,
     mode: GameMode.ROUND_ROBIN,
-    players: { min: 3, max: 12, recommendedMax: 10 },
+    players: { min: 2, max: 12, recommendedMax: 10 },
     capabilities: { needsValidation: false },
     solo: { supported: false },
   },

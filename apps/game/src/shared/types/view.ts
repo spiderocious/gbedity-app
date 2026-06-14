@@ -109,15 +109,27 @@ export const ViewPatch = z
           .passthrough(),
       )
       .optional(),
-    // investigation (open-phase case file)
+    // investigation (open-phase case file). The rich rebuild ships structured materials; keep these
+    // shape-TOLERANT (passthrough objects, or string for the legacy timeline) so a strict field can
+    // never reject the whole patch — the per-game driver (toInvView) does the real narrowing.
     title: z.string().optional(),
     brief: z.string().optional(),
-    suspects: z.array(z.object({ id: z.string().optional(), name: z.string().optional(), profile: z.string().optional() }).passthrough()).optional(),
-    evidence: z.array(z.object({ id: z.string().optional(), label: z.string().optional(), detail: z.string().optional() }).passthrough()).optional(),
-    timeline: z.array(z.string()).optional(),
+    suspects: z.array(z.object({}).passthrough()).optional(),
+    // evidence: legacy flat clue list (old flow still reads it); rich rebuild uses `reports`.
+    evidence: z.array(z.object({}).passthrough()).optional(),
+    reports: z.array(z.object({}).passthrough()).optional(),
+    witnesses: z.array(z.object({}).passthrough()).optional(),
+    transcripts: z.array(z.object({}).passthrough()).optional(),
+    tools: z.array(z.object({}).passthrough()).optional(),
+    // timeline: legacy = string[]; rich = object[]. Accept either so neither shape breaks parsing.
+    timeline: z.array(z.union([z.string(), z.object({}).passthrough()])).optional(),
     solutionSuspectId: z.string().optional(),
+    keyEvidenceId: z.string().optional(),
+    explanation: z.string().optional(),
     accusations: z.array(z.object({ playerId: z.string().optional(), suspectId: z.string().optional() }).passthrough()).optional(),
     yourAccusation: z.string().nullable().optional(),
+    yourEvidence: z.string().nullable().optional(),
+    yourConfidence: z.string().nullable().optional(),
     // guess_the_word fields (questionCount reused from millionaire section above)
     wordLength: z.number().optional(),    // guesser: character count of the secret word (no ? chars)
     word: z.string().nullable().optional(), // audience + display + guesser at reveal

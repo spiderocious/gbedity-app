@@ -664,16 +664,8 @@ const GAME_CONTENT: Partial<Record<GameKey, GameContent>> = {
   [GameKey.INVESTIGATION]: {
     key: GameKey.INVESTIGATION,
     configGroups: [
-      { label: 'Case', controls: [{ kind: ControlKind.DROPDOWN, id: 'case', label: 'Case selection', options: ['The Catered Wedding', 'The Missing Ledger', 'The Estate Dispute', 'The Late Delivery', 'The Borrowed Car', 'The Office Theft'], defaultValue: 'The Catered Wedding' }] },
-      { label: 'Time', controls: [{ kind: ControlKind.PILLS, id: 'duration', label: 'Case duration', options: ['15', '30', '45', '60'], defaultValue: '30' }] },
-      {
-        label: 'Difficulty',
-        controls: [
-          { kind: ControlKind.STEPPER, id: 'suspects', label: 'Number of suspects', min: 3, max: 6, defaultValue: 4 },
-          { kind: ControlKind.PILLS, id: 'herring', label: 'Red herring intensity', options: ['Light', 'Medium', 'Heavy'], defaultValue: 'Medium' },
-        ],
-      },
-      { label: 'Collaboration', controls: [{ kind: ControlKind.PILLS, id: 'comms', label: 'Communication mode', options: ['Solo', 'Allow notes'], defaultValue: 'Solo' }] },
+      { label: 'Case', controls: [{ kind: ControlKind.CUSTOM_CONTENT, id: 'caseKey', label: 'Case', noun: 'case' }] },
+      { label: 'Time', controls: [{ kind: ControlKind.PILLS, id: 'duration', label: 'Case duration (minutes)', options: ['5', '10', '15', '20', '25', '30'], defaultValue: '15' }] },
     ],
     previewLines: ['Case: The Catered Wedding', 'Duration: 30 min', 'Suspects: 4 · Red herrings: Medium'],
     renderDisplay: () => (

@@ -58,19 +58,30 @@ export interface PleadRubric {
 
 export class ContentService {
   // Resolve a quiz deck's questions, rating-filtered + difficulty-aware. `sample` caps the count.
+  // Pull a RANDOM set of quiz questions, ordered easy→hard so the Millionaire ladder climbs in
+  // difficulty. `$unwind` flattens each deck's questions, `$sample` picks `sample` at random across
+  // all matching decks (no more "always the first 15 in document order"), then we sort by difficulty.
+  // `category: undefined`/'' draws from EVERY category (so a game isn't starved by a category typo).
   async resolveQuizQuestions(opts: {
-    category: string;
+    category?: string;
     filter?: RatingFilterShape;
     difficulty?: string;
     sample: number;
   }): Promise<QuizQuestion[]> {
     const filter = opts.filter ?? DEFAULT_RATING_FILTER;
-    const decks = await getDb()
+    const match: Filter<Document> = { ...ratingClause(filter) };
+    if (opts.category !== undefined && opts.category !== '') match.category = opts.category;
+    const rows = await getDb()
       .collection(ContentCollection.QUIZ_DECKS)
-      .find({ category: opts.category, ...ratingClause(filter) }, { projection: { _id: 0 } })
+      .aggregate<QuizQuestion>([
+        { $match: match },
+        { $unwind: '$questions' },
+        { $replaceRoot: { newRoot: '$questions' } },
+        { $sample: { size: Math.max(1, opts.sample) } },
+      ])
       .toArray();
-    const all = decks.flatMap((d) => (Array.isArray(d.questions) ? (d.questions as QuizQuestion[]) : []));
-    return all.slice(0, opts.sample);
+    // Ladder: easiest first. Random tiebreak keeps same-difficulty order varied between games.
+    return rows.sort((a, b) => (a.difficulty ?? 1) - (b.difficulty ?? 1) || Math.random() - 0.5);
   }
 
   // Distinct categories available in the word DB (for host config / Wordshot enabledCategories).
@@ -188,6 +199,36 @@ export class ContentService {
       .aggregate([{ $match: ratingClause(filter) }, { $sample: { size: opts.sample } }, { $project: { _id: 0 } }])
       .toArray();
     return rows as Record<string, unknown>[];
+  }
+
+  // Lightweight catalogue of investigation cases for the host's case picker (no spoilers — key,
+  // title, category, difficulty + suspect count). Rating-filtered like everything else.
+  async listInvestigationCases(opts?: { filter?: RatingFilterShape }): Promise<{ key: string; title: string; category: string; difficulty: number; suspectCount: number }[]> {
+    const filter = opts?.filter ?? DEFAULT_RATING_FILTER;
+    const rows = await getDb()
+      .collection(ContentCollection.INVESTIGATION_CASES)
+      .find(ratingClause(filter), { projection: { _id: 0, key: 1, title: 1, category: 1, difficulty: 1, suspects: 1 } })
+      .toArray();
+    return rows
+      .map((r) => ({
+        key: String(r.key ?? ''),
+        title: String(r.title ?? 'Untitled case'),
+        category: String(r.category ?? 'Investigation'),
+        difficulty: typeof r.difficulty === 'number' ? r.difficulty : 1,
+        suspectCount: Array.isArray(r.suspects) ? r.suspects.length : 0,
+      }))
+      .filter((c) => c.key !== '')
+      .sort((a, b) => a.difficulty - b.difficulty || a.title.localeCompare(b.title));
+  }
+
+  // Fetch a specific investigation case by key (the host chose it). Returns null if not found OR if
+  // filtered out by the room's rating — so a chosen case still respects content gating.
+  async investigationCaseByKey(key: string, opts?: { filter?: RatingFilterShape }): Promise<Record<string, unknown> | null> {
+    const filter = opts?.filter ?? DEFAULT_RATING_FILTER;
+    const row = await getDb()
+      .collection(ContentCollection.INVESTIGATION_CASES)
+      .findOne({ key, ...ratingClause(filter) }, { projection: { _id: 0 } });
+    return row as Record<string, unknown> | null;
   }
 
   // Guess The Word: pick one pack (title + words[]) from the admin-curated collection.
