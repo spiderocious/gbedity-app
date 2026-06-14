@@ -63,6 +63,7 @@ export const GameKey = {
   INVESTIGATION: 'investigation',
   PLEAD_YOUR_CASE: 'plead-your-case',
   PRESENTATION: 'presentation',
+  GUESS_THE_WORD: 'guess-the-word',
 } as const;
 export type GameKey = (typeof GameKey)[keyof typeof GameKey];
 
@@ -221,6 +222,14 @@ export const GAMES: readonly LandingGame[] = [
     meta: '2–10 · 12m',
     title: 'Presentation',
     description: 'Present a cold topic for 90 seconds. The room rates you.',
+  },
+  {
+    id: 20,
+    key: GameKey.GUESS_THE_WORD,
+    category: GameCategory.PARTY,
+    meta: '3–12 · 10m',
+    title: 'Guess The Word',
+    description: 'One player guesses a secret word using only voice questions. Score by time and questions left.',
   },
 ];
 

@@ -8,6 +8,7 @@ import {
   Drama,
   Eye,
   Gavel,
+  HelpCircle,
   Keyboard,
   Mic,
   Scale,
@@ -44,4 +45,5 @@ export const GAME_ICON: Record<GameKey, LucideIcon> = {
   [GameKey.INVESTIGATION]: Search,
   [GameKey.PLEAD_YOUR_CASE]: Scale,
   [GameKey.PRESENTATION]: Mic,
+  [GameKey.GUESS_THE_WORD]: HelpCircle,
 };

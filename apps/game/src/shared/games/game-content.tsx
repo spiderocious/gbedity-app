@@ -809,6 +809,48 @@ const GAME_CONTENT: Partial<Record<GameKey, GameContent>> = {
     ),
     postGameStats: [{ label: 'Best presenter', value: 'Ada · 4.7/5' }],
   },
+
+  [GameKey.GUESS_THE_WORD]: {
+    key: GameKey.GUESS_THE_WORD,
+    configGroups: [
+      {
+        label: 'Timing',
+        controls: [
+          { kind: ControlKind.STEPPER, id: 'guessSeconds', label: 'Time to guess', min: 30, max: 180, defaultValue: 90, unit: 's' },
+          { kind: ControlKind.STEPPER, id: 'revealSeconds', label: 'Reveal hold', min: 3, max: 15, defaultValue: 5, unit: 's' },
+        ],
+      },
+      {
+        label: 'Questions',
+        controls: [
+          { kind: ControlKind.STEPPER, id: 'startingQuestionCount', label: 'Starting question count', min: 5, max: 40, defaultValue: 20 },
+          { kind: ControlKind.STEPPER, id: 'scoreMultiplier', label: 'Score multiplier', min: 1, max: 50, defaultValue: 10 },
+        ],
+      },
+      ratingGroup,
+    ],
+    previewLines: ['90s to guess', '20 questions', 'Score: time × questions × 10'],
+    renderDisplay: () => (
+      <div className="flex flex-col items-center gap-4 text-center">
+        <span className="font-sans text-[13px] font-extrabold uppercase tracking-widest text-ink-3">Temi is guessing</span>
+        <p className="font-serif text-[28px] font-semibold text-ink">The word is…</p>
+        <p className="font-serif text-[48px] font-bold text-action">elephant</p>
+        <HeroNumeral value="0:42" tone="ink" />
+      </div>
+    ),
+    renderPlayer: () => (
+      <div className="flex flex-col gap-4 text-center">
+        <span className="font-sans text-[13px] font-extrabold uppercase tracking-widest text-ink-3">Your turn to guess</span>
+        <p className="font-sans text-[15px] text-ink">The word has <strong>8</strong> letters</p>
+        <p className="font-sans text-[13px] text-ink-3">Ask questions out loud — type your guess when ready</p>
+        <PlayerInputMock placeholder="Type your guess…" cta="Submit guess" />
+      </div>
+    ),
+    renderCelebration: () => (
+      <p className="text-center font-sans text-[15px] text-ink-3">Fastest guess · Temi · 1 200 pts</p>
+    ),
+    postGameStats: [{ label: 'Fastest guess', value: 'Temi · 1 200 pts' }],
+  },
 };
 
 export function getGameContent(key: GameKey): GameContent | undefined {

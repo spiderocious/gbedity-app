@@ -54,6 +54,7 @@ export const GAME_UI_MAPPING: Readonly<Record<string, UiMapping>> = {
   [GameId.INVESTIGATION]: { prdId: 17, key: 'investigation', uiCategory: UiCategory.IMMERSIVE },
   [GameId.PLEAD_YOUR_CASE]: { prdId: 18, key: 'plead-your-case', uiCategory: UiCategory.IMMERSIVE },
   [GameId.PRESENTATION]: { prdId: 19, key: 'presentation', uiCategory: UiCategory.IMMERSIVE },
+  [GameId.GUESS_THE_WORD]: { prdId: 20, key: 'guess-the-word', uiCategory: UiCategory.PARTY },
 };
 
 export const uiMappingFor = (gameId: string): UiMapping | undefined => GAME_UI_MAPPING[gameId];

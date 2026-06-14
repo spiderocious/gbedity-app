@@ -1,0 +1,207 @@
+[
+  {
+    "key": "e-the-missing-generator",
+    "title": "The Missing Generator",
+    "category": "Theft",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": [],
+    "brief": "At a block of flats in Surulere, Lagos, the 25-KVA backup generator vanished from the locked compound store overnight. The store padlock was opened with a key, not broken. Only three people held keys, and the gate watchman swears nobody drove in.",
+    "suspects": [
+      { "id": "s1", "name": "Tunde Bakare", "age": 41, "role": "Night watchman (mai-guard)", "motive": "Underpaid; owes a cooperative loan due that week", "alibi": "Says he was at the gate all night and saw nothing", "alibiStatus": "shaky", "phone": "+234 803 412 2119", "note": "Sweats and repeats himself when asked about the gate." },
+      { "id": "s2", "name": "Chidinma Okeke", "age": 36, "role": "Estate caretaker / facility manager", "motive": "Controls the store keys and the maintenance budget", "alibi": "Says she left at 6pm and was home in Yaba; husband confirms", "alibiStatus": "confirmed", "phone": "+234 805 773 0401", "note": "Calm, produces a tidy logbook unprompted." },
+      { "id": "s3", "name": "Emeka Nwosu", "age": 29, "role": "Hired generator technician (servicing contractor)", "motive": "Knew the gen's resale value; recently lost his workshop lease", "alibi": "Says he was home in Ojuelegba; no one to confirm", "alibiStatus": "broken", "phone": "+234 701 991 8845", "note": "Overly eager to blame the watchman." },
+      { "id": "s4", "name": "Sola Adebayo", "age": 52, "role": "Landlord / building owner", "motive": "Could claim insurance on the unit", "alibi": "Was in Abuja for a wedding; flight and hotel receipts exist", "alibiStatus": "confirmed", "phone": "+234 802 105 5672", "note": "Furious, demands the police 'do something'." }
+    ],
+    "reports": [
+      { "id": "r1", "kind": "forensic", "title": "Store & Padlock Examination", "subtitle": "Lagos State Police, Forensic Unit", "header": [ { "label": "Entry method", "value": "Opened with a key, no force" }, { "label": "Items missing", "value": "1x 25-KVA generator" } ], "findings": [ { "heading": "Fresh oil trail", "detail": "A line of fresh engine-oil drips runs from the store door, past the gate, to the kerb where a vehicle stood. The trail is heavy and continuous, indicating the gen leaked while being wheeled out slowly.", "flag": "key" }, { "heading": "Gate logbook gap", "detail": "The watchman's vehicle log shows no entries between 10:40pm and 5:00am, though earlier and later pages are filled.", "flag": "herring" }, { "heading": "Spare-key prints", "detail": "Only one set of fingerprints on the store's spare key. The caretaker's master key was found untouched in her handover envelope.", "flag": "key" } ] },
+      { "id": "r2", "kind": "financial", "title": "Contractor Payment Trail", "subtitle": "First City Bank statement review", "header": [ { "label": "Account", "value": "E. Nwosu — Servicing contractor" } ], "findings": [ { "heading": "Scrap-yard inflow", "detail": "On 14 Mar at 7:12am, ₦780,000 was paid into Nwosu's account by 'Ajegunle Metals & Spares', a known generator-and-scrap buyer. Reference line reads 'gen 25k'.", "flag": "key" }, { "heading": "Loan repayment", "detail": "The watchman repaid his ₦40,000 cooperative loan on 13 Mar — a day BEFORE the theft, from his salary credit. Timing rules out using stolen-gen proceeds.", "flag": "herring" } ] }
+    ],
+    "witnesses": [
+      { "id": "w1", "name": "Iya Risi", "relation": "Roadside food seller opposite the gate", "statement": "\"A small green pickup was parked outside around two in the morning. Two men loaded something heavy and the technician boy who services the gen was directing them.\"", "reliability": "reliable" },
+      { "id": "w2", "name": "Baba Lekan", "relation": "Tenant, ground floor", "statement": "\"It is the watchman, I tell you. He always sleeps. He must have sold it.\"", "reliability": "questionable" }
+    ],
+    "transcripts": [
+      { "id": "t1", "suspectId": "s3", "title": "Interview — Emeka Nwosu", "lines": [ { "speaker": "Det.", "role": "q", "text": "Where were you between midnight and 3am on the 14th?" }, { "speaker": "Emeka Nwosu", "role": "a", "text": "Sleeping at home in Ojuelegba. Alone." }, { "speaker": "Det.", "role": "q", "text": "Do you have a key to the generator store?" }, { "speaker": "Emeka Nwosu", "role": "a", "text": "The caretaker gives me the spare when I service it. I always return it." }, { "speaker": "Det.", "role": "q", "text": "Ajegunle Metals paid you ₦780,000 yesterday morning. For what?" }, { "speaker": "Emeka Nwosu", "role": "a", "text": "That... that was an old debt. Old parts I sold them months back." }, { "speaker": "Det.", "role": "q", "text": "Their reference says 'gen 25k', dated the morning after a 25-KVA gen went missing." }, { "speaker": "Emeka Nwosu", "role": "a", "text": "I want to call my brother." } ] }
+    ],
+    "timeline": [
+      { "time": "6:00pm", "event": "Caretaker locks store, hands keys to handover envelope, leaves for Yaba", "source": "Caretaker logbook", "conflict": false },
+      { "time": "10:40pm", "event": "Last gate log entry before the gap", "source": "Gate logbook", "conflict": false },
+      { "time": "2:00am", "event": "Green pickup loads heavy item; technician seen directing", "source": "Iya Risi", "conflict": true },
+      { "time": "2:20am", "event": "Fresh oil trail laid from store to kerb", "source": "Forensic", "conflict": false },
+      { "time": "7:12am", "event": "₦780,000 'gen 25k' paid to Nwosu by Ajegunle Metals", "source": "Bank statement", "conflict": false }
+    ],
+    "tools": [
+      { "id": "tool-id-prints", "name": "Identity Lookup", "tagline": "Match prints to a registered identity", "icon": "identity", "results": [ { "query": "Spare store key — single print set", "outcome": "hit", "rows": [ {"label":"Matched to","value":"Emeka Nwosu"}, {"label":"Record","value":"Servicing contractor, spare-key access"} ], "note": "Only Nwosu's prints are on the spare key that opened the store." } ] },
+      { "id": "tool-calllog", "name": "Call Log", "tagline": "Pull recent calls for a number", "icon": "call_log", "results": [ { "query": "+234 701 991 8845 (Nwosu)", "outcome": "hit", "rows": [ {"label":"1:48am","value":"Outgoing to 'Ajegunle Metals' buyer"}, {"label":"2:05am","value":"Outgoing to unknown — 4 min, near gate"} ], "note": "Calls place Nwosu coordinating a buyer at the time of the theft, breaking his alibi." } ] },
+      { "id": "tool-crimedb", "name": "Crime Database", "tagline": "Check the watchman's flagged record", "icon": "crime_db", "results": [ { "query": "Tunde Bakare", "outcome": "dead_end", "rows": [{"label":"Result","value":"No record found"}], "note": "No prior record, no link to scrap buyers — the obvious suspect is a dead end." } ] }
+    ],
+    "solutionSuspectId": "s3",
+    "keyEvidenceId": "r2",
+    "explanation": "Emeka Nwosu, the servicing contractor, stole the generator. He had legitimate spare-key access, so the store was opened with a key and not forced (r1), and his are the only prints on that spare key. The fresh oil trail shows the gen was wheeled out slowly to a waiting vehicle, and Iya Risi reliably saw the technician directing a green pickup at 2am. His call log breaks his 'home asleep' alibi by placing him coordinating a scrap buyer near the gate. The clinching proof is r2: Ajegunle Metals paid him ₦780,000 the next morning with the reference 'gen 25k'. The herrings: the gate logbook gap and Baba Lekan point at the watchman Tunde, but his crime-db lookup is a dead end and he repaid his loan from salary a day BEFORE the theft. The caretaker and landlord both have confirmed alibis and her master key was untouched."
+  },
+  {
+    "key": "e-the-spoiled-suya-pot",
+    "title": "The Spoiled Pepper Soup",
+    "category": "Suspected Poisoning",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": [],
+    "brief": "Eight guests at a small Ibadan birthday party fell ill after eating from one pot of pepper soup; all recovered in hospital. Lab work found a livestock pesticide in that pot only. The pot sat in the kitchen all afternoon, where several people came and went.",
+    "suspects": [
+      { "id": "s1", "name": "Folake Ajayi", "age": 33, "role": "Host's sister, cooked the pepper soup", "motive": "None obvious; her dish is the one that was tampered with", "alibi": "Was serving guests in the parlour from 4pm", "alibiStatus": "confirmed", "phone": "+234 806 229 1003", "note": "Distraught that her cooking is blamed." },
+      { "id": "s2", "name": "Wale Ogunleye", "age": 38, "role": "Rival caterer hired for the small chops", "motive": "Lost the main-dish contract to Folake; public grudge", "alibi": "Says he stayed in the back kitchen prepping all afternoon", "alibiStatus": "shaky", "phone": "+234 802 551 4776", "note": "Loudly insists he 'only touched the small chops'." },
+      { "id": "s3", "name": "Bisi Adeyemi", "age": 27, "role": "Hired kitchen help (server)", "motive": "Recently scolded by the host over a breakage", "alibi": "In and out of the kitchen carrying trays", "alibiStatus": "unchecked", "phone": "+234 813 706 2240", "note": "Nervous but cooperative." },
+      { "id": "s4", "name": "Gboyega Salami", "age": 45, "role": "Host's neighbour who helped tend the fire", "motive": "None known", "alibi": "Outside by the coal fire most of the afternoon; several guests saw him", "alibiStatus": "confirmed", "phone": "+234 705 884 0117", "note": "Jovial, brought his own cooler of drinks." }
+    ],
+    "reports": [
+      { "id": "r1", "kind": "forensic", "title": "Food & Container Toxicology", "subtitle": "Oyo State Public Health Lab", "header": [ { "label": "Agent", "value": "Organophosphate livestock pesticide" }, { "label": "Source", "value": "Pepper-soup pot only" } ], "findings": [ { "heading": "Single-pot contamination", "detail": "Only the pepper-soup pot tested positive. The jollof, the small chops, and all drinks were clean. The pesticide was added late — it sat on top, not fully stirred through.", "flag": "key" }, { "heading": "Container in the kitchen", "detail": "An empty 50ml veterinary pesticide sachet (brand 'Tikvet') was found in the kitchen bin under tissue, label intact.", "flag": "key" }, { "heading": "Small-chops oil", "detail": "The caterer's frying oil was over-reused and slightly rancid but harmless — a hygiene issue, not the cause of illness.", "flag": "herring" } ] },
+      { "id": "r2", "kind": "digital", "title": "Agro-shop Purchase Record", "subtitle": "Mokola Agro Supplies — POS export", "header": [ { "label": "Item", "value": "Tikvet 50ml veterinary pesticide" } ], "findings": [ { "heading": "Same-day purchase", "detail": "A single Tikvet 50ml sachet was bought at 1:05pm on the party day, paid by transfer. The sender name on the transfer is 'B. Adeyemi'.", "flag": "key" }, { "heading": "Caterer's tab", "detail": "Wale Ogunleye bought cooking gas and seasoning at the same shop at 11am — receipt is itemised, no pesticide on it.", "flag": "herring" } ] }
+    ],
+    "witnesses": [
+      { "id": "w1", "name": "Mama Tope", "relation": "Guest, sat near the kitchen door", "statement": "\"I saw the small server girl go to the pepper-soup pot alone around 2 o'clock and stir it, even though it was Folake's pot. I thought she was tasting.\"", "reliability": "reliable" },
+      { "id": "w2", "name": "Kunle", "relation": "Party DJ", "statement": "\"It must be that caterer man, Wale — everyone knows he hates Folake. He was shouting about her this morning.\"", "reliability": "questionable" }
+    ],
+    "transcripts": [
+      { "id": "t1", "suspectId": "s3", "title": "Interview — Bisi Adeyemi", "lines": [ { "speaker": "Det.", "role": "q", "text": "Did you go near the pepper-soup pot?" }, { "speaker": "Bisi Adeyemi", "role": "a", "text": "Only to carry it to serve. Maybe I stirred it once." }, { "speaker": "Det.", "role": "q", "text": "A transfer of yours bought a sachet of Tikvet pesticide at 1:05pm that day. Why?" }, { "speaker": "Bisi Adeyemi", "role": "a", "text": "That... my landlord asked me to buy rat poison for the compound." }, { "speaker": "Det.", "role": "q", "text": "Tikvet is a livestock pesticide, not rat poison. And the empty sachet was in this kitchen's bin." }, { "speaker": "Bisi Adeyemi", "role": "a", "text": "I don't know how it got there." }, { "speaker": "Det.", "role": "q", "text": "The host scolded you last week. Were you angry enough to spoil her sister's pot?" }, { "speaker": "Bisi Adeyemi", "role": "a", "text": "I only wanted them to be embarrassed, not... I didn't think anyone would be this sick." } ] }
+    ],
+    "timeline": [
+      { "time": "11:00am", "event": "Wale buys gas and seasoning (no pesticide) at Mokola Agro", "source": "POS receipt", "conflict": false },
+      { "time": "1:05pm", "event": "Tikvet pesticide sachet bought by 'B. Adeyemi' transfer", "source": "Agro-shop record", "conflict": false },
+      { "time": "2:00pm", "event": "Server seen alone at the pepper-soup pot, stirring", "source": "Mama Tope", "conflict": true },
+      { "time": "4:00pm", "event": "Folake begins serving pepper soup in the parlour", "source": "Folake statement", "conflict": false },
+      { "time": "5:30pm", "event": "Eight guests who ate pepper soup fall ill", "source": "Hospital intake", "conflict": false }
+    ],
+    "tools": [
+      { "id": "tool-id-bisi", "name": "Identity Lookup", "tagline": "Resolve a bank-transfer sender name", "icon": "identity", "results": [ { "query": "Transfer sender 'B. Adeyemi' at Mokola Agro 1:05pm", "outcome": "hit", "rows": [ {"label":"Resolved to","value":"Bisi Adeyemi"}, {"label":"Role","value":"Hired kitchen server at the party"} ], "note": "The pesticide buyer is the kitchen server, placing means in her hands." } ] },
+      { "id": "tool-calllog-wale", "name": "Call Log", "tagline": "Pull the rival caterer's afternoon calls", "icon": "call_log", "results": [ { "query": "+234 802 551 4776 (Wale)", "outcome": "dead_end", "rows": [{"label":"Result","value":"Ordinary supplier calls only"}], "note": "Nothing tying Wale to the pot or any pesticide — the obvious rival is a dead end." } ] },
+      { "id": "tool-crimedb-tikvet", "name": "Crime Database", "tagline": "Trace the agent to recent local sales", "icon": "crime_db", "results": [ { "query": "Tikvet 50ml — Ibadan area, party day", "outcome": "partial", "rows": [ {"label":"Outlets stocking it","value":"3"}, {"label":"Single 50ml sale on party day","value":"Mokola Agro, 1:05pm"} ], "note": "Only one same-day single-sachet sale exists — it matches the agro-shop record." } ] }
+    ],
+    "solutionSuspectId": "s3",
+    "keyEvidenceId": "r2",
+    "explanation": "Bisi Adeyemi, the hired kitchen server, poisoned the pepper-soup pot to embarrass the host who had scolded her. Toxicology (r1) narrows the crime to a single pot dosed late with a 'Tikvet' livestock pesticide, with the empty sachet hidden in the kitchen bin. The agro-shop record (r2) shows that sachet was bought at 1:05pm the same day by a 'B. Adeyemi' transfer, and Identity Lookup resolves the sender to Bisi — putting means in her hands. Mama Tope reliably saw her alone at Folake's pot at 2pm. The herrings: Kunle blames rival caterer Wale, and the rancid frying oil looks suspicious — but Wale's receipt has no pesticide, his call log is a dead end, and the oil was merely unhygienic. Folake (serving in the parlour) and neighbour Gboyega (at the fire, seen by guests) are cleared."
+  },
+  {
+    "key": "e-the-burnt-fabric-stall",
+    "title": "The Burnt Fabric Stall",
+    "category": "Arson",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": [],
+    "brief": "A lock-up stall full of imported lace at Wuse Market, Abuja, burned out before dawn. No one was hurt. The fire started inside the locked stall, and the fire service flagged it as deliberate. The stall owner had recently doubled the goods' insurance value.",
+    "suspects": [
+      { "id": "s1", "name": "Nkechi Obi", "age": 44, "role": "Stall owner (lace trader)", "motive": "Stall was failing; just raised the insurance cover; debts to suppliers", "alibi": "Says she was home in Garki, asleep; lives alone", "alibiStatus": "broken", "phone": "+234 803 602 2558", "note": "Tearful, but already has the insurance claim form filled out." },
+      { "id": "s2", "name": "Musa Ibrahim", "age": 31, "role": "Market night security", "motive": "Owner had reported him for sleeping on duty", "alibi": "Patrol app logged him across the market all night", "alibiStatus": "confirmed", "phone": "+234 706 413 8092", "note": "Defensive about the earlier report against him." },
+      { "id": "s3", "name": "Ada Eze", "age": 39, "role": "Neighbouring stall owner (competitor)", "motive": "Long boundary dispute with Nkechi over shared frontage", "alibi": "Says she was at a night vigil at her church in Kubwa", "alibiStatus": "confirmed", "phone": "+234 805 197 7314", "note": "Coldly satisfied the stall is gone." },
+      { "id": "s4", "name": "Emeka Obi", "age": 23, "role": "Owner's nephew / stall assistant", "motive": "Holds a spare key; owed back-pay by his aunt", "alibi": "Says he closed up at 8pm and went to a viewing centre", "alibiStatus": "shaky", "phone": "+234 813 226 0415", "note": "Avoids eye contact when keys are mentioned." }
+    ],
+    "reports": [
+      { "id": "r1", "kind": "forensic", "title": "Fire Origin & Cause", "subtitle": "FCT Fire Service, Investigations", "header": [ { "label": "Classification", "value": "Deliberate (incendiary)" }, { "label": "Entry", "value": "Stall locked, no forced entry" } ], "findings": [ { "heading": "Accelerant pour pattern", "detail": "Kerosene pour patterns run along the shelving from the back wall. The fire began inside, behind a locked roller door — whoever set it had a key.", "flag": "key" }, { "heading": "Goods already gone", "detail": "Despite an insured stock of full lace bales, the burnt remains show far fewer bales than claimed. Much of the stock was removed before the fire.", "flag": "key" }, { "heading": "Faulty wiring nearby", "detail": "An overloaded adapter in the next stall had scorch marks from a previous minor incident — unrelated to this fire's origin point.", "flag": "herring" } ] },
+      { "id": "r2", "kind": "financial", "title": "Insurance & Stock Movement", "subtitle": "Loss adjuster review", "header": [ { "label": "Cover raised", "value": "₦4.2m to ₦9.5m, 11 days before fire" } ], "findings": [ { "heading": "Pre-fire stock transfer", "detail": "A haulage receipt shows 30 bales of lace moved from the stall to a private lock-up in Nyanya two nights before the fire, signed for by the stall owner's phone OTP.", "flag": "key" }, { "heading": "Nephew's back-pay", "detail": "The nephew was owed ₦60,000; this was paid in full the day after the fire by the owner — looks suspicious but the transfer memo reads 'salary arrears Q2'.", "flag": "herring" } ] }
+    ],
+    "witnesses": [
+      { "id": "w1", "name": "Alhaji Sani", "relation": "Tea seller at the market entrance", "statement": "\"The owner's own car came around 1am, two nights before the fire, and they loaded plenty bales into a small lorry. She said she was restocking elsewhere.\"", "reliability": "reliable" },
+      { "id": "w2", "name": "Patience", "relation": "Vendor opposite", "statement": "\"That competitor Ada has wanted Nkechi's stall finished for years. Check her, not anybody else.\"", "reliability": "hostile" }
+    ],
+    "transcripts": [
+      { "id": "t1", "suspectId": "s1", "title": "Interview — Nkechi Obi", "lines": [ { "speaker": "Det.", "role": "q", "text": "You raised your insurance cover to ₦9.5m eleven days before the fire. Why then?" }, { "speaker": "Nkechi Obi", "role": "a", "text": "Business was growing. I wanted proper cover. Is that a crime?" }, { "speaker": "Det.", "role": "q", "text": "The fire service found far fewer bales than you insured. Where is the rest of the stock?" }, { "speaker": "Nkechi Obi", "role": "a", "text": "Everything burned. Everything." }, { "speaker": "Det.", "role": "q", "text": "A haulage receipt and a tea seller both say 30 bales left your stall to a Nyanya lock-up two nights before, signed by your phone OTP." }, { "speaker": "Nkechi Obi", "role": "a", "text": "That... I was just moving slow-selling goods." }, { "speaker": "Det.", "role": "q", "text": "And the stall, locked, with no forced entry, was set alight from inside with kerosene. Who else has a key?" }, { "speaker": "Nkechi Obi", "role": "a", "text": "Only me and my nephew. I... I want a lawyer." } ] }
+    ],
+    "timeline": [
+      { "time": "11 days before", "event": "Insurance cover raised ₦4.2m to ₦9.5m", "source": "Loss adjuster", "conflict": false },
+      { "time": "1:00am (two nights before)", "event": "30 bales loaded from stall to Nyanya lock-up via owner OTP", "source": "Haulage receipt + Alhaji Sani", "conflict": false },
+      { "time": "8:00pm", "event": "Nephew closes stall, goes to viewing centre", "source": "Nephew statement", "conflict": false },
+      { "time": "4:10am", "event": "Fire detected inside locked stall; no forced entry", "source": "Fire Service", "conflict": true },
+      { "time": "Next day", "event": "Owner submits ₦9.5m insurance claim", "source": "Claim form", "conflict": false }
+    ],
+    "tools": [
+      { "id": "tool-phone-otp", "name": "Phone Records", "tagline": "Verify which line signed the haulage OTP", "icon": "phone_records", "results": [ { "query": "+234 803 602 2558 (Nkechi) — OTP at 1:02am", "outcome": "hit", "rows": [ {"label":"OTP delivered to","value":"Owner's registered line"}, {"label":"Used to sign","value":"Nyanya haulage receipt, 30 bales"} ], "note": "The stock-removal receipt was authorised by the owner's own phone." } ] },
+      { "id": "tool-triang-nkechi", "name": "Cell Triangulation", "tagline": "Place a phone at fire time", "icon": "triangulation", "results": [ { "query": "+234 803 602 2558 (Nkechi), 3:30–4:30am", "outcome": "hit", "rows": [ {"label":"Cell sector","value":"Wuse Market mast"}, {"label":"Claimed location","value":"Home in Garki"} ], "note": "Her phone was at the market during the fire, not asleep at home — alibi broken." } ] },
+      { "id": "tool-calllog-ada", "name": "Call Log", "tagline": "Check the competitor's night", "icon": "call_log", "results": [ { "query": "+234 805 197 7314 (Ada)", "outcome": "dead_end", "rows": [{"label":"Result","value":"Phone idle at the Kubwa church mast all night"}], "note": "The obvious enemy lead goes nowhere." } ] }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r2",
+    "explanation": "Nkechi Obi, the stall owner, committed insurance arson. Eleven days before the fire she nearly doubled her cover, then two nights before quietly moved 30 bales of lace to a Nyanya lock-up — a transfer the haulage OTP and Phone Records tie to her own line, and that the reliable tea seller witnessed (r2, w1). The fire was set from inside with kerosene behind a locked roller door with no forced entry (r1), meaning the arsonist had a key, and far fewer bales remained than insured because she had removed the good stock. Triangulation places her phone at the Wuse Market mast during the fire while she claimed to be asleep in Garki. The herrings: hostile witness Patience points at competitor Ada, but Ada's call log is a dead end (idle at her church) and her alibi confirmed; the nephew's back-pay and the faulty wiring next door are also misdirection. Security guard Musa (patrol-app confirmed) and Ada are cleared."
+  },
+  {
+    "key": "e-the-ghost-worker-payroll",
+    "title": "The Ghost Worker on the Payroll",
+    "category": "Fraud",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": [],
+    "brief": "An NGO in Port Harcourt discovered a salary going monthly to a field officer, 'Joy Wike', who no one in the office has ever met. Over a year, ₦3.6m left the payroll to her account. Only a few staff could add a name to the payroll system.",
+    "suspects": [
+      { "id": "s1", "name": "Tamuno George", "age": 35, "role": "Finance officer (runs payroll)", "motive": "Controls payroll entries and approves disbursements", "alibi": "Login credentials are personal, but says he shares the office PC", "alibiStatus": "shaky", "phone": "+234 803 145 0990", "note": "Quick to point at the IT contractor." },
+      { "id": "s2", "name": "Ibim Briggs", "age": 47, "role": "Country director (final approver)", "motive": "Signs off the payroll batch each month", "alibi": "Travels constantly; was abroad three of the months in question", "alibiStatus": "confirmed", "phone": "+234 802 776 1408", "note": "Demands the fraud be traced to the naira." },
+      { "id": "s3", "name": "Sayuni Daniel", "age": 28, "role": "HR assistant", "motive": "Handles staff onboarding paperwork", "alibi": "Was on three months' maternity leave in the middle of the period", "alibiStatus": "confirmed", "phone": "+234 706 332 8175", "note": "Co-operative, brings her own records." },
+      { "id": "s4", "name": "Chetachi Amadi", "age": 40, "role": "IT support contractor", "motive": "Has system admin access; underpaid contract", "alibi": "On-site only on Tuesdays per his contract log", "alibiStatus": "shaky", "phone": "+234 813 990 4622", "note": "Insists he 'only fixes the network, never touches payroll'." }
+    ],
+    "reports": [
+      { "id": "r1", "kind": "digital", "title": "Payroll System Audit Log", "subtitle": "Internal IT audit", "header": [ { "label": "Ghost record", "value": "Field officer 'Joy Wike'" }, { "label": "Total paid", "value": "₦3.6m over 12 months" } ], "findings": [ { "heading": "Who created the record", "detail": "The 'Joy Wike' staff record was created and edited only from Tamuno George's personal login, including on dates when no one else was in finance. Each monthly amount was also keyed under that same login.", "flag": "key" }, { "heading": "Admin access myth", "detail": "The IT contractor's admin account can reset passwords but is blocked from creating payroll staff records by design — he could not have added 'Joy Wike'.", "flag": "herring" }, { "heading": "Approval auto-pass", "detail": "Three of the monthly batches were auto-approved while the director was abroad, using a delegated approval the finance officer himself configured.", "flag": "key" } ] },
+      { "id": "r2", "kind": "financial", "title": "Beneficiary Account Trace", "subtitle": "Bank compliance review", "header": [ { "label": "Beneficiary", "value": "'Joy Wike' — Access acct" } ], "findings": [ { "heading": "Same phone, same address", "detail": "The 'Joy Wike' bank account was opened with the same registered phone number and residential address as Tamuno George's personal account.", "flag": "key" }, { "heading": "Onward sweep", "detail": "Each salary credit to 'Joy Wike' was swept within 48 hours to Tamuno George's personal account or used to pay his car loan.", "flag": "key" }, { "heading": "HR's separate error", "detail": "The HR assistant once double-entered a real staffer's bonus by mistake; it was caught and reversed — unrelated to the ghost worker.", "flag": "herring" } ] }
+    ],
+    "witnesses": [
+      { "id": "w1", "name": "Grace", "relation": "Office receptionist", "statement": "\"Nobody called Joy Wike ever signed our visitors' book or collected an ID card. There is no such person in this office.\"", "reliability": "reliable" },
+      { "id": "w2", "name": "Bright", "relation": "Junior accountant", "statement": "\"It has to be the IT man. He can do anything on those computers — he has the admin password.\"", "reliability": "questionable" }
+    ],
+    "transcripts": [
+      { "id": "t1", "suspectId": "s1", "title": "Interview — Tamuno George", "lines": [ { "speaker": "Det.", "role": "q", "text": "Who is Joy Wike?" }, { "speaker": "Tamuno George", "role": "a", "text": "A field officer. Maybe she works remotely. I just process the payroll." }, { "speaker": "Det.", "role": "q", "text": "Her record was created only from your login, sometimes when you were alone in finance." }, { "speaker": "Tamuno George", "role": "a", "text": "We share that PC. Anyone could have used my login. Ask the IT contractor." }, { "speaker": "Det.", "role": "q", "text": "The IT account is blocked from creating payroll records. And Joy Wike's bank account was opened with your phone number and your home address." }, { "speaker": "Tamuno George", "role": "a", "text": "That... must be a bank error." }, { "speaker": "Det.", "role": "q", "text": "Her salary was swept into your account and paid your car loan, every month for a year." }, { "speaker": "Tamuno George", "role": "a", "text": "I think I need to call my lawyer." } ] }
+    ],
+    "timeline": [
+      { "time": "12 months ago", "event": "'Joy Wike' record created from Tamuno's login", "source": "Audit log", "conflict": true },
+      { "time": "Monthly", "event": "Salary keyed and batch sent under Tamuno's login", "source": "Audit log", "conflict": false },
+      { "time": "3 of those months", "event": "Director abroad; batch auto-approved via finance officer's delegation", "source": "Audit log", "conflict": false },
+      { "time": "Within 48h each month", "event": "'Joy Wike' funds swept to Tamuno's account / car loan", "source": "Bank trace", "conflict": false },
+      { "time": "Mid-period", "event": "HR assistant on maternity leave; payments continued anyway", "source": "HR records", "conflict": true }
+    ],
+    "tools": [
+      { "id": "tool-id-joy", "name": "Identity Lookup", "tagline": "Resolve the beneficiary's registration details", "icon": "identity", "results": [ { "query": "'Joy Wike' — bank registration", "outcome": "hit", "rows": [ {"label":"Phone on account","value":"+234 803 145 0990"}, {"label":"Address","value":"Same as Tamuno George"} ], "note": "The ghost worker's account is registered to Tamuno George's own phone and address." } ] },
+      { "id": "tool-phone-sweep", "name": "Phone Records", "tagline": "Match the beneficiary number to a person", "icon": "phone_records", "results": [ { "query": "+234 803 145 0990", "outcome": "hit", "rows": [ {"label":"Subscriber","value":"Tamuno George"}, {"label":"Used on","value":"Both his and 'Joy Wike' accounts"} ], "note": "One phone number, one person — the ghost worker is Tamuno." } ] },
+      { "id": "tool-crimedb-it", "name": "Crime Database", "tagline": "Check the IT contractor for prior fraud", "icon": "crime_db", "results": [ { "query": "Chetachi Amadi", "outcome": "dead_end", "rows": [{"label":"Result","value":"No record"}], "note": "No record, and his admin role can't create payroll staff — the IT lead goes nowhere." } ] }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r2",
+    "explanation": "Tamuno George, the finance officer, ran a ghost-worker payroll fraud. The audit log (r1) shows the fictitious 'Joy Wike' record was created and edited only from his personal login, and three batches were auto-approved through a delegation he configured while the director was abroad. The decisive proof is r2: the 'Joy Wike' account was opened with Tamuno's own phone number and home address, and every salary was swept within 48 hours into his account or onto his car loan. Identity Lookup and Phone Records both resolve the beneficiary number to Tamuno. Reliable witness Grace confirms no such person existed. The herrings: Bright and Tamuno blame the IT contractor Chetachi, but his admin account is by-design blocked from creating payroll records and his crime-db check is a dead end; HR's unrelated double-bonus error is also misdirection. The director (abroad) and HR assistant (on maternity leave) are cleared."
+  },
+  {
+    "key": "e-the-cut-fibre-cable",
+    "title": "The Cut Fibre Cable",
+    "category": "Sabotage",
+    "difficulty": 1,
+    "ratingTier": "family",
+    "tags": [],
+    "brief": "An internet provider's main fibre line in Enugu was severed overnight, knocking out service to half the city and a hospital. It was no accident — the cable was deliberately cut and a section removed. A rival contractor had just lost a renewal bid to the affected company.",
+    "suspects": [
+      { "id": "s1", "name": "Obinna Eze", "age": 36, "role": "Rival cabling contractor", "motive": "Lost the city renewal contract; public bitterness", "alibi": "Says he was at a bar in Independence Layout till late; friends confirm till 11pm", "alibiStatus": "shaky", "phone": "+234 803 229 0145", "note": "Smirks, says 'maybe rats chewed it'." },
+      { "id": "s2", "name": "Chinedu Okafor", "age": 30, "role": "Provider's own field technician", "motive": "Passed over for promotion; knows the cable route exactly", "alibi": "On-call that night; phone GPS shows him on the route", "alibiStatus": "broken", "phone": "+234 706 551 8233", "note": "Says he was 'just checking the line' when it failed." },
+      { "id": "s3", "name": "Ngozi Udeh", "age": 42, "role": "Local landowner over the cable easement", "motive": "Disputes the easement; wants the line rerouted off her land", "alibi": "At a family burial in Nsukka all weekend; many attendees", "alibiStatus": "confirmed", "phone": "+234 805 706 4882", "note": "Angry about the cable but was two hours away." },
+      { "id": "s4", "name": "Sunday Agu", "age": 25, "role": "Scrap-metal collector", "motive": "Copper/fibre scrap value", "alibi": "Says he was at the scrap depot; depot logs him in next morning only", "alibiStatus": "unchecked", "phone": "+234 813 407 1559", "note": "Twitchy when copper is mentioned." }
+    ],
+    "reports": [
+      { "id": "r1", "kind": "forensic", "title": "Cable Cut Site Examination", "subtitle": "Network Security Forensics", "header": [ { "label": "Damage", "value": "Clean cut; 6m section removed" }, { "label": "Tool", "value": "Professional fibre cutter, not scrap shears" } ], "findings": [ { "heading": "Specialist cut", "detail": "The cut was made with a calibrated fibre splicing/cutting tool and the junction was opened correctly first — the work of someone who knows fibre, not a random scrap thief hacking at it.", "flag": "key" }, { "heading": "Removed section abandoned nearby", "detail": "The 6m section was found dumped in bushes 40m away, not taken for scrap — ruling out theft-for-resale as the motive.", "flag": "key" }, { "heading": "Old machete marks", "detail": "Separate, older machete nicks on the outer duct are from past bush-clearing — unrelated to the clean cut.", "flag": "herring" } ] },
+      { "id": "r2", "kind": "digital", "title": "Access & Device Log", "subtitle": "Provider OSS / GPS review", "header": [ { "label": "Junction opened", "value": "1:18am with a valid maintenance code" } ], "findings": [ { "heading": "Maintenance code used", "detail": "The fibre junction box was opened at 1:18am using technician Chinedu Okafor's personal maintenance access code — no work ticket was raised for that night.", "flag": "key" }, { "heading": "GPS on the route", "detail": "Chinedu's company phone GPS places him at the exact cut location from 1:05am to 1:40am, bracketing the cut.", "flag": "key" }, { "heading": "Rival's quote spike", "detail": "Rival contractor Obinna emailed the city an 'emergency repair' quote at 9am — opportunistic, but sent after the outage was already public news.", "flag": "herring" } ] }
+    ],
+    "witnesses": [
+      { "id": "w1", "name": "Okwy", "relation": "Okada rider passing at night", "statement": "\"I saw one provider-uniform man with a tool bag crouched at the junction box around 1 in the morning. I thought he was fixing it.\"", "reliability": "reliable" },
+      { "id": "w2", "name": "Mama Chidi", "relation": "Kiosk owner near the bar", "statement": "\"That Obinna was drinking in front of my kiosk that night. He hates the other company — it must be him.\"", "reliability": "questionable" }
+    ],
+    "transcripts": [
+      { "id": "t1", "suspectId": "s2", "title": "Interview — Chinedu Okafor", "lines": [ { "speaker": "Det.", "role": "q", "text": "You were on-call. Did you visit the junction at Trans-Ekulu that night?" }, { "speaker": "Chinedu Okafor", "role": "a", "text": "Yes, I was checking the line. It was already failing." }, { "speaker": "Det.", "role": "q", "text": "There was no work ticket. The junction was opened at 1:18am with your personal code." }, { "speaker": "Chinedu Okafor", "role": "a", "text": "I... opened it to inspect. That's allowed for on-call." }, { "speaker": "Det.", "role": "q", "text": "The cut was made with a calibrated fibre tool by someone who knows the route. Your GPS has you there from 1:05 to 1:40am." }, { "speaker": "Chinedu Okafor", "role": "a", "text": "Anyone could be there." }, { "speaker": "Det.", "role": "q", "text": "You were passed over for promotion last month. The section was cut and thrown in the bush, not stolen. This was a message, not a theft." }, { "speaker": "Chinedu Okafor", "role": "a", "text": "I won't say anything more without a lawyer." } ] }
+    ],
+    "timeline": [
+      { "time": "Last month", "event": "Chinedu passed over for promotion", "source": "HR record", "conflict": false },
+      { "time": "Till 11:00pm", "event": "Rival Obinna seen drinking at Independence Layout bar", "source": "Mama Chidi + friends", "conflict": false },
+      { "time": "1:05am", "event": "Chinedu's GPS arrives at the cut location", "source": "GPS log", "conflict": true },
+      { "time": "1:18am", "event": "Junction opened with Chinedu's maintenance code; no ticket", "source": "Access log", "conflict": true },
+      { "time": "1:40am", "event": "GPS leaves; 6m section later found dumped in bushes nearby", "source": "GPS + Forensics", "conflict": false }
+    ],
+    "tools": [
+      { "id": "tool-phone-code", "name": "Phone Records", "tagline": "Tie the maintenance code and GPS to a person", "icon": "phone_records", "results": [ { "query": "Maintenance code at 1:18am + GPS device", "outcome": "hit", "rows": [ {"label":"Code owner","value":"Chinedu Okafor"}, {"label":"GPS device","value":"Chinedu's company phone, on-site"} ], "note": "The code that opened the junction and the on-site phone both belong to Chinedu." } ] },
+      { "id": "tool-triang-obinna", "name": "Cell Triangulation", "tagline": "Place the rival at cut time", "icon": "triangulation", "results": [ { "query": "+234 803 229 0145 (Obinna), 12:30–1:45am", "outcome": "hit", "rows": [ {"label":"Cell sector","value":"Independence Layout (bar), then home"}, {"label":"At cut site?","value":"No"} ], "note": "Obinna's phone never reaches the cut site — the obvious rival is in the clear." } ] },
+      { "id": "tool-crimedb-scrap", "name": "Crime Database", "tagline": "Check the scrap collector for cable theft", "icon": "crime_db", "results": [ { "query": "Sunday Agu — fibre/copper theft", "outcome": "dead_end", "rows": [{"label":"Result","value":"No record"}], "note": "No record, and the section was abandoned not sold — the scrap-theft angle is a dead end." } ] }
+    ],
+    "solutionSuspectId": "s2",
+    "keyEvidenceId": "r2",
+    "explanation": "Chinedu Okafor, the provider's own field technician, sabotaged the fibre line out of resentment at being passed over for promotion. The forensic report (r1) shows a specialist clean cut made with a calibrated fibre tool by someone who knew the route — not a scrap thief — and the removed section was dumped nearby rather than taken, proving the motive was sabotage, not theft. The key evidence (r2) shows the junction was opened at 1:18am with Chinedu's personal maintenance code with no work ticket, while his GPS brackets him at the cut site from 1:05 to 1:40am; Phone Records tie both the code and device to him, and the okada rider Okwy reliably saw a uniformed man with a tool bag at the box at 1am. The herrings: Mama Chidi and the rival's opportunistic 9am repair quote point at contractor Obinna, but Triangulation places Obinna at the bar and home, never at the cut site. The scrap collector Sunday is a dead end, and landowner Ngozi was confirmed at a Nsukka burial."
+  }
+]

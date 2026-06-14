@@ -37,6 +37,7 @@ const SEED: readonly SeedRow[] = [
   { gameId: GameId.INVESTIGATION, description: 'Work the case from your phone, then name who is responsible.', estMinutes: 30, iconName: 'Search' },
   { gameId: GameId.PLEAD_YOUR_CASE, description: 'Argue the defence. An AI scores soundness, persuasion, and precedent.', estMinutes: 12, iconName: 'Scale' },
   { gameId: GameId.PRESENTATION, description: 'Present a cold topic for 90 seconds. The room rates you.', estMinutes: 12, iconName: 'Mic' },
+  { gameId: GameId.GUESS_THE_WORD, description: 'One player guesses a secret word using only voice questions. Score by time and questions left.', estMinutes: 10, iconName: 'HelpCircle' },
 ];
 
 export const seedCatalogue = async (): Promise<{ created: number; skipped: number }> => {

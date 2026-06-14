@@ -1,0 +1,2453 @@
+[
+  {
+    "key": "h-the-substation-fire",
+    "title": "The Substation Fire",
+    "category": "Sabotage",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "sabotage",
+      "industrial",
+      "lagos",
+      "power"
+    ],
+    "brief": "A transformer at the Ikeja North feeder substation explodes at 2:14 a.m., plunging three districts into darkness and costing the DisCo a fortune in a week when a privatisation audit is underway. The blast was no accident: a bypassed protection relay let the fault run unchecked. Someone inside the control room arranged it.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Engr. Tunde Bakare",
+        "age": 47,
+        "role": "Shift supervisor, Ikeja North",
+        "motive": "Passed over for the regional manager post given to a younger colleague; bitter and vocal about it.",
+        "alibi": "Says he was asleep at home in Ogba; lives alone.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 803 11 22 901",
+        "note": "Loud, aggrieved, keeps steering talk to his grievance."
+      },
+      {
+        "id": "s2",
+        "name": "Chidinma Okafor",
+        "age": 31,
+        "role": "Relay & protection technician",
+        "motive": "Recently disciplined for an unauthorised relay test; could be hiding negligence.",
+        "alibi": "On the logged night shift in the control room until 1:50 a.m., then signed out.",
+        "alibiStatus": "shaky",
+        "phone": "+234 805 44 76 220",
+        "note": "Precise, defensive about her competence."
+      },
+      {
+        "id": "s3",
+        "name": "Alhaji Musa Danjuma",
+        "age": 58,
+        "role": "Maintenance contractor (external)",
+        "motive": "His firm's service contract was about to be cancelled by the audit; the fire keeps the DisCo dependent on him.",
+        "alibi": "At a wedding in Abeokuta until late; many guests saw him.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 807 90 33 145",
+        "note": "Smooth, generous with names of witnesses."
+      },
+      {
+        "id": "s4",
+        "name": "Femi Adeyemi",
+        "age": 28,
+        "role": "Junior control-room operator",
+        "motive": "Heavily in debt; rumoured to have taken money to 'look away'.",
+        "alibi": "Logged as the on-duty operator at the time of the blast.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 67 11 558",
+        "note": "Nervous, sweats, over-explains."
+      },
+      {
+        "id": "s5",
+        "name": "Grace Eze",
+        "age": 39,
+        "role": "Privatisation auditor (seconded from HQ)",
+        "motive": "Could bury her own findings of theft by blaming a 'technical failure'.",
+        "alibi": "At her hotel in Ikeja; CCTV pending.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 809 22 88 030",
+        "note": "Cool, asks more questions than she answers."
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "forensic",
+        "title": "Failure Analysis — Transformer T2",
+        "subtitle": "Cause of the runaway fault",
+        "header": [
+          {
+            "label": "Unit",
+            "value": "33/11kV Transformer T2"
+          },
+          {
+            "label": "Event",
+            "value": "Internal arc, 02:14"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Relay bypass",
+            "detail": "Differential protection relay was placed in 'maintenance/inhibit' mode via the SCADA console, so the relay never tripped the breaker when the fault began.",
+            "flag": "key"
+          },
+          {
+            "heading": "Inhibit timestamp",
+            "detail": "The inhibit command was issued at 02:02 — twelve minutes before the blast. Not a standing test; a deliberate, fresh command.",
+            "flag": "key"
+          },
+          {
+            "heading": "Oil contamination",
+            "detail": "Insulating oil showed moisture above limits, consistent with overdue maintenance.",
+            "flag": "herring"
+          },
+          {
+            "heading": "No physical tamper",
+            "detail": "No signs of forced entry to the transformer bay; everything was done from the console.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "SCADA Console Audit Log",
+        "subtitle": "Who issued what, and from where",
+        "header": [
+          {
+            "label": "System",
+            "value": "Ikeja North SCADA"
+          },
+          {
+            "label": "Window",
+            "value": "01:40–02:20"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Inhibit command origin",
+            "detail": "The 02:02 relay-inhibit command came from Console B, authenticated under operator Femi Adeyemi's login, which was active all night.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Shared session warning",
+            "detail": "Console B logged a 'session unlocked from idle' event at 02:00 with no password re-entry — the workstation had been left logged in and was used by whoever was physically there.",
+            "flag": "key"
+          },
+          {
+            "heading": "Chidinma's sign-out",
+            "detail": "Technician Okafor's badge logged an exit at 01:50; the badge does not reappear inside.",
+            "flag": "none"
+          },
+          {
+            "heading": "Earlier test",
+            "detail": "A routine relay test was logged at 22:30 and properly restored at 22:41.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "forensic",
+        "title": "Control Room Access & Camera",
+        "subtitle": "Physical presence at the consoles",
+        "header": [
+          {
+            "label": "Area",
+            "value": "Main control room"
+          },
+          {
+            "label": "Cameras",
+            "value": "2 of 3 working"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Camera blind spot",
+            "detail": "Camera over Console B failed three days ago and was not repaired; Console A is covered.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Operator at Console A",
+            "detail": "Femi Adeyemi is on camera at Console A continuously from 01:30 to 02:20, never approaching Console B.",
+            "flag": "key"
+          },
+          {
+            "heading": "Second person",
+            "detail": "At 01:58 a figure in a contractor's hi-vis vest enters frame edge and moves toward the (off-camera) Console B; build and gait do not match Femi.",
+            "flag": "key"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Sgt. Ibrahim Lawal",
+        "relation": "DisCo gate security",
+        "statement": "Only two people badged in after midnight: the night-shift girl who left around ten-to-two, and the operator boy who never came out till the boom. Nobody else came through my gate.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Blessing Umoh",
+        "relation": "Cleaner",
+        "statement": "There is a side door by the cable yard that the contractors prop open with a brick so they don't have to walk round. It doesn't badge anybody.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "Femi Adeyemi",
+        "relation": "Suspect (operator)",
+        "statement": "I never touched the relay. I was at my desk. Somebody used my screen — I leave it open, everybody does, it's against the rules but everybody does it.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s1",
+        "title": "Interview — Engr. Tunde Bakare",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you at two this morning?"
+          },
+          {
+            "speaker": "Bakare",
+            "role": "a",
+            "text": "Asleep. Alone. That post should have been mine — they gave it to a boy who can't tell a relay from a radio."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Could you inhibit a relay from home?"
+          },
+          {
+            "speaker": "Bakare",
+            "role": "a",
+            "text": "Nobody can. SCADA only takes commands from inside that room. That's the whole point of the room."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who could reach Console B?"
+          },
+          {
+            "speaker": "Bakare",
+            "role": "a",
+            "text": "Anyone standing in front of it, if the operator left it logged on — which Femi always does, the lazy one."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You sound like you know that console well."
+          },
+          {
+            "speaker": "Bakare",
+            "role": "a",
+            "text": "I supervised that room for nine years. I know everything except how to be at home asleep and in two places at once."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s4",
+        "title": "Interview — Femi Adeyemi",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The inhibit command was under your login."
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "Because I never logged out! That's all it proves. I was at Console A the whole time — your own camera shows it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who walked in at 01:58?"
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "A maintenance vest. I assumed it was one of Alhaji's boys doing oil checks, they come odd hours. I didn't look up properly."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Alhaji was in Abeokuta."
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "Then it wasn't his boy, was it? But the vest — anybody can wear that vest. They hang in the cable yard. Anybody who's worked here knows where."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "22:41",
+        "event": "Routine relay test completed and restored",
+        "source": "SCADA log",
+        "conflict": false
+      },
+      {
+        "time": "01:30",
+        "event": "Femi seen at Console A (camera)",
+        "source": "Report r3",
+        "conflict": false
+      },
+      {
+        "time": "01:50",
+        "event": "Chidinma badges out of the building",
+        "source": "Access log",
+        "conflict": false
+      },
+      {
+        "time": "01:58",
+        "event": "Hi-vis figure enters, moves to Console B",
+        "source": "Camera, report r3",
+        "conflict": true
+      },
+      {
+        "time": "02:00",
+        "event": "Console B 'unlocked from idle', no password",
+        "source": "SCADA audit r2",
+        "conflict": true
+      },
+      {
+        "time": "02:02",
+        "event": "Relay inhibit issued from Console B under Femi's login",
+        "source": "SCADA audit r2",
+        "conflict": true
+      },
+      {
+        "time": "02:14",
+        "event": "Transformer T2 arcs and explodes",
+        "source": "Failure analysis r1",
+        "conflict": false
+      },
+      {
+        "time": "02:18",
+        "event": "Bakare's phone connects to a mast near the substation",
+        "source": "Tool tool-tri",
+        "conflict": true
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Personnel & Badge Identity",
+        "tagline": "Match badges to people and credentials",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Who held SCADA inhibit privileges?",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Supervisors",
+                "value": "Bakare (still active)"
+              },
+              {
+                "label": "Operators",
+                "value": "Femi, Chidinma"
+              },
+              {
+                "label": "Note",
+                "value": "Privilege not needed if console already authenticated"
+              }
+            ],
+            "note": "Wide access; doesn't single anyone out."
+          },
+          {
+            "query": "Hi-vis vest issuance",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Result",
+                "value": "Vests unnumbered, stored in open rack at cable yard"
+              }
+            ],
+            "note": "Anyone could take one."
+          }
+        ]
+      },
+      {
+        "id": "tool-tri",
+        "name": "Mast Triangulation",
+        "tagline": "Locate a handset by tower hand-offs",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Bakare's phone, 01:30–02:30",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "01:30–02:10",
+                "value": "Ogba residential mast (home)"
+              },
+              {
+                "label": "02:18",
+                "value": "Ikeja North mast (near site)"
+              }
+            ],
+            "note": "He arrives AFTER the blast — drawn by the alarm, like half the staff. Not before."
+          },
+          {
+            "query": "Chidinma's phone, 01:45–02:30",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "01:52",
+                "value": "Bus-stop mast, 1.2km away, moving"
+              },
+              {
+                "label": "02:05",
+                "value": "Berger junction mast (commuting home)"
+              }
+            ],
+            "note": "She is demonstrably leaving the area during the inhibit window."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call & Message Log",
+        "tagline": "Who contacted whom",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Femi's debts / payments",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Inflow",
+                "value": "₦400k from 'A. Danjuma Svcs', 9 days prior"
+              },
+              {
+                "label": "Memo",
+                "value": "'overtime advance'"
+              }
+            ],
+            "note": "Suggestive of a bribe — but the payer was 200km away that night."
+          },
+          {
+            "query": "Grace Eze movements",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Hotel Wi-Fi",
+                "value": "Device online 23:00–06:30 continuously"
+              }
+            ],
+            "note": "Auditor was at her hotel; cleared."
+          }
+        ]
+      },
+      {
+        "id": "tool-crime",
+        "name": "Records Cross-Check",
+        "tagline": "Prior incidents and patterns",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Bakare prior conduct",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Record",
+                "value": "Grievance complaints only; no sabotage history"
+              }
+            ],
+            "note": "Angry, not criminal."
+          },
+          {
+            "query": "Console B keystroke biometrics",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "01:30–01:57",
+                "value": "No activity"
+              },
+              {
+                "label": "02:00–02:03",
+                "value": "Cadence matches enrolled profile: T. BAKARE"
+              }
+            ],
+            "note": "The person who typed the inhibit had Bakare's stored typing cadence."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r2",
+    "explanation": "Engr. Tunde Bakare did it. Chain: (r2) the inhibit was issued from Console B, which had been left logged in under Femi's name and was 'unlocked from idle' with no password at 02:00 — so the login proves nothing about identity; whoever was physically standing there did it. (r3) the camera shows Femi never left Console A and a hi-vis figure entered at 01:58 moving to the off-camera Console B — Femi is bodily ruled out. The decisive synthesis is (tool-crime) Console B's keystroke-cadence biometric matching Bakare's enrolled profile for the 02:00–02:03 inhibit, combined with witness w2's propped side door that lets someone enter without badging — explaining how Bakare got in past the gate (Sgt. Lawal only saw the front gate). Bakare wore a vest from the open rack he knew about from nine years supervising the room. Herrings: Femi's ₦400k from Danjuma Services looks like a bribe, but Danjuma (s3) has a wedding-full of witnesses 200km away (alibi confirmed) and the payment was 9 days prior. Femi's login on the inhibit command is the loudest false trail. The 02:18 triangulation putting Bakare 'at the scene' actually clears the timing fear — he's arriving after the blast like other staff — yet his keystroke cadence at 02:02 from inside is the real damning fact. Chidinma (s2) badged out and her phone proves she was a kilometre away and moving during the inhibit window. Grace (s5) was online at her hotel all night. The oil contamination and the earlier 22:41 relay test are pure noise."
+  },
+  {
+    "key": "h-the-benin-bronze-swap",
+    "title": "The Benin Bronze Swap",
+    "category": "Antiquities Theft",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "antiquities",
+      "art",
+      "benin",
+      "forgery"
+    ],
+    "brief": "A 16th-century Benin bronze plaque, loaned to a private museum in Benin City for a homecoming exhibition, is discovered to be a resin forgery the morning after the gala. The real plaque was switched sometime during the event. Five people had the access and the knowledge to do it — and one of them needed the original to settle a very modern debt.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Dr. Osaze Igbinedion",
+        "age": 54,
+        "role": "Museum curator",
+        "motive": "Custodian of the piece; in quiet financial trouble, his foundation underfunded.",
+        "alibi": "Hosting the gala on the floor the entire evening; dozens saw him.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 55 19 700",
+        "note": "Charming, grief-stricken, helpful to a fault."
+      },
+      {
+        "id": "s2",
+        "name": "Aisha Bello",
+        "age": 36,
+        "role": "Conservator / restorer",
+        "motive": "Only person with the skill to cast a museum-grade resin copy.",
+        "alibi": "In the conservation lab 'doing final checks' alone for part of the night.",
+        "alibiStatus": "shaky",
+        "phone": "+234 805 71 40 318",
+        "note": "Brilliant, terse, resents being the obvious suspect."
+      },
+      {
+        "id": "s3",
+        "name": "Chief Nosa Eweka",
+        "age": 61,
+        "role": "Traditional-council patron & donor",
+        "motive": "Publicly demanded the bronze stay in Benin forever; a 'repatriation by theft' zealot.",
+        "alibi": "At the high table all night, then driven home by his aide.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 807 12 66 904",
+        "note": "Booming, righteous, openly hostile to the foreign lender."
+      },
+      {
+        "id": "s4",
+        "name": "Ehi Aigbe",
+        "age": 29,
+        "role": "Logistics & crating contractor",
+        "motive": "Cash-strapped; handled the only crate that left the building that night.",
+        "alibi": "Loading the deinstall crate at the dock 23:30–00:30.",
+        "alibiStatus": "shaky",
+        "phone": "+234 802 38 95 261",
+        "note": "Eager, defers to everyone, jingling keys."
+      },
+      {
+        "id": "s5",
+        "name": "Linda Okocha",
+        "age": 41,
+        "role": "Insurance assessor (lender's agent)",
+        "motive": "Could profit from a fraudulent claim, or be covering a prior switch.",
+        "alibi": "Arrived only the next morning to inspect; flight records pending.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 809 64 22 187",
+        "note": "Clinical, asks for paperwork before answers."
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "forensic",
+        "title": "Authentication of Recovered Object",
+        "subtitle": "Is the displayed plaque genuine?",
+        "header": [
+          {
+            "label": "Object",
+            "value": "Plaque BB-114"
+          },
+          {
+            "label": "Method",
+            "value": "XRF + UV + micro-drill"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Material",
+            "detail": "The object on display is pigmented resin with a bronze-powder surface coat. Not metal. A forgery.",
+            "flag": "none"
+          },
+          {
+            "heading": "Casting age",
+            "detail": "Resin curing markers indicate the copy was cast 5–8 weeks ago — long before the gala.",
+            "flag": "key"
+          },
+          {
+            "heading": "Mould source",
+            "detail": "Surface micro-detail shows the copy was moulded directly off the ORIGINAL, requiring extended unsupervised access to the real plaque weeks earlier.",
+            "flag": "key"
+          },
+          {
+            "heading": "Tool marks",
+            "detail": "Edge filing consistent with professional conservation tools.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Access Control & Vault Log",
+        "subtitle": "Who opened what, and when",
+        "header": [
+          {
+            "label": "Zone",
+            "value": "Conservation lab + vault"
+          },
+          {
+            "label": "Period",
+            "value": "Past 8 weeks"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Gala-night vault",
+            "detail": "The display vault was opened only twice on gala night: once by the curator for the unveiling, once by security at close. No covert opening.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Off-hours lab access",
+            "detail": "Six weeks ago, the plaque was signed out to the conservation lab for 'condition reporting' for nine days — far longer than a report needs.",
+            "flag": "key"
+          },
+          {
+            "heading": "Sign-out authoriser",
+            "detail": "That nine-day lab loan was authorised on the curator's account but the daily handling log was completed and signed by the conservator each day.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Crate scan",
+            "detail": "Gala-night deinstall crate was X-rayed at the dock; contents matched the manifest, no plaque-shaped metal object hidden.",
+            "flag": "key"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "financial",
+        "title": "Follow-the-Money Brief",
+        "subtitle": "Debts, dealers and deposits",
+        "header": [
+          {
+            "label": "Subjects",
+            "value": "All five"
+          },
+          {
+            "label": "Window",
+            "value": "3 months"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Curator's foundation",
+            "detail": "Underfunded but no large inflows; his debts are old and static.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Anonymous escrow",
+            "detail": "A London antiquities broker placed $90,000 in escrow 'pending authentication of a West African bronze', released to a Nigerian account ten days ago — BEFORE the gala.",
+            "flag": "key"
+          },
+          {
+            "heading": "Receiving account",
+            "detail": "Escrow funds landed in a company, 'Edo Heritage Crafts Ltd', whose sole signatory is masked behind a nominee.",
+            "flag": "key"
+          },
+          {
+            "heading": "Crating firm cashflow",
+            "detail": "Ehi Aigbe's firm took a ₦2m short-term loan two weeks ago — for a truck repair, documented.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Patience Idahosa",
+        "relation": "Lab assistant",
+        "statement": "During those nine days the plaque was in the lab, the restorer kept the side bench under a dust sheet and asked me not to touch it. I thought she was just being careful, the way she is.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Tony Osagie",
+        "relation": "Gala photographer",
+        "statement": "I shot the plaque close up at the unveiling, around eight. Honestly it already looked a touch too even, too matte. I assumed it was the lighting.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Chief Nosa Eweka",
+        "relation": "Suspect (donor)",
+        "statement": "If I could keep that bronze in Benin by any means, God knows I would. But I never left that high table. Ask the governor — he was beside me the whole night.",
+        "reliability": "hostile"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s2",
+        "title": "Interview — Aisha Bello",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You had the plaque in your lab for nine days."
+          },
+          {
+            "speaker": "Aisha",
+            "role": "a",
+            "text": "For a condition report. Yes. Standard."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Nine days is long for a report."
+          },
+          {
+            "speaker": "Aisha",
+            "role": "a",
+            "text": "There was active corrosion. I documented everything. Check the log — I signed every day."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Could you cast a resin copy from a piece like that?"
+          },
+          {
+            "speaker": "Aisha",
+            "role": "a",
+            "text": "Technically, anyone with a mould could. The skill isn't the casting, it's getting the patina right — and getting it photographed first."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You said 'photographed'."
+          },
+          {
+            "speaker": "Aisha",
+            "role": "a",
+            "text": "To match the patina. From reference images. That's all I meant. I was describing a process, not confessing to one."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s4",
+        "title": "Interview — Ehi Aigbe",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Your crate was the only thing that left the building."
+          },
+          {
+            "speaker": "Ehi",
+            "role": "a",
+            "text": "And you X-rayed it! Nothing metal, no plaque. I begged you to check, you checked."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The loan you took — two million."
+          },
+          {
+            "speaker": "Ehi",
+            "role": "a",
+            "text": "For my truck. I have the receipt, the mechanic, everything. I move boxes, oga. I wouldn't know a real bronze from a doorstop."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who told you which crate to load?"
+          },
+          {
+            "speaker": "Ehi",
+            "role": "a",
+            "text": "The deinstall sheet. Madam restorer prepped it and the curator signed it. I just carry what the paper says to carry."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "8 weeks ago",
+        "event": "Resin copy cast (per curing markers)",
+        "source": "Report r1",
+        "conflict": false
+      },
+      {
+        "time": "6 weeks ago",
+        "event": "Plaque signed out to lab for 9 days",
+        "source": "Vault log r2",
+        "conflict": true
+      },
+      {
+        "time": "10 days ago",
+        "event": "$90k escrow released to 'Edo Heritage Crafts'",
+        "source": "Financial r3",
+        "conflict": true
+      },
+      {
+        "time": "Gala 20:00",
+        "event": "Plaque unveiled (already a forgery per photographer)",
+        "source": "Witness w2",
+        "conflict": false
+      },
+      {
+        "time": "Gala 23:30",
+        "event": "Ehi loads deinstall crate (X-rayed clean)",
+        "source": "Vault log r2",
+        "conflict": true
+      },
+      {
+        "time": "Gala 23:50",
+        "event": "Chief Eweka leaves high table briefly (10 min)",
+        "source": "Aide statement",
+        "conflict": true
+      },
+      {
+        "time": "Next morning",
+        "event": "Forgery discovered; insurer arrives",
+        "source": "Curator",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Corporate Registry Lookup",
+        "tagline": "Pierce the nominee veil",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "'Edo Heritage Crafts Ltd' beneficial owner",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Nominee director",
+                "value": "law firm proxy"
+              },
+              {
+                "label": "Verified beneficiary (KYC)",
+                "value": "A. BELLO"
+              },
+              {
+                "label": "Incorporated",
+                "value": "11 weeks ago"
+              }
+            ],
+            "note": "The escrow money flowed to the conservator, via a shell she set up before the loan even arrived."
+          },
+          {
+            "query": "Curator's known companies",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Result",
+                "value": "Only the registered foundation; no offshore links"
+              }
+            ],
+            "note": "Curator clear of the receiving account."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Device & Cloud Records",
+        "tagline": "Photos, files, metadata",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Aisha's cloud during the 9-day loan",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Uploads",
+                "value": "210 macro images of BB-114, all angles"
+              },
+              {
+                "label": "App",
+                "value": "Photogrammetry / mould-prep software"
+              }
+            ],
+            "note": "Reference set needed to fake the patina — exactly the 'photographed first' she described."
+          },
+          {
+            "query": "Ehi's device",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Content",
+                "value": "Manifests, mechanic invoices"
+              }
+            ],
+            "note": "Nothing art-related."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call & Contact Graph",
+        "tagline": "Who's talking to dealers",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Contacts with London +44 broker number",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Curator",
+                "value": "0 calls"
+              },
+              {
+                "label": "Chief Eweka",
+                "value": "1 call (loan-repatriation campaign)"
+              },
+              {
+                "label": "Aisha",
+                "value": "14 calls over 6 weeks"
+              }
+            ],
+            "note": "Eweka's single call is about his public campaign; Aisha's pattern is transactional."
+          },
+          {
+            "query": "Insurance assessor travel",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Flight",
+                "value": "Landed morning after gala; not in city before"
+              }
+            ],
+            "note": "Linda Okocha couldn't have made the swap."
+          }
+        ]
+      },
+      {
+        "id": "tool-crime",
+        "name": "Records Cross-Check",
+        "tagline": "Antiquities watchlists",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Eweka prior",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Flag",
+                "value": "Vocal repatriation activist; no theft record"
+              }
+            ],
+            "note": "Loud cause, clean record."
+          },
+          {
+            "query": "Resin/mould forensic match",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Resin batch",
+                "value": "Same supplier lot as lab stock"
+              },
+              {
+                "label": "Mould medium",
+                "value": "Conservation-grade silicone, lab-issued"
+              }
+            ],
+            "note": "The copy was made with the museum's own lab materials."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s2",
+    "keyEvidenceId": "r3",
+    "explanation": "Aisha Bello, the conservator, did it. The whole crime predates the gala — that's the trick. Chain: (r1) the forgery was cast 5–8 weeks ago and moulded directly off the original, requiring extended unsupervised access; (r2) the original was signed out to her lab for an unnecessary nine days six weeks earlier — exactly that access — and the gala-night crate was X-rayed clean, proving nothing physically left that night; the swap had already happened. The decisive money link is (r3) the $90k escrow released BEFORE the gala to 'Edo Heritage Crafts Ltd', which (tool-id) KYC ties to A. Bello via a shell she incorporated 11 weeks ago. Corroborated by tool-phone (210 macro mould-prep images in her cloud during the loan) and tool-crime (copy made from the museum's own resin lot and lab silicone). Herrings, each a stronger surface suspect: Chief Eweka (s3) has the loudest motive ('keep it in Benin') and even leaves the high table for 10 minutes — but the plaque was already fake by unveiling at 20:00, so his absence is irrelevant; his single London call is about his public campaign. Ehi (s4) handled the only crate and took a suspicious loan, but the X-ray clears the crate and his loan is a documented truck repair. The curator (s1) authorised the loan and is in money trouble, but he has no offshore account and never called the broker; his sign-out authority is the misdirection. Linda (s5) only flew in the next morning. The everyone-was-watching-the-gala framing makes people hunt for a gala-night switch that never happened."
+  },
+  {
+    "key": "h-the-cocoa-ledger",
+    "title": "The Cocoa Ledger",
+    "category": "Fraud",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "fraud",
+      "agriculture",
+      "cooperative",
+      "ondo"
+    ],
+    "brief": "A farmers' cooperative in Ondo State that exports cocoa discovers ₦340 million missing across one season: phantom tonnage, ghost suppliers, and inflated freight. The board demands a culprit before the AGM. Several officers had their hands on the books — but only one engineered the gap, and the cleverest cover was making someone else look guilty.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Bayo Falade",
+        "age": 49,
+        "role": "Cooperative treasurer",
+        "motive": "Controls disbursements; lavish lifestyle the salary can't explain.",
+        "alibi": "N/A (financial crime over months).",
+        "alibiStatus": "unchecked",
+        "phone": "+234 803 47 80 122",
+        "note": "Flashy, defensive, blames 'the system'."
+      },
+      {
+        "id": "s2",
+        "name": "Funmilayo Adeola",
+        "age": 38,
+        "role": "Chief accountant",
+        "motive": "Posted most of the suspicious entries; in the system daily.",
+        "alibi": "N/A.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 805 60 33 491",
+        "note": "Meticulous, frightened, keeps printing screenshots."
+      },
+      {
+        "id": "s3",
+        "name": "Engr. Kola Ojo",
+        "age": 56,
+        "role": "Cooperative chairman",
+        "motive": "Approved the freight contracts; up for re-election, wants no scandal.",
+        "alibi": "N/A.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 807 28 71 605",
+        "note": "Statesmanlike, deflects to 'due process'."
+      },
+      {
+        "id": "s4",
+        "name": "Ibrahim Sani",
+        "age": 33,
+        "role": "Warehouse & weighbridge officer",
+        "motive": "Certifies tonnage; could pass phantom weights.",
+        "alibi": "N/A.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 802 19 64 738",
+        "note": "Plain-spoken, irritated, points at the office staff."
+      },
+      {
+        "id": "s5",
+        "name": "Grace Mbah",
+        "age": 44,
+        "role": "External auditor (engaged by board)",
+        "motive": "Could shape blame; paid by the chairman.",
+        "alibi": "N/A.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 809 51 22 880",
+        "note": "Crisp, careful with wording, never volunteers."
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "financial",
+        "title": "Forensic Reconciliation",
+        "subtitle": "Where the ₦340m leaked",
+        "header": [
+          {
+            "label": "Period",
+            "value": "One cocoa season"
+          },
+          {
+            "label": "Gap",
+            "value": "₦340,000,000"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Ghost suppliers",
+            "detail": "Eleven 'farmer-suppliers' were paid for cocoa with no weighbridge ticket. Bank accounts trace to three numbers.",
+            "flag": "key"
+          },
+          {
+            "heading": "Inflated freight",
+            "detail": "Freight invoices padded ~22%; the haulier confirms lower agreed rates.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Entry authorship",
+            "detail": "All eleven ghost-supplier entries were posted under the chief accountant's user ID, Funmilayo.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Approval override",
+            "detail": "Each ghost payment cleared a control because it carried a treasurer's 'pre-approved supplier' flag, which only the treasurer's role can set.",
+            "flag": "key"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Accounting System Access Log",
+        "subtitle": "Logins, IPs, after-hours edits",
+        "header": [
+          {
+            "label": "System",
+            "value": "CoopBooks ERP"
+          },
+          {
+            "label": "Window",
+            "value": "Season"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "After-hours posting",
+            "detail": "Nine of the eleven ghost entries were posted between 21:00 and 23:00 from inside the office network.",
+            "flag": "key"
+          },
+          {
+            "heading": "Funmilayo's hours",
+            "detail": "Funmilayo's badge shows she leaves by 18:00 daily (school-run); she has no after-hours building access.",
+            "flag": "key"
+          },
+          {
+            "heading": "Shared terminal",
+            "detail": "The after-hours sessions came from the accounts terminal, where Funmilayo's password was saved/auto-filled — a known office habit.",
+            "flag": "key"
+          },
+          {
+            "heading": "Password resets",
+            "detail": "Funmilayo's password was reset by IT twice this season after lockouts.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "financial",
+        "title": "Beneficiary Trace",
+        "subtitle": "Where the money actually went",
+        "header": [
+          {
+            "label": "Targets",
+            "value": "Ghost accounts + freight"
+          },
+          {
+            "label": "Method",
+            "value": "Bank cooperation"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Ghost account ownership",
+            "detail": "The three receiving accounts were opened with a BVN that links them all to one identity behind a trading name, 'Falade & Sons Produce'.",
+            "flag": "key"
+          },
+          {
+            "heading": "Freight kickback",
+            "detail": "The padded freight overage was split with the haulier; the haulier names the chairman's office as the contact who set rates.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Auditor fee",
+            "detail": "Grace Mbah's audit fee was standard and paid by cheque; no irregular inflows.",
+            "flag": "none"
+          },
+          {
+            "heading": "Weighbridge gratuities",
+            "detail": "Small cash 'dash' to the warehouse officer for fast clearances — petty, customary, ₦tens of thousands.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Segun Aderibigbe",
+        "relation": "Office cleaner",
+        "statement": "After everybody goes, sometimes Oga Treasurer comes back to 'finish reports'. He uses madam accountant's desk because his own computer is slow, he says. I lock up after him.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Hauliers' rep (Musa)",
+        "relation": "Freight contractor",
+        "statement": "The rate was set by the chairman's people. We padded and shared, yes. But the farmer payments? That's not us, we only carry the bags that exist.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Funmilayo Adeola",
+        "relation": "Suspect (accountant)",
+        "statement": "Those entries are under my name but I never made them. I'm gone by six every day for my children. Pull the door logs — I am not in that building at night.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s1",
+        "title": "Interview — Bayo Falade",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Eleven ghost suppliers cleared a control only your role can set."
+          },
+          {
+            "speaker": "Bayo",
+            "role": "a",
+            "text": "The 'pre-approved' flag? Anyone could have used my role if they had my login. Funmilayo posted those entries, not me. Her name is on every one."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "We didn't say the flag and the posting were the same person."
+          },
+          {
+            "speaker": "Bayo",
+            "role": "a",
+            "text": "Well — obviously the same session. You post and you approve, na one workflow."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Were you ever in the office at night this season?"
+          },
+          {
+            "speaker": "Bayo",
+            "role": "a",
+            "text": "Maybe once or twice. My machine is slow. I'd use any free desk to finish. That's not a crime."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Whose desk?"
+          },
+          {
+            "speaker": "Bayo",
+            "role": "a",
+            "text": "Whichever is free. I don't keep a register of chairs, Detective."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s2",
+        "title": "Interview — Funmilayo Adeola",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The ghost entries are under your user ID."
+          },
+          {
+            "speaker": "Funmi",
+            "role": "a",
+            "text": "Posted at night. I am never here at night. My password auto-fills on that terminal — everyone knows it, I begged IT to stop saving it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who returns after hours?"
+          },
+          {
+            "speaker": "Funmi",
+            "role": "a",
+            "text": "The treasurer. He sits at my desk, says his system is slow. Ask the cleaner who locks up."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Could you set a 'pre-approved supplier' flag?"
+          },
+          {
+            "speaker": "Funmi",
+            "role": "a",
+            "text": "No! That control is the treasurer's role only. The system would block me. That's the one thing I couldn't have done even if I wanted to."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "Season-long",
+        "event": "₦340m leaks via ghosts + freight",
+        "source": "Report r1",
+        "conflict": false
+      },
+      {
+        "time": "Most weeknights ~18:00",
+        "event": "Funmilayo badges OUT (school run)",
+        "source": "Access log r2",
+        "conflict": true
+      },
+      {
+        "time": "21:00–23:00 (9 nights)",
+        "event": "Ghost entries posted from accounts terminal",
+        "source": "Access log r2",
+        "conflict": true
+      },
+      {
+        "time": "After hours",
+        "event": "Treasurer returns, uses accountant's desk",
+        "source": "Witness w1",
+        "conflict": true
+      },
+      {
+        "time": "Mid-season",
+        "event": "Freight padding set by chairman's office",
+        "source": "Witness w2, r3",
+        "conflict": true
+      },
+      {
+        "time": "Quarterly",
+        "event": "Auditor signs interim accounts without flagging gap",
+        "source": "Board file",
+        "conflict": true
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "BVN / Identity Trace",
+        "tagline": "Tie accounts to a real person",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Ghost supplier accounts — BVN owner",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Linked accounts",
+                "value": "3 of 3"
+              },
+              {
+                "label": "BVN identity",
+                "value": "B. FALADE"
+              },
+              {
+                "label": "Trading name",
+                "value": "Falade & Sons Produce"
+              }
+            ],
+            "note": "All ghost money funnels to the treasurer's own BVN."
+          },
+          {
+            "query": "Funmilayo personal accounts",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Inflows",
+                "value": "Salary only; no unexplained funds"
+              }
+            ],
+            "note": "The accountant did not benefit."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Device & Login Records",
+        "tagline": "Who was where at posting time",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Falade device location, 9 posting nights",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Match",
+                "value": "Office mast on 8 of 9 nights, 21:00–23:00"
+              },
+              {
+                "label": "Note",
+                "value": "His handset present during after-hours entries"
+              }
+            ],
+            "note": "He's physically there when the ghost entries are posted under her name."
+          },
+          {
+            "query": "Funmilayo device, same nights",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Location",
+                "value": "Home / school area, all 9 nights"
+              }
+            ],
+            "note": "Demonstrably absent when 'her' entries were posted."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Contact & Kickback Graph",
+        "tagline": "Freight conspiracy mapping",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Chairman ↔ haulier",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Calls",
+                "value": "Regular; rate negotiations"
+              },
+              {
+                "label": "Scope",
+                "value": "Freight only, not supplier payments"
+              }
+            ],
+            "note": "Real freight kickback — but a SEPARATE, smaller scheme, not the ₦340m core."
+          },
+          {
+            "query": "Treasurer ↔ haulier",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Result",
+                "value": "No contact"
+              }
+            ],
+            "note": "Treasurer not part of the freight side."
+          }
+        ]
+      },
+      {
+        "id": "tool-crime",
+        "name": "Records Cross-Check",
+        "tagline": "Role permissions & priors",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Who can set 'pre-approved supplier' flag?",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Permission",
+                "value": "Treasurer role ONLY"
+              },
+              {
+                "label": "Accountant role",
+                "value": "Cannot set flag (system-blocked)"
+              }
+            ],
+            "note": "The control on every ghost payment is one only the treasurer's role can apply."
+          },
+          {
+            "query": "Chairman prior",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Flag",
+                "value": "Freight-contract irregularities (this case)"
+              }
+            ],
+            "note": "Guilty of the freight scam, not the ledger gap."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r2",
+    "explanation": "Bayo Falade, the treasurer, engineered the ₦340m. The frame on the accountant is the whole misdirection. Chain: (r1) every ghost payment carried a 'pre-approved supplier' flag, and (tool-crime) that flag can ONLY be set by the treasurer's role — the accountant's role is system-blocked from it, so Funmilayo literally could not have completed these payments. (r2) the entries were posted after hours from the accounts terminal where Funmilayo's password auto-fills, but her badge shows she leaves at 18:00 and has no night access — confirmed by (tool-phone) her device being home on all nine posting nights, while Falade's handset was at the office on eight of nine. The money proof seals it: (r3 + tool-id) all three ghost accounts trace by BVN to Falade's own 'Falade & Sons Produce'. Herrings, each pointing at a different innocent: the entries posted under Funmilayo's ID make her the obvious patsy (she's the loud broken-alibi suspect, except her alibi turns out solid). The chairman (s3) genuinely ran a freight-padding kickback with the haulier — a real but separate, smaller crime (tool-call shows he's freight-only), so he looks dirty yet didn't touch the core ledger. The warehouse officer's petty 'dash' and the password resets are noise. Even Falade's own slip in interview — answering about a 'pre-approved flag and approval session' before the detective linked posting to approval — shows he knows the workflow that only his role enables. The chairman is guilty of something; the treasurer is guilty of this."
+  },
+  {
+    "key": "h-the-generator-room",
+    "title": "The Generator Room",
+    "category": "Suspected Homicide",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "homicide",
+      "carbon-monoxide",
+      "staged",
+      "abuja"
+    ],
+    "brief": "A wealthy importer is found dead in his Abuja home office at dawn, apparently from carbon-monoxide poisoning after running a generator too close to the house during a long blackout — a tragic, common accident. But the autopsy timing and a single moved object suggest he was already beyond saving before the generator ever ran. The household had every reason, and one of them had the opportunity nobody noticed.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Mrs. Halima Yusuf",
+        "age": 45,
+        "role": "Wife (estranged, mid-divorce)",
+        "motive": "Stands to inherit; bitter divorce; prenup in dispute.",
+        "alibi": "Says she slept in the guest wing; staff vaguely confirm.",
+        "alibiStatus": "shaky",
+        "phone": "+234 803 90 14 552",
+        "note": "Composed, almost rehearsed, grieves on cue."
+      },
+      {
+        "id": "s2",
+        "name": "Emeka Yusuf",
+        "age": 26,
+        "role": "Son from first marriage",
+        "motive": "Cut from the will weeks ago; furious, indebted.",
+        "alibi": "Clubbing in town; returned 'around 4 a.m.'.",
+        "alibiStatus": "broken",
+        "phone": "+234 805 33 27 819",
+        "note": "Volatile, hungover, contradicts himself on times."
+      },
+      {
+        "id": "s3",
+        "name": "Sunday Okoro",
+        "age": 52,
+        "role": "House manager / driver",
+        "motive": "Owed months of back pay; knows the house's every habit.",
+        "alibi": "In the boys' quarters; says he started the generator at 1 a.m. on the boss's order.",
+        "alibiStatus": "shaky",
+        "phone": "+234 807 65 40 233",
+        "note": "Deferential, careful, eyes down."
+      },
+      {
+        "id": "s4",
+        "name": "Dr. Ngozi Eke",
+        "age": 41,
+        "role": "Personal physician & family friend",
+        "motive": "Manages his medications; named in the will; close to the wife.",
+        "alibi": "At her own home across town; phone records pending.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 802 71 99 460",
+        "note": "Calm, clinical, answers in precise medical terms."
+      },
+      {
+        "id": "s5",
+        "name": "Tijani Bello",
+        "age": 37,
+        "role": "Business partner",
+        "motive": "A buy-out clause: the death lets him absorb the deceased's shares cheaply.",
+        "alibi": "On a night flight from Lagos; boarding pass produced.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 809 48 06 771",
+        "note": "Brisk, all-business, faux-sympathetic."
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "autopsy",
+        "title": "Post-Mortem — V. Yusuf",
+        "subtitle": "Cause and crucially, time of death",
+        "header": [
+          {
+            "label": "Apparent cause",
+            "value": "CO poisoning"
+          },
+          {
+            "label": "Found",
+            "value": "06:05, home office"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Carboxyhaemoglobin",
+            "detail": "Blood CO saturation is only 14% — elevated but NOT a fatal level. CO did not kill him.",
+            "flag": "key"
+          },
+          {
+            "heading": "True cause",
+            "detail": "Cause of death is a massive overdose of his cardiac sedative; lividity and stomach contents put death at roughly 23:00–00:00.",
+            "flag": "key"
+          },
+          {
+            "heading": "Time conflict",
+            "detail": "Death precedes the 01:00 generator start by an hour or more. The generator was staged AFTER death to fake an accident.",
+            "flag": "key"
+          },
+          {
+            "heading": "Old bruise",
+            "detail": "A healing bruise on the forearm, days old, unrelated.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "forensic",
+        "title": "Scene & Toxicology Detail",
+        "subtitle": "How the dose was delivered",
+        "header": [
+          {
+            "label": "Room",
+            "value": "Home office"
+          },
+          {
+            "label": "Items",
+            "value": "Glass, decanter, pill organiser"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Nightcap glass",
+            "detail": "His usual whisky glass contains a heavy concentration of the dissolved sedative — far beyond a therapeutic dose.",
+            "flag": "key"
+          },
+          {
+            "heading": "Pill organiser",
+            "detail": "The week's sedative compartments are EMPTY for the days ahead — pills removed to make up the lethal dose.",
+            "flag": "key"
+          },
+          {
+            "heading": "Moved generator",
+            "detail": "Scuff marks show the generator was repositioned to vent toward the office window after midnight; soot pattern is too fresh and localised for an all-night run.",
+            "flag": "key"
+          },
+          {
+            "heading": "Fingerprints on glass",
+            "detail": "Only the deceased's prints on the glass — wiped and re-placed in his hand, or he drank it himself unknowing.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Whisky brand",
+            "detail": "Premium single malt, his known nightly habit; nothing unusual about the bottle.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "Devices & Smart-Home Log",
+        "subtitle": "Who moved through the house",
+        "header": [
+          {
+            "label": "System",
+            "value": "Home automation + phones"
+          },
+          {
+            "label": "Night",
+            "value": "22:00–06:00"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Office door",
+            "detail": "Smart lock shows the office opened at 22:40 by a fob, then not again until the body was found.",
+            "flag": "key"
+          },
+          {
+            "heading": "Fob owner",
+            "detail": "The 22:40 fob is the spare 'medical' fob issued to the physician for house calls — not the wife's, not the son's.",
+            "flag": "key"
+          },
+          {
+            "heading": "Son's return",
+            "detail": "Front gate logged Emeka's car at 04:10 — after death, after the generator was moved.",
+            "flag": "key"
+          },
+          {
+            "heading": "Wi-Fi",
+            "detail": "The wife's tablet streamed video in the guest wing 22:00–01:30 continuously.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Amaka Nwosu",
+        "relation": "Night nurse (visiting, off-duty that night)",
+        "statement": "Oga always took his nightcap at ten-thirty, same glass, while he did his accounts. The doctor knew that better than anyone — she set up his whole evening routine.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Sunday Okoro",
+        "relation": "Suspect (house manager)",
+        "statement": "Oga buzzed me at one and said put on the gen, the power had gone. So I did. He sounded — well, I assumed it was him on the intercom. I didn't go up.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Emeka Yusuf",
+        "relation": "Suspect (son)",
+        "statement": "Yes I hated the will. Yes I came home drunk at four. But he was already gone by then — the gen was already running when I drove in. I didn't even go to his office.",
+        "reliability": "hostile"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s4",
+        "title": "Interview — Dr. Ngozi Eke",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You hold a fob to the house."
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "For house calls. He had a heart condition; I came when needed. I wasn't there last night."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "His sedative — who manages the dosing?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "I prescribe and fill his organiser, yes. It's a delicate drug; too much is dangerous, which is exactly why I control it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "When did you last see him?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "Two days ago. He was alive and well when I left — and obviously alive at one when he asked Sunday for the generator."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "We never told you the generator was requested at one."
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "Sunday must have mentioned it. Or — the staff talk. It's a small house, Detective."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s2",
+        "title": "Interview — Emeka Yusuf",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Walk me through last night."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "Club till late, home maybe three, maybe four. I don't know. I was wrecked."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The gate logs you at 04:10."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "Fine, four-ten. The gen was already roaring when I came in. I figured the old man was being the old man. I went straight to bed."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You were cut from the will."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "And I'm telling you he was dead before I got here. You can't pin a time on me that I wasn't even in the house for. Check the gate. Check it."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "22:30",
+        "event": "Victim takes his usual nightcap (routine)",
+        "source": "Witness w1",
+        "conflict": false
+      },
+      {
+        "time": "22:40",
+        "event": "Office opened by 'medical' fob",
+        "source": "Smart-lock r3",
+        "conflict": true
+      },
+      {
+        "time": "23:00–00:00",
+        "event": "Actual time of death (sedative OD)",
+        "source": "Autopsy r1",
+        "conflict": true
+      },
+      {
+        "time": "01:00",
+        "event": "Sunday starts generator on intercom 'order'",
+        "source": "Witness w2",
+        "conflict": true
+      },
+      {
+        "time": "After midnight",
+        "event": "Generator repositioned to vent at office window",
+        "source": "Forensic r2",
+        "conflict": true
+      },
+      {
+        "time": "04:10",
+        "event": "Emeka's car logged at the gate",
+        "source": "Smart-lock r3",
+        "conflict": true
+      },
+      {
+        "time": "06:05",
+        "event": "Body discovered",
+        "source": "Report r1",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Fob & Key Identity",
+        "tagline": "Match access tokens to holders",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Office fob used at 22:40",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Token",
+                "value": "Spare 'medical' fob #07"
+              },
+              {
+                "label": "Issued to",
+                "value": "Dr. N. EKE"
+              },
+              {
+                "label": "Wife/son fobs",
+                "value": "Both inactive 22:00–06:00"
+              }
+            ],
+            "note": "The only fob that opened the office that night belongs to the physician."
+          },
+          {
+            "query": "Who can access the locked drug supply?",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Pharmacy fill",
+                "value": "Dr. Eke fills the organiser"
+              },
+              {
+                "label": "Spare stock",
+                "value": "Held by Dr. Eke"
+              }
+            ],
+            "note": "Only she controls enough sedative to make a lethal dose."
+          }
+        ]
+      },
+      {
+        "id": "tool-tri",
+        "name": "Mast Triangulation",
+        "tagline": "Where the suspects' phones were",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Dr. Eke phone, 22:00–01:00",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "22:10–23:30",
+                "value": "Mast covering the victim's estate"
+              },
+              {
+                "label": "00:20",
+                "value": "Moving away, toward her side of town"
+              }
+            ],
+            "note": "She claimed she was home all night. Her phone was AT the house during the death window."
+          },
+          {
+            "query": "Emeka phone, 22:00–04:00",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "22:00–03:50",
+                "value": "Nightclub district"
+              },
+              {
+                "label": "04:10",
+                "value": "Estate gate"
+              }
+            ],
+            "note": "He really was out until after death and the staging — his broken alibi is, ironically, sound for the crime."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call / Intercom Log",
+        "tagline": "Who 'ordered' the generator",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "01:00 intercom to boys' quarters",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Origin",
+                "value": "Office intercom handset"
+              },
+              {
+                "label": "Voice",
+                "value": "Brief, muffled, one line"
+              }
+            ],
+            "note": "The 'order' came from the office — but the man was dead by then. Someone used the intercom to stage the generator excuse."
+          },
+          {
+            "query": "Tijani Bello flight",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Boarding",
+                "value": "Confirmed airborne 22:50–00:10"
+              }
+            ],
+            "note": "Business partner was on a plane; cleared."
+          }
+        ]
+      },
+      {
+        "id": "tool-crime",
+        "name": "Records Cross-Check",
+        "tagline": "Beneficiaries & priors",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Updated will beneficiaries",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Wife",
+                "value": "Major share"
+              },
+              {
+                "label": "Dr. Eke",
+                "value": "Named legatee + 'medical trust' she'd administer"
+              },
+              {
+                "label": "Emeka",
+                "value": "Removed weeks ago"
+              }
+            ],
+            "note": "The physician quietly benefits AND would control a trust — overlooked beside the obvious wife/son."
+          },
+          {
+            "query": "Sedative pharmacy trail",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Last refill",
+                "value": "Dr. Eke, oversupplied by 3x normal, 5 days prior"
+              },
+              {
+                "label": "Reason on file",
+                "value": "'travel buffer'"
+              }
+            ],
+            "note": "She stockpiled exactly the surplus needed for a lethal dose, days before."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s4",
+    "keyEvidenceId": "r1",
+    "explanation": "Dr. Ngozi Eke, the physician, murdered him. The 'generator accident' is a stage set. Chain: (r1) CO saturation is only 14% — non-fatal; he actually died of a sedative overdose at 23:00–00:00, BEFORE the 01:00 generator start, so the generator was repositioned afterward (r2) to fake CO poisoning. Means: (r2 + tool-crime) the lethal dose came from his own sedative, and only Eke fills his organiser and holds the spare stock — which she oversupplied 3x five days earlier ('travel buffer'). Opportunity: (r3 + tool-id) the office was opened at 22:40 by the spare 'medical' fob issued solely to her, with the wife's and son's fobs inactive all night; (tool-tri) her phone was at the estate from 22:10 to 23:30 — straddling the death window — though she claimed to be home. She then triggered the 01:00 intercom 'order' (tool-call) to plant the generator excuse and seed Sunday with the very detail she let slip in interview ('he asked Sunday for the generator at one' — never told to her). Herrings, each a louder suspect: Emeka (s2) has the broken, contradictory alibi and the rage of disinheritance, but triangulation puts him at the club until 03:50 and at the gate only at 04:10 — after death and staging, so he couldn't have done it. The wife (s1) inherits most and her alibi is shaky, but her tablet streamed continuously in the guest wing and her fob was inactive. Sunday (s3) started the generator but on a faked order. Tijani (s5) was airborne. The bruise, the wiped glass prints, the will's obvious beneficiaries — all draw the eye to wife and son, while the physician, the one person who controlled the drug, held the only active fob, and quietly stood to administer a trust, hides behind 'I wasn't there.'"
+  },
+  {
+    "key": "h-the-influencer-blackmail",
+    "title": "The Influencer's Tax",
+    "category": "Blackmail",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "blackmail",
+      "social-media",
+      "lagos",
+      "extortion"
+    ],
+    "brief": "A rising Lagos lifestyle influencer is being bled dry by an anonymous extortionist who threatens to leak doctored 'scandal' footage unless paid in crypto. The blackmailer knows things only her inner circle could know — and the threats arrive in a voice and rhythm she swears she recognises. The catch: the most obvious insider has the cleanest alibi, and the money trail loops back to someone hiding in plain sight.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Zainab Lawal",
+        "age": 27,
+        "role": "Personal assistant",
+        "motive": "Underpaid, overworked, knows every secret and password.",
+        "alibi": "Out of the country (Dubai) when two key threats were sent.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 22 64 901",
+        "note": "Loyal-seeming, exhausted, quick to tears."
+      },
+      {
+        "id": "s2",
+        "name": "Demola 'DJ Dex' Cole",
+        "age": 30,
+        "role": "Ex-boyfriend / DJ",
+        "motive": "Bitter breakup; broke; has the original of the 'scandal' clip.",
+        "alibi": "On tour, gigging on threat nights; club posters and crowds.",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 88 17 442",
+        "note": "Smooth, performative, enjoys the attention."
+      },
+      {
+        "id": "s3",
+        "name": "Kelechi Obi",
+        "age": 33,
+        "role": "Manager / 'momager' figure",
+        "motive": "Takes 30%; her income falls if the influencer's brand collapses — or rises if she controls a 'crisis'.",
+        "alibi": "With the influencer at events on several threat nights.",
+        "alibiStatus": "shaky",
+        "phone": "+234 807 41 90 358",
+        "note": "Protective, controlling, finishes the client's sentences."
+      },
+      {
+        "id": "s4",
+        "name": "Sandra Effiong",
+        "age": 24,
+        "role": "Best friend / fellow influencer",
+        "motive": "Envious of the rise; her own numbers stalled; needs a comeback.",
+        "alibi": "Posting live content during some threats.",
+        "alibiStatus": "shaky",
+        "phone": "+234 802 55 73 620",
+        "note": "Bubbly, oversharing, never off her phone."
+      },
+      {
+        "id": "s5",
+        "name": "Bright Nwachukwu",
+        "age": 35,
+        "role": "Videographer / editor (retainer)",
+        "motive": "Has raw footage and the editing skill to fabricate a 'scandal' clip.",
+        "alibi": "Freelance, often alone editing at night.",
+        "alibiStatus": "unchecked",
+        "phone": "+234 809 30 12 884",
+        "note": "Quiet, technical, talks in frame rates and codecs."
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "digital",
+        "title": "Threat Message Forensics",
+        "subtitle": "How the extortion was sent",
+        "header": [
+          {
+            "label": "Channel",
+            "value": "Encrypted app + email"
+          },
+          {
+            "label": "Count",
+            "value": "9 threats"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Voice notes",
+            "detail": "Three threats were voice notes using a pitch-shifter, but residual cadence and a stutter on 'p' sounds were preserved under the filter.",
+            "flag": "key"
+          },
+          {
+            "heading": "Doctored clip",
+            "detail": "The 'scandal' video is a deepfake-lite composite: real party footage with a fabricated audio bed. Built in a pro editor with frame-accurate cuts.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Sender metadata",
+            "detail": "Messages routed through a VPN, but two early ones leaked a device model and a Lagos ISP before the VPN was configured.",
+            "flag": "key"
+          },
+          {
+            "heading": "Insider knowledge",
+            "detail": "Threats reference a private hospital visit and a contract figure known to perhaps four people.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "financial",
+        "title": "Crypto Payment Trace",
+        "subtitle": "Following the ransom",
+        "header": [
+          {
+            "label": "Asset",
+            "value": "USDT"
+          },
+          {
+            "label": "Payments",
+            "value": "4 made"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Wallet hops",
+            "detail": "Funds bounced through three mixer-style wallets before consolidating.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Cash-out point",
+            "detail": "Final consolidation cashed out via a P2P merchant to a local bank account during business hours.",
+            "flag": "key"
+          },
+          {
+            "heading": "P2P merchant KYC",
+            "detail": "The P2P trade required ID; the buyer used a verified account under a trading alias.",
+            "flag": "key"
+          },
+          {
+            "heading": "Amounts",
+            "detail": "Payments escalated; classic extortion ramp.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "Device Model & Network Correlation",
+        "subtitle": "Matching the leak to a phone",
+        "header": [
+          {
+            "label": "Leaked model",
+            "value": "from r1"
+          },
+          {
+            "label": "ISP",
+            "value": "Lagos fibre"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Device model",
+            "detail": "Pre-VPN leak shows a specific phone model + an unusual custom keyboard app fingerprint.",
+            "flag": "key"
+          },
+          {
+            "heading": "ISP subscriber zone",
+            "detail": "The Lagos ISP cell serves the mainland district where two suspects live; not the island where the influencer's circle mostly resides.",
+            "flag": "key"
+          },
+          {
+            "heading": "Active during travel",
+            "detail": "Threats continued on nights the assistant was provably in Dubai (different country, different SIM, roaming logs).",
+            "flag": "key"
+          },
+          {
+            "heading": "Editing software licence",
+            "detail": "The clip's editor watermark traces to a widely pirated build; no unique owner.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Influencer (the victim, Adaeze)",
+        "relation": "Target",
+        "statement": "The voice — even bent up like that — there's a little catch on 'p' words. Two people I know talk like that. One is my editor. The other is my best friend when she's nervous.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w2",
+        "name": "Uche (the influencer's brother)",
+        "relation": "Family",
+        "statement": "Only four of us knew about the hospital thing: me, Adaeze, her manager, and the editor who filmed the 'get-well' content. Sandra wasn't told. Zainab was, but Zainab was in Dubai.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "P2P crypto merchant",
+        "relation": "Trader",
+        "statement": "Yeah I bought that USDT batch. The seller's verified account trades under a craft-business name. Regular guy, mainland, does it on the side. I've traded with that alias before.",
+        "reliability": "reliable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s4",
+        "title": "Interview — Sandra Effiong",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Adaeze says the voice could be yours when you're nervous."
+          },
+          {
+            "speaker": "Sandra",
+            "role": "a",
+            "text": "Because I stammer a little? Half of Lagos stammers. I'd never do this to her, we came up together."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Did you know about her hospital visit?"
+          },
+          {
+            "speaker": "Sandra",
+            "role": "a",
+            "text": "No! I found out when everyone did. The blackmailer obviously knew, so it can't be me — I didn't even know."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you on the threat nights?"
+          },
+          {
+            "speaker": "Sandra",
+            "role": "a",
+            "text": "Live on my page, half the time. You can see the timestamps. I overshare for a living, Detective, I'm the worst person to run a secret operation."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s5",
+        "title": "Interview — Bright Nwachukwu",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You could build that doctored clip."
+          },
+          {
+            "speaker": "Bright",
+            "role": "a",
+            "text": "Anyone with a cracked editor could. The cuts aren't even that clean — I'd be embarrassed to send that."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You knew about the hospital visit."
+          },
+          {
+            "speaker": "Bright",
+            "role": "a",
+            "text": "I filmed the get-well posts, so yes, I was one of the four. I'm not hiding that. Being in the room isn't a crime."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Do you trade crypto?"
+          },
+          {
+            "speaker": "Bright",
+            "role": "a",
+            "text": "A little, side income, like everybody. Under a craft name for my video gear business. That's — that's not unusual."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "We hadn't mentioned a craft-business trading name."
+          },
+          {
+            "speaker": "Bright",
+            "role": "a",
+            "text": "You — the merchant must have said it. People talk. It's a small scene."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "Week 1",
+        "event": "First threat (pre-VPN device leak)",
+        "source": "Report r1/r3",
+        "conflict": true
+      },
+      {
+        "time": "Week 2",
+        "event": "Sandra live-posting during a threat",
+        "source": "Her page, witness",
+        "conflict": true
+      },
+      {
+        "time": "Week 2",
+        "event": "Two threats sent while Zainab is in Dubai",
+        "source": "Roaming logs r3",
+        "conflict": true
+      },
+      {
+        "time": "Week 3",
+        "event": "Doctored clip delivered",
+        "source": "Report r1",
+        "conflict": false
+      },
+      {
+        "time": "Week 3",
+        "event": "Crypto cashed out via P2P, business hours",
+        "source": "Financial r2",
+        "conflict": true
+      },
+      {
+        "time": "Week 4",
+        "event": "Manager seen with victim at event during a threat",
+        "source": "Witness",
+        "conflict": true
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Device Fingerprint Match",
+        "tagline": "Tie the leaked model to an owner",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Match leaked phone model + keyboard fingerprint",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Model",
+                "value": "matches Bright's retainer-issued phone"
+              },
+              {
+                "label": "Keyboard app",
+                "value": "same niche editor-shortcut keyboard he uses"
+              },
+              {
+                "label": "Others",
+                "value": "No other suspect runs that combo"
+              }
+            ],
+            "note": "The pre-VPN slip fingerprints the editor's device."
+          },
+          {
+            "query": "Manager device check",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Result",
+                "value": "No model/keyboard match; island ISP"
+              }
+            ],
+            "note": "Manager's tech doesn't fit the leak."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Voice Biometrics",
+        "tagline": "Strip the pitch-shifter",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "De-pitch the three voice notes",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Cadence",
+                "value": "Male register under the shift"
+              },
+              {
+                "label": "Speech marker",
+                "value": "Plosive stutter on 'p' (matches Bright)"
+              },
+              {
+                "label": "Sandra sample",
+                "value": "Female register; does NOT match"
+              }
+            ],
+            "note": "Under the filter it's a male voice with the editor's stutter — not the best friend's."
+          },
+          {
+            "query": "DJ Dex voice sample",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Match",
+                "value": "No; different cadence, no stutter"
+              }
+            ],
+            "note": "The ex doesn't match the voice."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "KYC / Alias Trace",
+        "tagline": "Unmask the P2P seller",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "P2P seller alias → real identity",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Trading name",
+                "value": "registered craft/gear business"
+              },
+              {
+                "label": "KYC owner",
+                "value": "B. NWACHUKWU"
+              },
+              {
+                "label": "Cash-out time",
+                "value": "business hours, mainland branch"
+              }
+            ],
+            "note": "The ransom cashed out to the editor's own KYC'd trading account."
+          },
+          {
+            "query": "Zainab roaming during threats",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Location",
+                "value": "Dubai, roaming — two threats sent while abroad"
+              }
+            ],
+            "note": "Assistant physically abroad; cleared as sender."
+          }
+        ]
+      },
+      {
+        "id": "tool-crime",
+        "name": "Records Cross-Check",
+        "tagline": "Who knew, who could fake it",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Who knew the hospital + contract details?",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Knowers",
+                "value": "Adaeze, brother, manager, editor"
+              },
+              {
+                "label": "Sandra",
+                "value": "NOT told"
+              }
+            ],
+            "note": "Sandra literally didn't have the insider facts — rules her out despite the 'voice'."
+          },
+          {
+            "query": "DJ Dex tour dates vs threats",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Gigs",
+                "value": "On stage on multiple threat nights, crowds + posters"
+              }
+            ],
+            "note": "Ex-boyfriend alibi confirmed."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s5",
+    "keyEvidenceId": "r1",
+    "explanation": "Bright Nwachukwu, the videographer, is the blackmailer. It takes three threads braided together. Thread one (r1 voice notes + tool-phone): under the pitch-shifter the voice is MALE with a plosive 'p' stutter — which matches Bright and excludes Sandra (female register, no match) and DJ Dex (no stutter). Thread two (r1/r3 device leak + tool-id): two early pre-VPN messages leaked a phone model and a niche editor-shortcut keyboard fingerprint that match Bright's retainer phone and no one else's, on a mainland ISP cell (he lives mainland; the circle is island). Thread three (r2 + tool-call): the crypto cashed out to a P2P seller whose KYC alias — a craft/gear trading name — resolves to B. Nwachukwu, cashing out in business hours at a mainland branch. Add the closed-set fact (witness w2 + tool-crime): only four people knew the hospital and contract details, and Bright was one of them. He even self-incriminates in interview, naming the 'craft-business trading name' before the detective mentions it. Herrings, each a more obvious suspect: Sandra (s4) is fingered by the victim's 'nervous voice' instinct and her stalled-career envy — but she wasn't told the insider facts and the de-pitched voice is male. Zainab (s1) knows every secret and is underpaid, the classic insider — but she was provably in Dubai (roaming logs) while threats kept coming. DJ Dex (s2) holds the original clip and is a bitter ex — but he was on stage before crowds on threat nights and his voice doesn't match. The manager (s3) has the cynical 'manufacture a crisis' motive and shaky event-night alibis, but her device and ISP don't fit the leak. The mixer wallets, the pirated-editor watermark, and the deepfake clip's craftsmanship are all designed to make you chase technical sophistication instead of the boring KYC slip and the stutter the filter couldn't hide."
+  }
+]

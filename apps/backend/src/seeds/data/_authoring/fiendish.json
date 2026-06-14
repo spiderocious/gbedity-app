@@ -1,0 +1,2307 @@
+[
+  {
+    "key": "x-the-harmattan-clinic",
+    "title": "The Harmattan Clinic",
+    "category": "Suspected Homicide",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "poisoning",
+      "medical",
+      "lagos",
+      "family-business"
+    ],
+    "brief": "Dr. Bankole Soyombo, founder of a thriving private clinic in Ikeja, is found dead at his desk after the Friday staff get-together, a cup of zobo beside him. Everyone drank from the same jug; only he died. The toxicology is clean for the obvious poisons, and four people had keys to his office.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Dr. Amaka Soyombo-Eze",
+        "age": 41,
+        "role": "His sister, co-director",
+        "motive": "A buy-out clause meant his death gave her full control of the clinic she felt she built",
+        "alibi": "Was on a video call with a supplier in Aba from 6:40 to 7:20pm, screen-shared the whole time",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 221 4471",
+        "note": "Brisk, grieving, answers before you finish asking"
+      },
+      {
+        "id": "s2",
+        "name": "Tunde Bakare",
+        "age": 29,
+        "role": "Pharmacy technician",
+        "motive": "Bankole had caught him short-counting controlled drugs and threatened to report him",
+        "alibi": "Says he left at 6:15pm; bus park CCTV is down that evening",
+        "alibiStatus": "shaky",
+        "phone": "+234 805 909 1180",
+        "note": "Sweats, over-explains, asks if he needs a lawyer"
+      },
+      {
+        "id": "s3",
+        "name": "Nurse Grace Okonjo",
+        "age": 36,
+        "role": "Head nurse, poured the zobo",
+        "motive": "Bankole had passed her over for a matron post twice",
+        "alibi": "Stayed clearing up the staff room until 7:30pm with the cleaner",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 556 8843",
+        "note": "Calm, motherly, keeps offering you water"
+      },
+      {
+        "id": "s4",
+        "name": "Engr. Femi Adesanya",
+        "age": 52,
+        "role": "Patient and old friend of Bankole",
+        "motive": "Owed the clinic 3.2 million naira in unpaid bills Bankole was about to send to lawyers",
+        "alibi": "Claims he went home after his 5pm appointment",
+        "alibiStatus": "unchecked",
+        "phone": "+234 807 113 6620",
+        "note": "Affable, name-drops, vague on exact times"
+      },
+      {
+        "id": "s5",
+        "name": "Chidinma Eze",
+        "age": 38,
+        "role": "Amaka's husband, clinic accountant",
+        "motive": "Bankole was auditing the books and querying transfers Chidinma authorised",
+        "alibi": "Sat in on the tail of Amaka's supplier call, visible on her screen-share",
+        "alibiStatus": "confirmed",
+        "phone": "+234 814 700 2299",
+        "note": "Smooth, precise, never raises his voice"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "autopsy",
+        "title": "Post-Mortem — Bankole Soyombo",
+        "subtitle": "Cause and manner of death",
+        "header": [
+          {
+            "label": "Time of death",
+            "value": "approx 6:50–7:10pm"
+          },
+          {
+            "label": "Manner",
+            "value": "Pending"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Cardiac arrest",
+            "detail": "Death was due to sudden ventricular fibrillation. No structural heart disease consistent with his age and fitness.",
+            "flag": "key"
+          },
+          {
+            "heading": "Clean general tox screen",
+            "detail": "No alcohol, no common cardiotoxins, no organophosphates, no household poisons in blood or the zobo residue.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Elevated potassium",
+            "detail": "Vitreous and blood potassium markedly raised. Often a post-mortem artefact, but here disproportionate and present in fresh samples.",
+            "flag": "key"
+          },
+          {
+            "heading": "Recent injection mark",
+            "detail": "A fresh needle puncture in the left antecubital fossa, faint bruise. The deceased was diabetic and self-administered insulin.",
+            "flag": "key"
+          },
+          {
+            "heading": "Stomach contents",
+            "detail": "Light snacks (puff-puff, chin-chin) and zobo, consistent with the staff get-together.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "forensic",
+        "title": "Scene & Trace Report",
+        "subtitle": "Office and refreshments",
+        "header": [
+          {
+            "label": "Scene",
+            "value": "Director's office, door unlocked"
+          },
+          {
+            "label": "Prints on cup",
+            "value": "Deceased only"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Zobo jug shared",
+            "detail": "The jug Grace poured from served seven people; all glasses tested identical and benign.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Insulin pen present",
+            "detail": "Bankole's insulin pen was in his desk drawer. A second, used pen cartridge was found in the office bin, wiped of prints.",
+            "flag": "key"
+          },
+          {
+            "heading": "Office fridge",
+            "detail": "Holds patient samples and staff insulin/medications; several vials including potassium chloride for the procedure room are stored together, poorly labelled.",
+            "flag": "key"
+          },
+          {
+            "heading": "No forced entry",
+            "detail": "The office lock was undamaged. Keys are held by Bankole, Amaka, Grace and Tunde.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Glove fragment",
+            "detail": "A torn fingertip of a nitrile glove was caught under the fridge door seal, common clinic stock used by all staff.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "Door & Fridge Access Log",
+        "subtitle": "Electronic key-card audit",
+        "header": [
+          {
+            "label": "System",
+            "value": "Card readers on office door and drug fridge"
+          },
+          {
+            "label": "Window",
+            "value": "5:00–7:45pm"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Office door entries",
+            "detail": "Bankole 6:35pm. Tunde 6:05pm (and exit 6:14). No other office card swipes after 6:35.",
+            "flag": "key"
+          },
+          {
+            "heading": "Drug fridge access",
+            "detail": "The drug fridge was opened at 6:31pm using a card. The card was Bankole's own staff card.",
+            "flag": "key"
+          },
+          {
+            "heading": "Card-share note",
+            "detail": "Staff routinely lend cards; an IT memo from March complains that the fridge reader 'accepts any director card' due to a cloned access group.",
+            "flag": "key"
+          },
+          {
+            "heading": "Grace's card",
+            "detail": "Grace's card was active at the staff-room door until 7:28pm, matching her alibi.",
+            "flag": "none"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Sade (cleaner)",
+        "relation": "Cleaner, with Grace",
+        "statement": "Madam Grace was with me in the staff room cleaning up till past 7. She never left, not even small.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Aba Supplier (Mr. Okoro)",
+        "relation": "On the video call",
+        "statement": "Yes, Dr. Amaka and her husband were both on my screen the whole call, almost 40 minutes. I saw their faces.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "Ngozi (receptionist)",
+        "relation": "Front desk",
+        "statement": "Engineer Femi? He left around five-something after seeing oga. I locked the front at six and didn't see him after.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s2",
+        "title": "Interview — Tunde Bakare",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You were in the office at 6:05. Why?"
+          },
+          {
+            "speaker": "Tunde",
+            "role": "a",
+            "text": "To return the controlled-drug register. Oga asked for it. I dropped it and left, I swear."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The short count he caught — that's a sack offence."
+          },
+          {
+            "speaker": "Tunde",
+            "role": "a",
+            "text": "I know how it looks. But I begged him, he said he'd think about it. Killing him doesn't bring back drugs, it brings police, like now."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Did you open the drug fridge?"
+          },
+          {
+            "speaker": "Tunde",
+            "role": "a",
+            "text": "No. I don't even have fridge clearance. My card beeps red on it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Your bus CCTV is down. Convenient."
+          },
+          {
+            "speaker": "Tunde",
+            "role": "a",
+            "text": "Ask the conductor! I take the 6:20 every day. I'm not hiding, I'm scared."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s5",
+        "title": "Interview — Chidinma Eze",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Bankole was querying transfers you signed."
+          },
+          {
+            "speaker": "Chidinma",
+            "role": "a",
+            "text": "Routine queries. I had answers for every one. Audits are my job, Detective, not my fear."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you between 6:30 and 7?"
+          },
+          {
+            "speaker": "Chidinma",
+            "role": "a",
+            "text": "Beside my wife, on the Aba call. The supplier saw me. Check the recording."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You're very calm for a man whose brother-in-law just died."
+          },
+          {
+            "speaker": "Chidinma",
+            "role": "a",
+            "text": "Panic helps no one. Bankole and I disagreed on money. I did not want him dead. With him gone, the audit lands on me anyway. Think about that."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who could open that drug fridge?"
+          },
+          {
+            "speaker": "Chidinma",
+            "role": "a",
+            "text": "Half the senior staff, the reader's been faulty for months. That's an IT failure, not a confession."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "5:05pm",
+        "event": "Femi's appointment ends; leaves consulting room",
+        "source": "Receptionist",
+        "conflict": false
+      },
+      {
+        "time": "6:00pm",
+        "event": "Front door locked; staff get-together begins",
+        "source": "Ngozi",
+        "conflict": false
+      },
+      {
+        "time": "6:05pm",
+        "event": "Tunde enters office to return register, exits 6:14",
+        "source": "Door log",
+        "conflict": false
+      },
+      {
+        "time": "6:31pm",
+        "event": "Drug fridge opened using Bankole's card",
+        "source": "Fridge log",
+        "conflict": true
+      },
+      {
+        "time": "6:35pm",
+        "event": "Bankole swipes into his office",
+        "source": "Door log",
+        "conflict": false
+      },
+      {
+        "time": "6:40pm",
+        "event": "Amaka & Chidinma begin Aba supplier video call",
+        "source": "Call recording",
+        "conflict": false
+      },
+      {
+        "time": "6:50pm",
+        "event": "Estimated onset of cardiac event",
+        "source": "Autopsy",
+        "conflict": false
+      },
+      {
+        "time": "7:20pm",
+        "event": "Aba call ends; Amaka goes to office, finds him slumped",
+        "source": "Amaka / supplier",
+        "conflict": false
+      },
+      {
+        "time": "7:28pm",
+        "event": "Grace's card last active at staff room",
+        "source": "Door log",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-cards",
+        "name": "Access Card Identity",
+        "tagline": "Whose card, whose hand?",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Fridge open 6:31pm — cardholder",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Card ID",
+                "value": "Bankole Soyombo (director)"
+              },
+              {
+                "label": "Bankole location 6:31",
+                "value": "Not yet in office (entered 6:35)"
+              }
+            ],
+            "note": "His card opened the fridge four minutes before he himself entered the office — he could not have been holding it."
+          }
+        ]
+      },
+      {
+        "id": "tool-clone",
+        "name": "Reader Fault Audit",
+        "tagline": "The cloned access group",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Who can trigger fridge with a director card?",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Accepted group",
+                "value": "All director-tier cards"
+              },
+              {
+                "label": "Director-tier holders",
+                "value": "Bankole, Amaka, Chidinma"
+              }
+            ],
+            "note": "Tunde and Grace are NOT director-tier; their cards beep red on the fridge. Only a director card works."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Video Call Forensics",
+        "tagline": "Were they really on screen?",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Amaka & Chidinma continuous presence 6:40–7:20",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Amaka",
+                "value": "On camera throughout"
+              },
+              {
+                "label": "Chidinma",
+                "value": "On camera throughout"
+              }
+            ],
+            "note": "Both are airtight from 6:40. The fridge was opened at 6:31, BEFORE the call began."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Femi Phone Triangulation",
+        "tagline": "Did he really go home?",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Femi Adesanya cell location 6:00–7:30pm",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Tower",
+                "value": "Magodo residential mast"
+              },
+              {
+                "label": "Movement",
+                "value": "Stationary at home from 5:40pm"
+              }
+            ],
+            "note": "Femi was home well before the fridge was touched. Cleared."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r3",
+    "explanation": "The killer is Dr. Amaka Soyombo-Eze. Bankole did not die of any conventional poison — the autopsy's quiet trio (sudden ventricular fibrillation, disproportionate fresh-sample potassium, and a fresh needle mark) points to a potassium chloride injection that mimics a natural cardiac arrest and is invisible to a standard tox screen. The wiped used cartridge and the poorly-labelled fridge KCl confirm the method. The decisive chain is in the access log (r3): the drug fridge was opened at 6:31pm using BANKOLE'S OWN CARD, yet the door log shows Bankole himself did not enter the office until 6:35 — he could not have held the card that opened the fridge. The Reader Fault Audit shows only director-tier cards work the fridge (clearing Tunde and Grace, whose cards 'beep red'), and the cloned access group means a director card swipe doesn't prove which director. That leaves Amaka and Chidinma — but the Aba video call airtight-confirms both from 6:40pm onward, and the fridge was opened at 6:31, NINE minutes before the call. Amaka engineered her own corroborated alibi to start at 6:40 precisely because she withdrew the KCl at 6:31, slipped it into Bankole's office, injected it under the guise of 'helping with his insulin', then walked into the staged supplier call to be seen on camera and 'discover' the body at 7:20. The misdirection: everyone fixates on the shared zobo (benign), on Tunde's drug theft and missing CCTV, and on Femi's debt — but Tunde and Grace physically cannot open the fridge, Femi's phone has him home since 5:40, and Chidinma is on camera continuously from 6:40. Amaka used Bankole's card precisely so the fridge log would read as Bankole's, never imagining the door log would prove he was elsewhere at the moment his card was used. The detail most players miss: the four-minute gap between the fridge swipe and Bankole entering his own office.",
+    "_dummy": "x"
+  },
+  {
+    "key": "x-the-omololu-yield-fund",
+    "title": "The Omololu Yield Fund",
+    "category": "Ponzi Fraud",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "ponzi",
+      "fintech",
+      "abuja",
+      "investment",
+      "white-collar"
+    ],
+    "brief": "Omololu Yield, an Abuja 'agri-fintech' promising 8 percent monthly returns, collapsed overnight with 1.4 billion naira gone and its charismatic founder claiming he too was a victim. Five insiders ran the platform; one quietly moved the money out three days before the doors shut. The books were professionally cooked — but money always lands somewhere.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Chief Olumide Omololu",
+        "age": 47,
+        "role": "Founder and public face",
+        "motive": "It was his name, his lifestyle, his to loot — the obvious mastermind",
+        "alibi": "Was in Dubai at a fintech summit when the funds moved, passport-stamped",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 400 1212",
+        "note": "Theatrical, weeps on cue, blames 'market saboteurs'"
+      },
+      {
+        "id": "s2",
+        "name": "Ifeoma Nwankwo",
+        "age": 39,
+        "role": "Chief Financial Officer",
+        "motive": "Knew every account and password; could move money with a keystroke",
+        "alibi": "Says she was managing the redemption crisis from the office all week",
+        "alibiStatus": "shaky",
+        "phone": "+234 806 778 9001",
+        "note": "Exhausted, precise, keeps producing documents"
+      },
+      {
+        "id": "s3",
+        "name": "Bashir Lawal",
+        "age": 44,
+        "role": "Head of 'Agri-Operations' (the farms)",
+        "motive": "His phantom farms were the cover story; he knew the whole thing was air",
+        "alibi": "Was touring real farms in Kebbi to keep up appearances, fuel receipts in hand",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 110 4567",
+        "note": "Plainspoken, fatalistic, 'I only showed investors green fields'"
+      },
+      {
+        "id": "s4",
+        "name": "Zainab Suleiman",
+        "age": 33,
+        "role": "Compliance officer",
+        "motive": "Signed off filings she knew were false; cornered into the scheme",
+        "alibi": "On approved maternity-adjacent leave, working remotely from Kaduna",
+        "alibiStatus": "unchecked",
+        "phone": "+234 807 223 8890",
+        "note": "Anxious, principled, kept private emails warning of collapse"
+      },
+      {
+        "id": "s5",
+        "name": "Emeka Orji",
+        "age": 36,
+        "role": "Lead developer / CTO",
+        "motive": "Built the platform; controlled the wallets and the 'investor dashboard' that faked balances",
+        "alibi": "Says he was patching the crashing site round the clock from a hotel near the office",
+        "alibiStatus": "shaky",
+        "phone": "+234 814 559 6677",
+        "note": "Twitchy, talks in code, blames 'the infrastructure'"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "financial",
+        "title": "Forensic Accounting — The Drain",
+        "subtitle": "How 1.4bn left",
+        "header": [
+          {
+            "label": "Total moved",
+            "value": "1.41bn naira"
+          },
+          {
+            "label": "Method",
+            "value": "Layered transfers to shell accounts then crypto"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Three-day drain",
+            "detail": "Funds left in 14 tranches over three days, ending the night before collapse, into shells that converted to USDT.",
+            "flag": "none"
+          },
+          {
+            "heading": "Chief's salary loot",
+            "detail": "Olumide siphoned ~120m over two years via inflated 'consulting fees' — greedy, traceable, but separate from the final drain.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Master wallet key rotation",
+            "detail": "The platform's master crypto wallet key was rotated 4 days before collapse; only the new key could authorise the drain.",
+            "flag": "key"
+          },
+          {
+            "heading": "Dormant admin account",
+            "detail": "A long-dormant 'sysadmin' login authorised every tranche. It had not been used in 11 months before this week.",
+            "flag": "key"
+          },
+          {
+            "heading": "Ifeoma's transfers",
+            "detail": "Ifeoma moved 1.1bn during the week — but every naira was investor redemptions PAID OUT to real investors, fully documented.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Platform Access Logs",
+        "subtitle": "Who logged in when",
+        "header": [
+          {
+            "label": "System",
+            "value": "Admin console + wallet authoriser"
+          },
+          {
+            "label": "Window",
+            "value": "Final 7 days"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Sysadmin login origin",
+            "detail": "The dormant sysadmin account logged in from an IP at a hotel near the office on each drain night.",
+            "flag": "key"
+          },
+          {
+            "heading": "Key rotation actor",
+            "detail": "The master wallet key rotation was performed from the same hotel IP, 4 days before collapse.",
+            "flag": "key"
+          },
+          {
+            "heading": "Emeka's developer logins",
+            "detail": "Emeka's named developer account logged in heavily all week from the same hotel — he says patching the site.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Ifeoma's logins",
+            "detail": "Ifeoma logged in only from the office IP, never the hotel, consistent with redemption work.",
+            "flag": "none"
+          },
+          {
+            "heading": "Shared hotel WiFi",
+            "detail": "The hotel's single public IP is shared by all guests; many staff were lodged there during the crisis.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "forensic",
+        "title": "Device & Credential Audit",
+        "subtitle": "Who held the keys",
+        "header": [
+          {
+            "label": "Scope",
+            "value": "Master wallet, sysadmin account"
+          },
+          {
+            "label": "Recovery",
+            "value": "2-factor seed phrases"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Sysadmin account creator",
+            "detail": "The dormant sysadmin account was originally created and provisioned by the CTO during platform build. Its recovery email is a personal Proton address.",
+            "flag": "key"
+          },
+          {
+            "heading": "Recovery email owner",
+            "detail": "The Proton recovery address on the sysadmin account was registered to a phone number ending 6677.",
+            "flag": "key"
+          },
+          {
+            "heading": "Hardware key",
+            "detail": "The master wallet's hardware authoriser was last physically signed out from the office safe by 'E. Orji' the day before the key rotation.",
+            "flag": "key"
+          },
+          {
+            "heading": "Olumide's access",
+            "detail": "Olumide never held wallet credentials — he was kept out of the technical layer deliberately, by his own design, for deniability.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Hotel front desk",
+        "relation": "Hotel staff",
+        "statement": "Plenty of the company people stayed here that week. Same WiFi for everybody, one password on the wall.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Junior dev (Tobi)",
+        "relation": "Reports to Emeka",
+        "statement": "Oga Emeka kept saying the wallet system was 'his baby' and nobody should touch the sysadmin account, it was archived.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "Olumide's PA",
+        "relation": "Founder's assistant",
+        "statement": "Chief was genuinely in Dubai, I booked it months ago. He was livid and confused when it collapsed, not acting.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s2",
+        "title": "Interview — Ifeoma Nwankwo",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You moved 1.1 billion that week. Explain."
+          },
+          {
+            "speaker": "Ifeoma",
+            "role": "a",
+            "text": "Redemptions. Panicking investors. I paid out to real people, real bank accounts, every one receipted. I was trying to save it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Yet 1.4 billion vanished into crypto."
+          },
+          {
+            "speaker": "Ifeoma",
+            "role": "a",
+            "text": "Not through my hands. I can't touch the master wallet. Only the tech side controls the crypto. I begged Emeka for visibility and got fobbed off."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Why should I believe you over the books?"
+          },
+          {
+            "speaker": "Ifeoma",
+            "role": "a",
+            "text": "Because the books I touched balance to the kobo. Check the wallet logs, not the bank logs. The crypto left from somewhere I have never had a key to."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s5",
+        "title": "Interview — Emeka Orji",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The drain ran through a dormant sysadmin account you created."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "I created it years ago and archived it. Anyone who got the credentials could've used it. The whole office was on that hotel WiFi."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Its recovery email traces to your phone number."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "I... set it up with my number for convenience back then. That doesn't mean I logged in last week. Convenience isn't a crime."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "And the hardware key was signed out by 'E. Orji'."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "To patch the site! I needed wallet read-access to fix balance display bugs. Read, not drain. The infrastructure was on fire, I was firefighting."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You're the only one who controlled all three: the account, the recovery, the hardware."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "That's circumstantial. Chief built this scam. Look at him, not the guy who kept the lights on."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "Day -4",
+        "event": "Master wallet key rotated from hotel IP",
+        "source": "Access log",
+        "conflict": false
+      },
+      {
+        "time": "Day -3",
+        "event": "Olumide departs for Dubai summit",
+        "source": "PA / passport",
+        "conflict": false
+      },
+      {
+        "time": "Day -3",
+        "event": "First drain tranche via dormant sysadmin login",
+        "source": "Wallet log",
+        "conflict": false
+      },
+      {
+        "time": "Day -3",
+        "event": "Ifeoma begins mass investor redemptions from office",
+        "source": "Bank log",
+        "conflict": true
+      },
+      {
+        "time": "Day -2",
+        "event": "Bashir touring Kebbi farms, fuel receipts",
+        "source": "Receipts",
+        "conflict": false
+      },
+      {
+        "time": "Day -2",
+        "event": "Hardware authoriser signed out by 'E. Orji'",
+        "source": "Safe register",
+        "conflict": false
+      },
+      {
+        "time": "Day -1",
+        "event": "Final tranches converted to USDT",
+        "source": "Chain analysis",
+        "conflict": false
+      },
+      {
+        "time": "Day 0",
+        "event": "Platform collapses; Olumide flies back, claims victimhood",
+        "source": "Public",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Recovery Email Identity",
+        "tagline": "Who owns the sysadmin keys",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Trace sysadmin Proton recovery + master key",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Recovery phone",
+                "value": "+234 814 559 6677"
+              },
+              {
+                "label": "Matches",
+                "value": "Emeka Orji"
+              }
+            ],
+            "note": "The dormant account that authorised every drain tranche recovers to Emeka's own phone number."
+          }
+        ]
+      },
+      {
+        "id": "tool-triang",
+        "name": "Hotel IP Triangulation",
+        "tagline": "Shared WiFi — does it prove anything?",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Resolve hotel IP to a single person",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "IP",
+                "value": "One shared guest IP"
+              },
+              {
+                "label": "Guests that week",
+                "value": "Emeka, Ifeoma(once), 9 others"
+              }
+            ],
+            "note": "The IP alone proves nothing — it's shared. The location is not the proof; the credentials are."
+          }
+        ]
+      },
+      {
+        "id": "tool-chain",
+        "name": "Chain Analysis",
+        "tagline": "Where did the USDT go?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Trace final USDT destination wallet",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "End wallet",
+                "value": "Self-custody, KYC at exchange"
+              },
+              {
+                "label": "KYC selfie + ID",
+                "value": "Emeka Orji's NIN"
+              }
+            ],
+            "note": "The cash-out exchange's KYC on the receiving wallet ties to Emeka's national ID."
+          }
+        ]
+      },
+      {
+        "id": "tool-pass",
+        "name": "Olumide Travel & Salary Check",
+        "tagline": "Is the founder the thief?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Olumide wallet credentials + whereabouts",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Wallet keys held",
+                "value": "None ever"
+              },
+              {
+                "label": "Whereabouts",
+                "value": "Dubai, stamped, during all drains"
+              }
+            ],
+            "note": "Olumide looted salary for years, but had no technical means to move the crypto and was abroad. He is a thief, not THE thief of the 1.4bn."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s5",
+    "keyEvidenceId": "r3",
+    "explanation": "The final-drain culprit is Emeka Orji, the CTO. The trap of this case is Chief Olumide: he is a genuine fraudster who looted ~120m in fake consulting fees and built a Ponzi in his own name — the obvious villain. But the 1.4bn final drain is a separate, surgical act, and Olumide had NO wallet credentials (by his own deniability-seeking design) and was passport-stamped in Dubai throughout. Ifeoma's 1.1bn movement is the big red herring: it's all documented investor redemptions paid to real bank accounts — money going OUT to victims, not stolen — and she only ever logged in from the office, never touching the master wallet. The airtight chain lives in the Device & Credential Audit (r3) joined to two tool hits: every drain tranche was authorised by a long-dormant sysadmin account that Emeka created, whose recovery email resolves to Emeka's own phone (ending 6677, matching his suspect number); the master wallet key was rotated four days before collapse, and the hardware authoriser was physically signed out from the office safe by 'E. Orji' the day before. The hotel-IP angle is a deliberate dead-end — the shared WiFi proves nothing because many staff were lodged there, which is exactly why Emeka felt safe; he leans on it in interview ('the whole office was on that hotel WiFi'). The decisive, easily-missed proof is the convergence of control: Emeka is the ONLY person who simultaneously held the account, its recovery, and the hardware key — and chain analysis ties the cash-out wallet's exchange KYC to his NIN. Bashir (real farms, fatalistic) and Zainab (whistleblowing emails, no technical access) are pure cover-story functionaries. The elegant misdirection: the founder's flamboyant, real guilt screams for attention while the quiet CTO 'keeping the lights on' rotates the one key that empties the vault.",
+    "_dummy": "x"
+  },
+  {
+    "key": "x-the-cold-room-at-balogun",
+    "title": "The Cold Room at Balogun",
+    "category": "Locked-Room Murder",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "locked-room",
+      "cold-storage",
+      "lagos-island",
+      "textile",
+      "import"
+    ],
+    "brief": "Alhaji Musa Danjuma, a wealthy textile importer, is found dead inside the walk-in cold store of his Balogun Market warehouse — bolted from the inside, the only key in his own pocket. The cause looks like he was trapped and froze. But the bolt was drawn from within, the room was sealed, and five people had reason to want him gone.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Yakubu Danjuma",
+        "age": 38,
+        "role": "Estranged son, gambling debts",
+        "motive": "Heir to the warehouse; desperate for money the Alhaji refused him",
+        "alibi": "Says he was at a viewing centre watching the match across town",
+        "alibiStatus": "shaky",
+        "phone": "+234 803 667 2210",
+        "note": "Belligerent, smells of regret, won't meet your eye"
+      },
+      {
+        "id": "s2",
+        "name": "Hauwa Danjuma",
+        "age": 44,
+        "role": "Second wife",
+        "motive": "He was about to divorce her and cut her from the will",
+        "alibi": "At home in Lekki with the children and house staff all evening",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 991 3340",
+        "note": "Composed, elegant, coolly cooperative"
+      },
+      {
+        "id": "s3",
+        "name": "Ifeanyi Okeke",
+        "age": 50,
+        "role": "Warehouse manager, 20 years",
+        "motive": "Alhaji had discovered he was selling goods off the books",
+        "alibi": "Locked up and left at 7pm, security guard saw him go",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 445 7781",
+        "note": "Loyal-seeming, sorrowful, knows every inch of the building"
+      },
+      {
+        "id": "s4",
+        "name": "Bisi Adeyemi",
+        "age": 31,
+        "role": "Refrigeration technician",
+        "motive": "Alhaji refused to pay her firm's overdue invoice; bitter dispute",
+        "alibi": "Serviced the cold room that afternoon, signed out at 5:40pm",
+        "alibiStatus": "unchecked",
+        "phone": "+234 807 880 1199",
+        "note": "Technical, defensive, talks about 'the unit' not the man"
+      },
+      {
+        "id": "s5",
+        "name": "Sergeant Bello (Gateman)",
+        "age": 56,
+        "role": "Night security guard",
+        "motive": "Alhaji had accused him of theft and threatened the sack",
+        "alibi": "On duty at the gate all night, logbook entries hourly",
+        "alibiStatus": "confirmed",
+        "phone": "+234 814 220 5567",
+        "note": "Stoic, by-the-book, proud of his logbook"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "autopsy",
+        "title": "Post-Mortem — Musa Danjuma",
+        "subtitle": "Cause of death and timing",
+        "header": [
+          {
+            "label": "Body temp model",
+            "value": "Death ~9:30pm"
+          },
+          {
+            "label": "Manner",
+            "value": "Pending"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Cause: hypothermia",
+            "detail": "Death consistent with prolonged exposure in the 4°C cold room. No wounds, no struggle marks.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Blunt contact, occiput",
+            "detail": "A single non-fatal contusion to the back of the head, consistent with a fall or a light blow that would have stunned, not killed.",
+            "flag": "key"
+          },
+          {
+            "heading": "Sedative trace",
+            "detail": "Low level of a common over-the-counter sleep aid in his blood — enough to make a tired man drowsy, not enough to kill.",
+            "flag": "key"
+          },
+          {
+            "heading": "Liver temp vs. room",
+            "detail": "Cooling rate matches death around 9:30pm, but the body had been moved post-mortem — lividity is inconsistent with final position.",
+            "flag": "key"
+          },
+          {
+            "heading": "Last meal",
+            "detail": "Stomach shows suya and a soft drink eaten roughly two hours before death.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "forensic",
+        "title": "Cold Room Scene Report",
+        "subtitle": "The sealed room",
+        "header": [
+          {
+            "label": "Door",
+            "value": "Bolted from inside"
+          },
+          {
+            "label": "Key",
+            "value": "In victim's pocket"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Interior bolt drawn",
+            "detail": "A heavy slide-bolt on the inside was in the locked position. The standard key-lock was also engaged, key in his trouser pocket.",
+            "flag": "key"
+          },
+          {
+            "heading": "Bolt mechanism",
+            "detail": "The inside slide-bolt has a worn, loose housing; the technician's service note flags it 'sticks and slides under vibration'.",
+            "flag": "key"
+          },
+          {
+            "heading": "Compressor cycle",
+            "detail": "The cold-room compressor cycles with a heavy thump every few minutes, vibrating the whole door frame — logged in the service record.",
+            "flag": "key"
+          },
+          {
+            "heading": "Drag marks",
+            "detail": "Faint scuff marks on the cold-room floor from the door toward the centre, as if a body were dragged in, then the marks 'cleaned' near the threshold.",
+            "flag": "key"
+          },
+          {
+            "heading": "Frost on handle",
+            "detail": "Inside door handle had undisturbed frost — no one warm gripped it from inside to draw the bolt by hand near death.",
+            "flag": "key"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "CCTV & Access Timeline",
+        "subtitle": "Warehouse cameras",
+        "header": [
+          {
+            "label": "Cameras",
+            "value": "Yard + corridor (cold-room cam faulty)"
+          },
+          {
+            "label": "Window",
+            "value": "5:00pm–6:00am"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Cold-room camera dead",
+            "detail": "The camera covering the cold-room door has been offline since 5:15pm — fault logged by the refrigeration service visit.",
+            "flag": "key"
+          },
+          {
+            "heading": "Corridor footage",
+            "detail": "Corridor cam shows Alhaji walking toward the cold room alone at 7:40pm. No one follows on camera.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Gate logbook",
+            "detail": "Sergeant Bello logs hourly; gate shows no entries after Ifeanyi's 7pm exit until morning.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Side delivery door",
+            "detail": "A rear roller door (no camera) was found unlocked in the morning; it is normally padlocked at close.",
+            "flag": "key"
+          },
+          {
+            "heading": "Ifeanyi exit",
+            "detail": "Ifeanyi is on the yard cam leaving at 7:02pm, greeting Bello, getting into a taxi.",
+            "flag": "none"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Sergeant Bello",
+        "relation": "Gateman",
+        "statement": "Nobody passed my gate after the manager left at seven. My book is clean. Whatever happened, it was inside before that.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w2",
+        "name": "Taxi driver",
+        "relation": "Drove Ifeanyi",
+        "statement": "I carried the manager from the warehouse at past seven, dropped him at his house in Surulere by eight. He paid me, we even chatted.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "Bisi Adeyemi",
+        "relation": "Technician",
+        "statement": "I serviced the unit and signed out at twenty to six. I told the manager the inside bolt was bad and the door cam needed rewiring. I logged it.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s3",
+        "title": "Interview — Ifeanyi Okeke",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You left at 7pm, the taxi confirms it. Yet Alhaji walks to the cold room at 7:40, alone."
+          },
+          {
+            "speaker": "Ifeanyi",
+            "role": "a",
+            "text": "Then I was already in Surulere, ask the driver. I had nothing to do with it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You knew the cold-room door cam was dead and the inside bolt was faulty."
+          },
+          {
+            "speaker": "Ifeanyi",
+            "role": "a",
+            "text": "Everybody who read the service note knew. Bisi announced it to the whole office. That's not secret knowledge."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "He found out you were selling off the books."
+          },
+          {
+            "speaker": "Ifeanyi",
+            "role": "a",
+            "text": "Petty pilfering, yes. He shouted, I apologised, I kept my job. A dead Alhaji means I lose everything — his son hates me. Why would I?"
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who locked the rear roller door normally?"
+          },
+          {
+            "speaker": "Ifeanyi",
+            "role": "a",
+            "text": "I do, every night. But I padlocked it at close, I swear on my children. If it was open, someone opened it after me."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s4",
+        "title": "Interview — Bisi Adeyemi",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You serviced the unit and signed out at 5:40. Did you leave the building?"
+          },
+          {
+            "speaker": "Bisi",
+            "role": "a",
+            "text": "I signed the gate book and... well, I came back. The unit was still throwing an error. I went in through the rear roller door to finish, I didn't re-sign."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "So you were inside, off the books, with no camera on the cold room, with a faulty bolt you alone fully understood."
+          },
+          {
+            "speaker": "Bisi",
+            "role": "a",
+            "text": "To FIX it. The invoice fight made me look bad but I'm a professional. I left for good before seven."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "He's dead at 9:30. The compressor that vibrates the bolt is your unit."
+          },
+          {
+            "speaker": "Bisi",
+            "role": "a",
+            "text": "The compressor thump is normal, I flagged it. If that bolt slid shut on its own with him inside, that's a maintenance tragedy, not murder. I warned them in writing."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "5:40pm",
+        "event": "Bisi signs out at gate",
+        "source": "Gate log",
+        "conflict": true
+      },
+      {
+        "time": "7:02pm",
+        "event": "Ifeanyi leaves by taxi (yard cam)",
+        "source": "Yard cam / taxi",
+        "conflict": false
+      },
+      {
+        "time": "7:40pm",
+        "event": "Alhaji walks toward cold room alone (corridor cam)",
+        "source": "Corridor cam",
+        "conflict": true
+      },
+      {
+        "time": "8:00pm",
+        "event": "Taxi driver claims he dropped 'the Alhaji' in Surulere",
+        "source": "Taxi driver",
+        "conflict": true
+      },
+      {
+        "time": "8:15pm",
+        "event": "Compressor service-flagged vibration ongoing",
+        "source": "Service note",
+        "conflict": false
+      },
+      {
+        "time": "9:30pm",
+        "event": "Estimated time of death (hypothermia)",
+        "source": "Autopsy",
+        "conflict": false
+      },
+      {
+        "time": "11:00pm",
+        "event": "Rear roller door later found unlocked",
+        "source": "Scene",
+        "conflict": false
+      },
+      {
+        "time": "6:10am",
+        "event": "Body discovered, room bolted from inside",
+        "source": "Cleaner",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-cam",
+        "name": "Camera Fault Forensics",
+        "tagline": "When did the eye go blind?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Cold-room camera offline cause/time",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Offline since",
+                "value": "5:15pm"
+              },
+              {
+                "label": "Cause",
+                "value": "Wiring disturbed during service visit"
+              }
+            ],
+            "note": "The only camera that mattered went dark during Bisi's service window — before anyone else's alibi even begins."
+          }
+        ]
+      },
+      {
+        "id": "tool-corridor",
+        "name": "Corridor Footage Analysis",
+        "tagline": "Who walked to the cold room?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Enhance 7:40pm figure walking to cold room",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Figure",
+                "value": "Wearing Alhaji's distinctive cap and agbada"
+              },
+              {
+                "label": "Gait/face",
+                "value": "Face never toward camera; shorter than Alhaji"
+              }
+            ],
+            "note": "The 7:40 'Alhaji' never shows a face and is notably shorter than the victim — it may not be him at all."
+          }
+        ]
+      },
+      {
+        "id": "tool-taxi",
+        "name": "Taxi Triangulation",
+        "tagline": "Who did the taxi really carry?",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Verify taxi passenger identity 7:02pm",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Passenger",
+                "value": "Male, agbada, paid cash"
+              },
+              {
+                "label": "Driver certainty",
+                "value": "Assumed it was 'the Alhaji'; never met him before"
+              }
+            ],
+            "note": "The driver never knew Alhaji — he assumed. The man he dropped in Surulere was alive at 8pm and was NOT necessarily the victim."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Victim Phone Location",
+        "tagline": "Where was Alhaji's phone?",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Alhaji Danjuma handset location 5:00pm–10pm",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "5:00–10:00pm",
+                "value": "Stationary inside Balogun warehouse mast"
+              },
+              {
+                "label": "Surulere ping",
+                "value": "NONE"
+              }
+            ],
+            "note": "Alhaji's phone never left the warehouse. The man dropped in Surulere had someone ELSE's phone or none — the victim was inside the whole time."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s4",
+    "keyEvidenceId": "r2",
+    "explanation": "The killer is Bisi Adeyemi, the refrigeration technician — and the 'locked room' is a mechanical illusion, not a human escape trick. The misdirection runs three layers deep. Layer one: the corridor cam shows 'Alhaji' walking to the cold room alone at 7:40pm and a taxi 'drops the Alhaji' in Surulere at 8pm — both seemingly proving he was alive and acting freely. But Corridor Footage Analysis shows that 7:40 figure never faces the camera and is SHORTER than the victim (it's Ifeanyi or an accomplice-decoy in the Alhaji's cap/agbada), and the Taxi tool reveals the driver never knew Alhaji and merely assumed — while Victim Phone Location proves Alhaji's handset never left the warehouse and never pinged Surulere. So the victim was inside the whole evening; the 'living Alhaji' sightings are staged. Layer two: the autopsy's quiet trio — a non-fatal occipital blow, an OTC sedative, and lividity proving the body was MOVED post-mortem — shows Alhaji was stunned, drowsy and dragged into the cold room (the scene's drag marks confirm), not someone who wandered in and got trapped. Layer three, the locked-room solution itself: the Cold Room Scene Report (r2) is decisive — the inside slide-bolt has a worn, loose housing that 'sticks and slides under vibration', and the compressor thumps every few minutes shaking the whole frame. The killer set the standard lock with the key returned to his pocket, then merely jostled the loose inside bolt toward closed; the compressor's vibration walked it fully shut over the next hour, sealing the room from within with no one inside. The clinching tell: the inside handle bore UNDISTURBED frost — no warm hand drew that bolt; physics did. Only one suspect engineered all three layers: Bisi disabled the cold-room camera during her service visit (Camera Fault Forensics: offline 5:15pm, wiring disturbed during service), she alone fully understood the faulty bolt and the vibrating compressor, she re-entered off the books through the un-cameraed rear roller door (which she left unlocked), and her invoice grudge is motive. Everyone else is cleared: Hauwa was home with staff (confirmed); Bello's gate log and Ifeanyi's taxi-and-yard-cam exit only matter for human entry, which never happened post-7pm; Yakubu's gambling and the son's inheritance are loud but he was at a viewing centre and never on site. The elegant detail most players miss: the frost-undisturbed inside handle, which silently proves the bolt closed itself.",
+    "_dummy": "x"
+  },
+  {
+    "key": "x-the-nollywood-frame",
+    "title": "The Nollywood Frame",
+    "category": "Frame-Up",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "frame-up",
+      "film",
+      "enugu",
+      "theft",
+      "blackmail-adjacent"
+    ],
+    "brief": "On the Enugu set of a big-budget Nollywood production, 18 million naira in cash 'production float' vanishes from a locked trailer, and a damning trail — fingerprints, a key, a confession text — points squarely at the line producer, who swears she was set up. The frame is almost perfect. Almost.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Chioma Eze",
+        "age": 35,
+        "role": "Line producer (the framed)",
+        "motive": "Controlled the float; mountains of evidence point at her",
+        "alibi": "Claims she was scouting a location two hours away when the theft happened",
+        "alibiStatus": "shaky",
+        "phone": "+234 803 556 7788",
+        "note": "Frantic, insistent, 'I'm being set up'"
+      },
+      {
+        "id": "s2",
+        "name": "Tony 'TY' Eboh",
+        "age": 48,
+        "role": "Executive producer / financier",
+        "motive": "The float was insured; a 'theft' could cover his own diverted funds",
+        "alibi": "In Lagos for a distribution meeting, flight and hotel logged",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 220 9911",
+        "note": "Charming, expansive, calls everyone 'my brother'"
+      },
+      {
+        "id": "s3",
+        "name": "Ngozi Adimora",
+        "age": 27,
+        "role": "Production accountant",
+        "motive": "Underpaid, deep in debt, handled the cash daily",
+        "alibi": "On set at the catering tent, multiple crew saw her",
+        "alibiStatus": "confirmed",
+        "phone": "+234 807 661 4432",
+        "note": "Quiet, watchful, very organised"
+      },
+      {
+        "id": "s4",
+        "name": "Emeka Nwosu",
+        "age": 40,
+        "role": "Production manager, Chioma's deputy",
+        "motive": "Passed over for Chioma's job; resentful; had spare access",
+        "alibi": "Says he was running errands in town, fuel and a market receipt",
+        "alibiStatus": "unchecked",
+        "phone": "+234 814 990 3321",
+        "note": "Helpful to a fault, eager to point at others"
+      },
+      {
+        "id": "s5",
+        "name": "Halima Bello",
+        "age": 33,
+        "role": "Lead actress",
+        "motive": "A feud with Chioma over unpaid appearance fees",
+        "alibi": "In hair and makeup on camera-tested timesheet during the theft window",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 334 1100",
+        "note": "Dramatic, loud, openly hostile to Chioma"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "forensic",
+        "title": "Trailer Forensics",
+        "subtitle": "The locked float trailer",
+        "header": [
+          {
+            "label": "Entry",
+            "value": "No forced entry; opened with a key"
+          },
+          {
+            "label": "Cash gone",
+            "value": "18,000,000 naira"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Chioma's prints on safe",
+            "detail": "Chioma's fingerprints are on the safe handle and door — expected, as she opens it daily; prints cannot be dated.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Her spare key 'planted'",
+            "detail": "Chioma's spare trailer key was found just inside the trailer on the floor, as if dropped in haste.",
+            "flag": "key"
+          },
+          {
+            "heading": "Single clean glove smudge",
+            "detail": "On the safe dial, a smeared partial under Chioma's prints suggests a gloved hand operated it AFTER her bare hand last touched it.",
+            "flag": "key"
+          },
+          {
+            "heading": "Confession text on her phone",
+            "detail": "An outgoing SMS from Chioma's number to a number reads 'It's done, I have it, meet tonight.' Sent 1:10pm during the theft window.",
+            "flag": "key"
+          },
+          {
+            "heading": "Safe opened without damage",
+            "detail": "The safe was opened by someone who knew the combination — known to Chioma, Ngozi, and TY only.",
+            "flag": "key"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Phone & Message Audit",
+        "subtitle": "Chioma's handset",
+        "header": [
+          {
+            "label": "Device",
+            "value": "Chioma's phone"
+          },
+          {
+            "label": "Focus",
+            "value": "The 1:10pm 'confession'"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Text sent from her SIM",
+            "detail": "The 'It's done' SMS was genuinely sent from Chioma's SIM/number at 1:10pm.",
+            "flag": "key"
+          },
+          {
+            "heading": "Handset location at 1:10pm",
+            "detail": "But cell triangulation puts Chioma's PHONE at the location scout 2 hours away at 1:10pm, matching her alibi.",
+            "flag": "key"
+          },
+          {
+            "heading": "Dual SIM / cloned SIM flag",
+            "detail": "The network logged the same number active on TWO devices that afternoon — a classic SIM-swap/clone signature reported to her telco a week earlier.",
+            "flag": "key"
+          },
+          {
+            "heading": "SIM-swap request",
+            "detail": "A SIM replacement for Chioma's number was requested at an Enugu telco shop 8 days before the theft, using a forged ID.",
+            "flag": "key"
+          },
+          {
+            "heading": "Recipient number",
+            "detail": "The 'confession' was sent TO a burner SIM bought the same day, never used again.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "financial",
+        "title": "Float & Insurance Review",
+        "subtitle": "Following the money",
+        "header": [
+          {
+            "label": "Float source",
+            "value": "TY's production company"
+          },
+          {
+            "label": "Insurance",
+            "value": "Theft covered"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Float fully accounted pre-theft",
+            "detail": "Ngozi's ledger reconciles the float to the kobo up to the morning of the theft — no skimming by the accountant.",
+            "flag": "herring"
+          },
+          {
+            "heading": "TY's diversion myth",
+            "detail": "TY's 'diverted funds' theory collapses: his company books and the insurance show no double-claim; the float was real cash.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Emeka's debt payoff",
+            "detail": "Emeka cleared a 4.5m loan-shark debt in cash three days AFTER the theft, source undocumented.",
+            "flag": "key"
+          },
+          {
+            "heading": "Forged-ID SIM cost",
+            "detail": "The framing required a forged ID, a SIM-swap, a burner, and set knowledge — an inside, methodical operator, not a panicked thief.",
+            "flag": "key"
+          },
+          {
+            "heading": "Spare key custody",
+            "detail": "Chioma's spare trailer key normally lived in a drawer in the production office that Emeka, as her deputy, had access to.",
+            "flag": "key"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Location scout host",
+        "relation": "Hosted Chioma's recce",
+        "statement": "Madam Chioma was here with me from noon till after two, two hours from set. We were walking the compound the whole time.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Telco shop attendant",
+        "relation": "Processed SIM swap",
+        "statement": "A man came with her ID and details, said he was her brother handling it for her. The ID looked fine to me at the time.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Emeka Nwosu",
+        "relation": "Deputy producer",
+        "statement": "I always said Chioma was sloppy with the float. Look — her key, her prints, her confession text. I hate to say it but it's her.",
+        "reliability": "hostile"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s1",
+        "title": "Interview — Chioma Eze",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Your key, your prints, a text from your phone saying 'It's done.' Explain that."
+          },
+          {
+            "speaker": "Chioma",
+            "role": "a",
+            "text": "I can't, except to say I was two hours away and I never sent that text. Someone built this around me."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Convenient story."
+          },
+          {
+            "speaker": "Chioma",
+            "role": "a",
+            "text": "I reported a SIM problem to my network last week — calls I never made, a swap I never asked for. It's in their system. Check it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who knew the safe combination and could reach your spare key?"
+          },
+          {
+            "speaker": "Chioma",
+            "role": "a",
+            "text": "The combo: me, Ngozi, TY. My spare key sat in the office drawer Emeka opens every day. I'm not saying it's him — I'm saying it isn't ME."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s4",
+        "title": "Interview — Emeka Nwosu",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You cleared a 4.5 million debt in cash three days after the theft."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "A family member helped me. It's not connected. People pay debts."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You had access to Chioma's spare key drawer."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "So did others. I'm her deputy, of course I'm near her things. That's my job, not a crime."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You don't know the safe combination, though."
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "Exactly! I couldn't have opened the safe. So how could it be me? Look at who HAD the combo."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you at 1:10pm?"
+          },
+          {
+            "speaker": "Emeka",
+            "role": "a",
+            "text": "Running errands. Fuel receipt, market receipt. In and out of town. I wasn't lurking at any trailer."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "8 days prior",
+        "event": "SIM-swap for Chioma's number requested with forged ID",
+        "source": "Telco",
+        "conflict": false
+      },
+      {
+        "time": "12:00pm",
+        "event": "Chioma arrives at location scout, 2 hrs from set",
+        "source": "Scout host",
+        "conflict": false
+      },
+      {
+        "time": "12:50pm",
+        "event": "Ngozi at catering tent, seen by crew",
+        "source": "Crew",
+        "conflict": false
+      },
+      {
+        "time": "1:10pm",
+        "event": "'It's done' SMS sent from Chioma's number",
+        "source": "Phone audit",
+        "conflict": true
+      },
+      {
+        "time": "1:10pm",
+        "event": "Chioma's HANDSET pings at scout location",
+        "source": "Triangulation",
+        "conflict": true
+      },
+      {
+        "time": "1:15pm",
+        "event": "Float trailer opened with a key, safe emptied",
+        "source": "Scene",
+        "conflict": false
+      },
+      {
+        "time": "1:40pm",
+        "event": "Spare key 'found' on trailer floor",
+        "source": "Scene",
+        "conflict": false
+      },
+      {
+        "time": "3 days later",
+        "event": "Emeka pays off 4.5m cash debt",
+        "source": "Financial",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-sim",
+        "name": "SIM Clone Triangulation",
+        "tagline": "One number, two phones",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Locate both devices on Chioma's number at 1:10pm",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Device A (handset)",
+                "value": "Location scout, 2 hrs away"
+              },
+              {
+                "label": "Device B (swapped SIM)",
+                "value": "Enugu set, beside the float trailer"
+              }
+            ],
+            "note": "The 'confession' came from a SECOND device on the cloned SIM, located AT the set — while Chioma's real phone was provably elsewhere."
+          }
+        ]
+      },
+      {
+        "id": "tool-id",
+        "name": "Forged-ID Trace",
+        "tagline": "Who walked into the telco shop?",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "CCTV + signature at SIM-swap shop",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Customer",
+                "value": "Male, claimed to be Chioma's brother"
+              },
+              {
+                "label": "Shop CCTV",
+                "value": "Build/face match flagged"
+              }
+            ],
+            "note": "A MAN did the swap (Chioma is female) — already exonerating her of doing it herself."
+          }
+        ]
+      },
+      {
+        "id": "tool-db",
+        "name": "Device B Crime-DB",
+        "tagline": "Whose second phone?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "IMEI of Device B — prior registrations",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Device B IMEI history",
+                "value": "Previously ran Emeka Nwosu's personal SIM"
+              },
+              {
+                "label": "Burner recipient",
+                "value": "Also opened on a device tied to same IMEI cluster"
+              }
+            ],
+            "note": "The phone that sent the 'confession' and the burner that received it both trace to a device formerly carrying Emeka's own number."
+          }
+        ]
+      },
+      {
+        "id": "tool-combo",
+        "name": "Combination Access Check",
+        "tagline": "Could the framer open the safe?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Who knew the safe combination?",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Combo holders",
+                "value": "Chioma, Ngozi, TY only"
+              },
+              {
+                "label": "Emeka",
+                "value": "Not listed"
+              }
+            ],
+            "note": "Emeka officially didn't know the combo — BUT as deputy he had unsupervised access to Chioma's office where the combo was written in her diary, recovered with his thumb-smudge on the page."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s4",
+    "keyEvidenceId": "r2",
+    "explanation": "The thief and framer is Emeka Nwosu, Chioma's resentful deputy. The frame is built to make Chioma the inescapable suspect — her prints, her spare key on the floor, a 'confession' text from her number, and her access to the safe combination. Every player's first instinct (and the case's loud, hostile witness Emeka himself) screams Chioma. But the Phone & Message Audit (r2) cracks it: the 'It's done' SMS truly came from Chioma's number at 1:10pm, YET her handset triangulates to the location scout two hours away at that exact moment, and the network logged her number live on TWO devices — the residue of a SIM-swap requested eight days earlier with a forged ID. The SIM Clone tool nails it: Device A (her real phone) was at the scout; Device B (the cloned SIM) was beside the float trailer on set and sent the 'confession.' The Forged-ID Trace shows a MAN performed the swap, instantly clearing female Chioma of self-framing. Then Device B's IMEI history (crime-DB hit) ties that second phone to a device that previously carried Emeka's own SIM, and the burner recipient traces to the same cluster — he texted himself a fake confession from Chioma's cloned line. Motive and means complete it: Emeka was passed over for Chioma's job, paid off a 4.5m debt in cash three days after the theft, had daily unsupervised access to the office drawer holding Chioma's spare key (the 'planted' floor key) AND to her diary where the safe combination was written — recovered with his thumb-smudge on the page, which is how he beat the official 'combo holders' list that excludes him (the Combination Access dead-end is itself the clue: it 'clears' him on paper precisely so he could exploit it). The gloved smudge OVER Chioma's bare prints on the dial proves a second, later operator. Everyone else is genuinely cleared: TY is in Lagos with flight/hotel logs and the insurance/books debunk his 'diversion' motive; Ngozi's ledger reconciles to the kobo and crew place her at catering; Halima is on a camera-tested timesheet in makeup; and Chioma's own phone, witnesses, and the male SIM-swapper exonerate her. The elegant, easily-missed detail: the 'confession' is real-but-fake — genuinely from her number, impossibly from another phone — and the deputy's airtight 'I didn't even know the combination' is the very loophole he engineered to slip through.",
+    "_dummy": "x"
+  },
+  {
+    "key": "x-the-port-harcourt-tapes",
+    "title": "The Port Harcourt Tapes",
+    "category": "Blackmail",
+    "difficulty": 3,
+    "ratingTier": "family",
+    "tags": [
+      "blackmail",
+      "long-game",
+      "port-harcourt",
+      "politics",
+      "oil"
+    ],
+    "brief": "For two years, Senator-hopeful Engr. Kelechi Madu paid a faceless blackmailer who held a recording that would end his career — until the demands stopped and the blackmailer was found dead, ruled a heart attack, just as Madu's lawyer says he'd finally traced them. Five people knew enough of Madu's secret to wield it. The long game has a longer tail.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Engr. Kelechi Madu",
+        "age": 53,
+        "role": "The blackmail victim, senatorial candidate",
+        "motive": "Killing the blackmailer would free him forever — the obvious beneficiary",
+        "alibi": "At a televised campaign rally in Aba when the death occurred",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 110 2020",
+        "note": "Polished, grateful to be 'free', oddly serene"
+      },
+      {
+        "id": "s2",
+        "name": "Barrister Uche Nnadi",
+        "age": 46,
+        "role": "Madu's lawyer and fixer",
+        "motive": "Knew the secret; handled the payments; could have pocketed them and silenced the source",
+        "alibi": "Says he was tracing the blackmailer's accounts from his office that night",
+        "alibiStatus": "shaky",
+        "phone": "+234 805 447 1133",
+        "note": "Smooth, indispensable, always a step ahead"
+      },
+      {
+        "id": "s3",
+        "name": "Adaeze Madu",
+        "age": 49,
+        "role": "The candidate's wife",
+        "motive": "The secret recording involved an affair; she had her own reasons to bury it",
+        "alibi": "Hosting a women's fellowship at home, many witnesses",
+        "alibiStatus": "confirmed",
+        "phone": "+234 807 992 3311",
+        "note": "Dignified, guarded, fiercely protective of the family name"
+      },
+      {
+        "id": "s4",
+        "name": "Tega Okoro",
+        "age": 38,
+        "role": "Madu's former PA (sacked)",
+        "motive": "Was suspected of BEING the blackmailer; bitter at his firing",
+        "alibi": "Claims he was at a bar in Port Harcourt; bar staff vaguely recall him",
+        "alibiStatus": "unchecked",
+        "phone": "+234 814 220 7788",
+        "note": "Aggrieved, sarcastic, 'I knew everything and got nothing'"
+      },
+      {
+        "id": "s5",
+        "name": "Dr. Ibrahim Sani",
+        "age": 57,
+        "role": "The deceased's physician (and the dead man's brother-in-law)",
+        "motive": "Knew the blackmailer personally; stood to inherit; signed the death certificate",
+        "alibi": "Was on call at his clinic, log shows patients that night",
+        "alibiStatus": "shaky",
+        "phone": "+234 802 556 9090",
+        "note": "Avuncular, careful, signed 'natural causes' very quickly"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "autopsy",
+        "title": "Re-Examination — Obinna Wali (the blackmailer)",
+        "subtitle": "Heart attack, or not",
+        "header": [
+          {
+            "label": "Original ruling",
+            "value": "Myocardial infarction (natural)"
+          },
+          {
+            "label": "Re-exam",
+            "value": "Reopened"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Pre-existing heart disease",
+            "detail": "Genuine severe coronary disease present; a fatal MI was plausible at any time — which is exactly why it wasn't questioned.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Digoxin overdose",
+            "detail": "Toxic level of digoxin (a cardiac drug) in blood — fatal in his already-weak heart, undetectable on a routine certificate, mimics natural MI.",
+            "flag": "key"
+          },
+          {
+            "heading": "Not his prescription",
+            "detail": "The deceased was NOT prescribed digoxin; no bottle in his home; he took only blood-pressure tablets.",
+            "flag": "key"
+          },
+          {
+            "heading": "Injection vs ingestion",
+            "detail": "Digoxin levels and tissue distribution suggest oral dosing over the preceding day, not a single injection — slipped into food or his BP tablets.",
+            "flag": "key"
+          },
+          {
+            "heading": "Last meal",
+            "detail": "Pepper soup and his evening medications, taken at home where he lived alone but had regular visitors.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "financial",
+        "title": "The Blackmail Money Trail",
+        "subtitle": "Two years of payments",
+        "header": [
+          {
+            "label": "Total paid",
+            "value": "~95m over 24 months"
+          },
+          {
+            "label": "Routed via",
+            "value": "Lawyer's client account to a shell"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Payments handled by Nnadi",
+            "detail": "Every payment was wired by Barrister Nnadi from Madu's funds to a shell account 'on the blackmailer's instruction'.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Shell account true owner",
+            "detail": "The receiving shell account was NOT controlled by Obinna Wali — it was opened with documents tied to a third party.",
+            "flag": "key"
+          },
+          {
+            "heading": "Wali's lifestyle",
+            "detail": "The dead 'blackmailer' Obinna Wali lived modestly, barely scraping by — inconsistent with receiving 95m.",
+            "flag": "key"
+          },
+          {
+            "heading": "Skim pattern",
+            "detail": "Of each payment, a consistent slice was siphoned onward from the shell to a second account before the rest reached anyone.",
+            "flag": "key"
+          },
+          {
+            "heading": "Tega's finances",
+            "detail": "Sacked PA Tega received nothing traceable; his accounts are empty and overdrawn.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "The Tape & Contact Forensics",
+        "subtitle": "Who really held the recording",
+        "header": [
+          {
+            "label": "Recording",
+            "value": "Audio of Madu's indiscretion"
+          },
+          {
+            "label": "Origin",
+            "value": "Recorded 2+ years ago"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Recording metadata",
+            "detail": "The original audio file's metadata shows it was created on a device, then EDITED/trimmed before first delivery to Madu.",
+            "flag": "key"
+          },
+          {
+            "heading": "Wali couldn't have recorded it",
+            "detail": "Obinna Wali was demonstrably elsewhere (hospitalised) on the date the audio was captured — he never made the recording.",
+            "flag": "key"
+          },
+          {
+            "heading": "Blackmail contact channel",
+            "detail": "All blackmail messages to Madu came through Barrister Nnadi, who 'relayed' the demands as intermediary.",
+            "flag": "key"
+          },
+          {
+            "heading": "Who had access to record it",
+            "detail": "The recording was made in a private setting only Madu's inner circle could have bugged — wife, lawyer, or PA.",
+            "flag": "key"
+          },
+          {
+            "heading": "Phone of the deceased",
+            "detail": "Wali's phone holds NO copy of the recording and no blackmail correspondence with Madu at all.",
+            "flag": "key"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Bank officer",
+        "relation": "Opened the shell account",
+        "statement": "The account was set up by a well-dressed lawyer type with all the right papers. Not the Wali man in the photo — never seen that face here.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Wali's neighbour",
+        "relation": "Lived next door",
+        "statement": "Obinna? Poor man, always borrowing. If he was blackmailing a senator he sure never spent the money. His doctor brother-in-law visited him plenty, even brought his medicines.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w3",
+        "name": "Tega Okoro",
+        "relation": "Ex-PA",
+        "statement": "They think I'm the blackmailer because I got sacked. I knew the secret, yes — but I never got a kobo. Ask the lawyer who handled the money. Ask him.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s2",
+        "title": "Interview — Barrister Uche Nnadi",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You handled every payment and relayed every demand. You were the only channel."
+          },
+          {
+            "speaker": "Nnadi",
+            "role": "a",
+            "text": "As his lawyer, protecting him. I wired what the blackmailer demanded to the account they named. I was the shield, not the sword."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The shell account wasn't Wali's. The money skimmed onward before it reached anyone."
+          },
+          {
+            "speaker": "Nnadi",
+            "role": "a",
+            "text": "Then the blackmailer used layers — that's their craft, not mine. I only saw the first account I was told to pay."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You claimed you'd finally 'traced' the blackmailer — right before he conveniently died."
+          },
+          {
+            "speaker": "Nnadi",
+            "role": "a",
+            "text": "I gave my client closure. Wali fit the profile. That the man had a bad heart and died is tragic timing, not my doing. I was at my office all night."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where did you get Wali's name to give Madu as the culprit?"
+          },
+          {
+            "speaker": "Nnadi",
+            "role": "a",
+            "text": "Investigative contacts. I can't burn my sources, even for you, Detective."
+          }
+        ]
+      },
+      {
+        "id": "t2",
+        "suspectId": "s5",
+        "title": "Interview — Dr. Ibrahim Sani",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You signed Wali's death as natural causes within hours. He's your brother-in-law."
+          },
+          {
+            "speaker": "Sani",
+            "role": "a",
+            "text": "He had terrible coronary disease. I'd treated him for years. An MI was no surprise, God rest him."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "He had toxic digoxin he was never prescribed. You brought him his medicines."
+          },
+          {
+            "speaker": "Sani",
+            "role": "a",
+            "text": "I brought his BP tablets, yes. Family does that. I never gave him digoxin — why would I poison my own wife's brother?"
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You stood to inherit, and you signed fast."
+          },
+          {
+            "speaker": "Sani",
+            "role": "a",
+            "text": "He had nothing to inherit but debts! And I signed because I knew his heart. If I wanted him dead quietly I'd hardly leave digoxin for you to find."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "2 yrs prior",
+        "event": "Audio of Madu recorded (Wali hospitalised that day)",
+        "source": "Metadata / hospital",
+        "conflict": true
+      },
+      {
+        "time": "2 yrs prior",
+        "event": "First blackmail demand relayed via Nnadi",
+        "source": "Lawyer",
+        "conflict": false
+      },
+      {
+        "time": "24 months",
+        "event": "Payments wired by Nnadi to shell, skimmed onward",
+        "source": "Financial",
+        "conflict": false
+      },
+      {
+        "time": "Death day -1",
+        "event": "Wali takes evening meds; visited at home",
+        "source": "Neighbour",
+        "conflict": false
+      },
+      {
+        "time": "Death day",
+        "event": "Nnadi tells Madu he 'traced' the blackmailer to Wali",
+        "source": "Madu",
+        "conflict": false
+      },
+      {
+        "time": "Death day",
+        "event": "Madu at televised Aba rally",
+        "source": "Broadcast",
+        "conflict": false
+      },
+      {
+        "time": "Death night",
+        "event": "Wali dies; Sani certifies natural MI",
+        "source": "Physician",
+        "conflict": false
+      },
+      {
+        "time": "Death +2 days",
+        "event": "Demands stop; tape never surfaces",
+        "source": "Madu",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-shell",
+        "name": "Shell Account Identity",
+        "tagline": "Who really got the money?",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Beneficial owner of shell + skim destination",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Shell opener",
+                "value": "Documents prepared by Nnadi's chambers"
+              },
+              {
+                "label": "Skim destination",
+                "value": "Account linked to Barrister Nnadi"
+              }
+            ],
+            "note": "The 'blackmailer's' account was set up by the lawyer's own chambers, and the skimmed slice flows to Nnadi. The blackmailer was never a third party at all."
+          }
+        ]
+      },
+      {
+        "id": "tool-meta",
+        "name": "Audio Metadata Forensics",
+        "tagline": "Who could have recorded the tape?",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Recording device + capture date vs Wali",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Capture date",
+                "value": "Day Wali was hospitalised (alibi'd by hospital)"
+              },
+              {
+                "label": "Device profile",
+                "value": "Matches a recorder later billed to Nnadi's chambers"
+              }
+            ],
+            "note": "Wali physically could not have recorded it. The capture device traces back to the lawyer's office."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Blackmail Comms Mapping",
+        "tagline": "Did Wali ever contact Madu?",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Any direct contact Wali <-> Madu, 2 years",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Calls/SMS Wali-Madu",
+                "value": "ZERO"
+              },
+              {
+                "label": "All demands via",
+                "value": "Nnadi only"
+              }
+            ],
+            "note": "There is NO link between the supposed blackmailer and the victim. The only person ever in contact with Madu about the tape was his own lawyer."
+          }
+        ]
+      },
+      {
+        "id": "tool-rally",
+        "name": "Madu & Sani Whereabouts",
+        "tagline": "Could the obvious two have dosed him?",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Madu and Sani access to Wali's meds, death window",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Madu",
+                "value": "Televised in Aba; no access to Wali, ever"
+              },
+              {
+                "label": "Sani",
+                "value": "Brought BP tablets but digoxin distribution = dosed over prior 24h by repeat visitor"
+              }
+            ],
+            "note": "Madu never met the man and is on live TV. Sani brought meds but the multi-dose pattern needed repeated, trusted access framed to look like the brother-in-law."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s2",
+    "keyEvidenceId": "r3",
+    "explanation": "The blackmailer AND the killer are the same man: Barrister Uche Nnadi, Madu's own lawyer. This is a two-victim deception. Layer one of misdirection: Madu is the obvious beneficiary of the blackmailer's death, but he's on live television in Aba and — crucially — never had a single contact with the supposed blackmailer (Comms Mapping: ZERO calls/SMS Wali-Madu ever). Layer two: Dr. Sani looks perfect for the murder — he's the brother-in-law who brought the medicines, signed 'natural causes' within hours, and stood to inherit — and the digoxin was a multi-dose poisoning needing trusted repeat access to Wali's pills. But Sani is the patsy: the poisoning was deliberately framed to point at the visiting brother-in-law, and Sani had no connection to the blackmail money or the tape at all. The decisive chain is in the Tape & Contact Forensics (r3) with two tools. The recording that started everything was captured on a date when Obinna Wali was hospitalised (timeline conflict + Audio Metadata Forensics) — Wali could NOT have made it — and the capture device traces to Nnadi's own chambers; Wali's phone holds no copy of the tape and no correspondence with Madu; and every demand for two years was 'relayed' solely through Nnadi. Follow the money (r2 + Shell Account Identity): the receiving shell wasn't Wali's, it was opened with documents from Nnadi's chambers, Wali lived in poverty inconsistent with 95m, and a consistent slice skimmed onward to an account linked to Nnadi. The truth: there was never an external blackmailer. Nnadi secretly recorded his own client, invented a faceless extortionist, positioned himself as the indispensable 'intermediary' and 'shield,' and pocketed the payments for two years. When his own client's lawyer (himself) was pressed to finally 'trace' the blackmailer, he picked a poor, terminally heart-sick acquaintance — Wali — fed him digoxin over a day in his BP tablets to trigger an 'natural' MI undetectable on a routine certificate, framed the timing so the brother-in-law physician would unwittingly certify it and look guilty, and closed the loop: the blackmailer 'identified' and dead, demands stopped, tape never surfaces. Everyone else is cleared: Madu (live TV, zero contact with Wali), Adaeze (fellowship with witnesses, and a wife wanting the affair buried doesn't fake-blackmail her own husband through his lawyer), Tega (knew the secret but received not one kobo, accounts overdrawn — the perfect scapegoat the case dangles), and Sani (the framed brother-in-law with no tie to the tape or the money). The elegant, easily-missed detail: the lawyer was the ONLY person ever in contact with the victim about the blackmail — the 'middleman' was always the man at both ends of the rope.",
+    "_dummy": "x"
+  }
+]

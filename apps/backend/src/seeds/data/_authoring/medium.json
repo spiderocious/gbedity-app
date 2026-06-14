@@ -1,0 +1,1927 @@
+[
+  {
+    "key": "m-the-ransom-drop",
+    "title": "The Ransom Drop at Mile 2",
+    "category": "Kidnapping",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": [
+      "kidnapping",
+      "ransom",
+      "lagos",
+      "inside-job"
+    ],
+    "brief": "Twelve-year-old Ebube Okafor was taken from the gate of Brightstars Academy in Surulere, Lagos, on a Tuesday afternoon. The family paid ₦4.5 million at a drop point near Mile 2, and Ebube was released unharmed the next morning. The money is gone, but the boy says he was kept in a quiet room and heard a generator and a familiar bell. The police suspect the abduction was arranged by someone close to the family.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Chuka Okafor",
+        "age": 44,
+        "role": "the boy's father, owns a tiles business",
+        "motive": "business heavily in debt; insurance and sympathy could clear suppliers",
+        "alibi": "says he was at his Ikeja showroom all afternoon, confirmed by two staff and CCTV",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 11 22 901",
+        "note": "wept openly; hands shook when the ransom call recording was played"
+      },
+      {
+        "id": "s2",
+        "name": "Ngozi Eze",
+        "age": 38,
+        "role": "the family's longtime nanny",
+        "motive": "owed ₦600,000 to a thrift collective; recently asked Chuka for a loan and was refused",
+        "alibi": "claims she went to the market at Aguda during the school run, no receipt",
+        "alibiStatus": "shaky",
+        "phone": "+234 805 44 18 220",
+        "note": "calm, almost rehearsed; corrected the detective on the exact pickup time"
+      },
+      {
+        "id": "s3",
+        "name": "Bode Adeyemi",
+        "age": 29,
+        "role": "the school's gate security guard",
+        "motive": "underpaid; gambling debts at a betting kiosk nearby",
+        "alibi": "logged in the gate register but left post for 25 minutes, says he went to buy fuel for the gen",
+        "alibiStatus": "broken",
+        "phone": "+234 807 90 65 113",
+        "note": "sweated, blamed the school for short-staffing the gate"
+      },
+      {
+        "id": "s4",
+        "name": "Halima Bello",
+        "age": 41,
+        "role": "Ebube's class teacher",
+        "motive": "none obvious; close to the family, godmother to Ebube's sister",
+        "alibi": "teaching a JSS2 class until 3:10pm, confirmed by the school timetable and pupils",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 33 77 540",
+        "note": "distraught but coherent; offered her own savings to help"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "digital",
+        "title": "Ransom Call & SIM Analysis",
+        "subtitle": "Lagos State Police Anti-Kidnapping Unit / Wed",
+        "header": [
+          {
+            "label": "Calls to family",
+            "value": "3"
+          },
+          {
+            "label": "SIM",
+            "value": "unregistered MTN"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Background sound",
+            "detail": "The second ransom call carries a distinct recurring church bell chime every few seconds, plus a steady generator hum. The cadence matches a Catholic Angelus chime.",
+            "flag": "key"
+          },
+          {
+            "heading": "Tower location",
+            "detail": "All three ransom calls pinged the same mast in the Aguda/Coker area of Surulere, within roughly 800m of St. Dominic's Catholic Church.",
+            "flag": "key"
+          },
+          {
+            "heading": "Burner purchased nearby",
+            "detail": "The burner SIM was activated the morning of the abduction. Top-up was a ₦500 voucher bought at a kiosk in Aguda market.",
+            "flag": "none"
+          },
+          {
+            "heading": "Father's number flagged",
+            "detail": "Chuka's personal line exchanged 14 calls with a loan-shark number in the prior week, unrelated to the kidnapping.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "forensic",
+        "title": "Release Point Trace",
+        "subtitle": "Forensics / Thursday",
+        "header": [
+          {
+            "label": "Boy released",
+            "value": "Eric Moore St, Aguda"
+          },
+          {
+            "label": "Distance from school",
+            "value": "1.1 km"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Cement dust on clothes",
+            "detail": "Ebube's shirt carried fine grey cement dust and red-sand residue consistent with a building-supplies environment.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Footwear soil",
+            "detail": "Soil in the room's threshold matched the unpaved compound of a residential block behind St. Dominic's, not the father's tiled showroom.",
+            "flag": "key"
+          },
+          {
+            "heading": "Snack wrapper",
+            "detail": "A wrapper for a brand of biscuit sold mainly at Aguda market was found where Ebube was held.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "financial",
+        "title": "Suspect Money Movements",
+        "subtitle": "EFCC liaison / Friday",
+        "header": [
+          {
+            "label": "Accounts pulled",
+            "value": "4"
+          },
+          {
+            "label": "Period",
+            "value": "30 days"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Nanny's debt cleared",
+            "detail": "Ngozi Eze paid off ₦600,000 to her thrift collective in two cash deposits the day after the ransom was collected.",
+            "flag": "key"
+          },
+          {
+            "heading": "Guard's betting",
+            "detail": "Bode Adeyemi placed and lost small bets totalling ₦18,000 the same week; no large inflow appears in his account.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Father's overdraft",
+            "detail": "Chuka's business account is ₦9m overdrawn; no portion of the ₦4.5m ransom returned to him.",
+            "flag": "none"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Sister Mary-Jane",
+        "relation": "caretaker at St. Dominic's",
+        "statement": "A woman rented the back room of our old catechist block last week, said it was for storing market goods. She paid cash and came and went with a covered bag.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Tunde the gateman's friend",
+        "relation": "betting-kiosk attendant",
+        "statement": "Bode owes everybody. He was here the afternoon that boy was taken, shouting at the football scores. He never left for long.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Ebube Okafor",
+        "relation": "the victim",
+        "statement": "I heard a bell, ding, ding, like in church. And a generator. The person who brought me rice had soft hands and smelled like the powder Auntie uses.",
+        "reliability": "reliable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s2",
+        "title": "Interview — Ngozi Eze",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you during the 2:45 school run?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "Aguda market. Buying foodstuff for the house."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Any receipt, or someone who saw you?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "You don't get receipts in Aguda market, officer."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You cleared a ₦600,000 debt the day after the ransom. Where from?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "My brother abroad sent it. He sends money sometimes."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "In two cash deposits, no transfer trail?"
+          },
+          {
+            "speaker": "Ngozi",
+            "role": "a",
+            "text": "He sends it through someone. I cannot explain everything."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "2:45pm",
+        "event": "Ebube leaves class for the gate",
+        "source": "school register",
+        "conflict": false
+      },
+      {
+        "time": "2:50pm",
+        "event": "Bode logs out of the gate post to buy fuel",
+        "source": "gate register",
+        "conflict": true
+      },
+      {
+        "time": "2:52pm",
+        "event": "Ebube taken from the gate",
+        "source": "Ebube's account",
+        "conflict": false
+      },
+      {
+        "time": "3:00pm",
+        "event": "Ngozi says she is at Aguda market",
+        "source": "Ngozi's statement",
+        "conflict": true
+      },
+      {
+        "time": "6:10pm",
+        "event": "First ransom call, Aguda mast",
+        "source": "AKU log",
+        "conflict": false
+      },
+      {
+        "time": "Next 9:00am",
+        "event": "Ransom collected at Mile 2",
+        "source": "drop surveillance",
+        "conflict": false
+      },
+      {
+        "time": "Next 11:30am",
+        "event": "Ebube released on Eric Moore St, Aguda",
+        "source": "patrol report",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-tri",
+        "name": "Mast Triangulation",
+        "tagline": "Pin the calls to a footprint",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "ransom burner SIM",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Cluster",
+                "value": "Aguda/Coker mast"
+              },
+              {
+                "label": "Radius",
+                "value": "~800m of St. Dominic's"
+              }
+            ],
+            "note": "Tight cluster, no movement during calls."
+          }
+        ]
+      },
+      {
+        "id": "tool-id",
+        "name": "Identity Lookup",
+        "tagline": "Who rented the room",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "St. Dominic's back-room tenant",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Name given",
+                "value": "Mrs. N. Eze"
+              },
+              {
+                "label": "ID",
+                "value": "none, cash only"
+              }
+            ],
+            "note": "Caretaker recognised her photo from the family album."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call Log Pull",
+        "tagline": "Personal lines, 30 days",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Chuka Okafor line",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Flagged contacts",
+                "value": "loan shark only"
+              },
+              {
+                "label": "Ransom SIM contact",
+                "value": "none"
+              }
+            ],
+            "note": "Debt calls, but no link to the abduction."
+          }
+        ]
+      },
+      {
+        "id": "tool-fin",
+        "name": "Account Trace",
+        "tagline": "Follow the naira",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Ngozi Eze deposits",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Deposit 1",
+                "value": "₦350,000 cash"
+              },
+              {
+                "label": "Deposit 2",
+                "value": "₦250,000 cash"
+              }
+            ],
+            "note": "Both deposited day after ransom; no inbound transfer."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s2",
+    "keyEvidenceId": "r1",
+    "explanation": "The nanny, Ngozi Eze, arranged the kidnapping. The ransom call's church-bell chime and generator hum (r1) place the hideout within 800m of St. Dominic's in Aguda, where the caretaker (w1) identifies Ngozi as the woman who rented the back room days earlier with cash. The release soil and snack wrapper (r2) confirm Aguda, and Ebube's memory of 'soft hands' and familiar powder points to a carer, not a labourer. The clincher is money: she cleared a ₦600,000 debt in two unexplained cash deposits the day after the drop (r3/Account Trace), with a fabricated 'brother abroad' story and no transfer trail. The father is cleared by confirmed showroom CCTV; his loan-shark calls were a herring. The guard's broken alibi and gambling debts (and the cement-dust herring suggesting a building site) mislead, but his betting-kiosk friend places him locally with no large inflow. The teacher was teaching all afternoon."
+  },
+  {
+    "key": "m-poison-in-the-pepper-soup",
+    "title": "Poison in the Pepper Soup",
+    "category": "Suspected Homicide",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": [
+      "poisoning",
+      "restaurant",
+      "abuja",
+      "inheritance"
+    ],
+    "brief": "Chief Adamu Sani, a wealthy contractor, collapsed and died after a family dinner at his home in Maitama, Abuja. The last thing he ate was catfish pepper soup. The autopsy finds a toxic dose of an organophosphate pesticide. Four people shared the table, and the Chief had just announced he was changing his will.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Amina Sani",
+        "age": 39,
+        "role": "the Chief's second wife",
+        "motive": "stood to lose her share under the announced new will",
+        "alibi": "served the soup; in the kitchen and dining room all evening",
+        "alibiStatus": "unchecked",
+        "phone": "+234 806 22 90 117",
+        "note": "composed, kept steering questions to the cook"
+      },
+      {
+        "id": "s2",
+        "name": "Emeka Sani",
+        "age": 31,
+        "role": "the Chief's son from his first marriage",
+        "motive": "deep gambling debts; the new will favoured a charity over him",
+        "alibi": "says he stepped out to take a call on the veranda during dinner",
+        "alibiStatus": "shaky",
+        "phone": "+234 809 41 33 808",
+        "note": "defensive, smelled of cigarettes, fidgeted with his phone"
+      },
+      {
+        "id": "s3",
+        "name": "Grace Udo",
+        "age": 52,
+        "role": "the family cook of 15 years",
+        "motive": "recently scolded and threatened with dismissal over missing housekeeping money",
+        "alibi": "prepared the soup in the kitchen; tasted it herself at 6pm",
+        "alibiStatus": "confirmed",
+        "phone": "+234 803 55 67 200",
+        "note": "frightened, insisted the soup was clean when it left her pot"
+      },
+      {
+        "id": "s4",
+        "name": "Dr. Yusuf Lawal",
+        "age": 47,
+        "role": "the Chief's personal physician and dinner guest",
+        "motive": "the Chief was auditing medical-retainer payments he'd been overbilling",
+        "alibi": "at the table the whole time; first to attempt CPR",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 78 12 449",
+        "note": "clinical, quick to call it a cardiac event before tests returned"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "autopsy",
+        "title": "Post-Mortem — Chief A. Sani",
+        "subtitle": "National Hospital Abuja / Mortuary",
+        "header": [
+          {
+            "label": "Cause",
+            "value": "Organophosphate toxicity"
+          },
+          {
+            "label": "Onset",
+            "value": "rapid, ~20 min"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Toxin identified",
+            "detail": "Stomach contents show a concentrated organophosphate pesticide, the kind sold as a grain-storage powder in open markets. Dose was far above accidental contamination.",
+            "flag": "key"
+          },
+          {
+            "heading": "Localised to last course",
+            "detail": "Toxin concentration was highest in residue consistent with the pepper soup, ingested only minutes before collapse.",
+            "flag": "key"
+          },
+          {
+            "heading": "No prior heart disease",
+            "detail": "Coronary arteries were clear; there was no cardiac event, contradicting the early on-scene assessment.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Mild ulcer",
+            "detail": "An unrelated, long-standing gastric ulcer was noted, not contributory.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "forensic",
+        "title": "Kitchen & Tableware Swabs",
+        "subtitle": "Forensics / next day",
+        "header": [
+          {
+            "label": "Items swabbed",
+            "value": "11"
+          },
+          {
+            "label": "Positive",
+            "value": "2"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Communal pot clean",
+            "detail": "The main soup pot and Grace's tasting ladle tested negative for the pesticide. The soup was clean when it left the kitchen.",
+            "flag": "key"
+          },
+          {
+            "heading": "One bowl positive",
+            "detail": "Only the Chief's individual serving bowl tested positive, indicating the toxin was added after plating, at the table.",
+            "flag": "key"
+          },
+          {
+            "heading": "Pesticide tin in pantry",
+            "detail": "An open tin of grain-storage pesticide sat on a low pantry shelf, accessible to household staff and family alike.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Cook's fingerprints on tin",
+            "detail": "Grace's prints were on the pesticide tin, consistent with her routine storage duties.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "Phones & Seating",
+        "subtitle": "Digital Forensics / next day",
+        "header": [
+          {
+            "label": "Phones imaged",
+            "value": "4"
+          },
+          {
+            "label": "Seating map",
+            "value": "reconstructed"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Son not on veranda",
+            "detail": "Emeka claimed he was on the veranda taking a call, but his phone shows no call during dinner and stayed connected to the dining-room WiFi access point the whole time.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Wife seated beside Chief",
+            "detail": "The reconstructed seating places Amina to the Chief's immediate right; she plated and passed him his bowl personally.",
+            "flag": "key"
+          },
+          {
+            "heading": "Wife's search history",
+            "detail": "Amina's phone shows searches three days earlier for 'how fast does grain pesticide work' and 'symptoms organophosphate', deleted from history but recovered.",
+            "flag": "key"
+          },
+          {
+            "heading": "Doctor's billing texts",
+            "detail": "Dr. Lawal exchanged texts about 'sorting the retainer audit quietly' with an accountant the week before.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Halima",
+        "relation": "house steward who served drinks",
+        "statement": "Madam Amina would not let me carry Oga's bowl. She said she always serves him herself, that is their tradition. She held his bowl a moment by the sideboard before placing it.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Emeka Sani",
+        "relation": "the Chief's son",
+        "statement": "I was outside on the veranda the whole time, on a long call. I didn't even eat the soup. Ask anyone. The cook has been stealing for months, look at her.",
+        "reliability": "hostile"
+      },
+      {
+        "id": "w3",
+        "name": "Grace Udo",
+        "relation": "the cook",
+        "statement": "I tasted that soup myself at six o'clock, as I always do. If it had poison I would be dead too. I touch that tin every week for the rice, that is all.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s1",
+        "title": "Interview — Amina Sani",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Who served the Chief his pepper soup?"
+          },
+          {
+            "speaker": "Amina",
+            "role": "a",
+            "text": "I did. I always serve my husband myself. It is our custom."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The pot was clean, but only his bowl had pesticide in it."
+          },
+          {
+            "speaker": "Amina",
+            "role": "a",
+            "text": "Then someone tampered after I plated it. Ask the cook, she handles that poison."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Three days ago your phone searched how fast grain pesticide works."
+          },
+          {
+            "speaker": "Amina",
+            "role": "a",
+            "text": "That... I was worried about rats in the pantry. That is all."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You deleted the searches the same night."
+          },
+          {
+            "speaker": "Amina",
+            "role": "a",
+            "text": "I delete things all the time. This proves nothing."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "6:00pm",
+        "event": "Grace tastes the finished soup, no ill effect",
+        "source": "cook's statement",
+        "conflict": false
+      },
+      {
+        "time": "7:30pm",
+        "event": "Dinner begins; Amina plates and passes the Chief's bowl",
+        "source": "steward Halima",
+        "conflict": false
+      },
+      {
+        "time": "7:40pm",
+        "event": "Emeka claims he left for a veranda call",
+        "source": "Emeka's statement",
+        "conflict": true
+      },
+      {
+        "time": "7:45pm",
+        "event": "Chief eats the pepper soup",
+        "source": "table accounts",
+        "conflict": false
+      },
+      {
+        "time": "8:05pm",
+        "event": "Chief collapses",
+        "source": "household",
+        "conflict": false
+      },
+      {
+        "time": "8:08pm",
+        "event": "Dr. Lawal calls it a cardiac event",
+        "source": "on-scene note",
+        "conflict": true
+      },
+      {
+        "time": "8:40pm",
+        "event": "Chief pronounced dead at National Hospital",
+        "source": "hospital log",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-id",
+        "name": "Identity & Records",
+        "tagline": "Will and beneficiaries",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Sani estate will change",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Old will",
+                "value": "Amina gets 40%"
+              },
+              {
+                "label": "Announced new will",
+                "value": "Amina reduced to token"
+              }
+            ],
+            "note": "Change announced at the very dinner; not yet signed."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Phone Records",
+        "tagline": "Recovered & deleted data",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Amina Sani device",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Recovered search",
+                "value": "'how fast grain pesticide works'"
+              },
+              {
+                "label": "Deleted",
+                "value": "same night"
+              }
+            ],
+            "note": "Three days before the dinner."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call Log",
+        "tagline": "Verify the veranda call",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Emeka Sani 7:30-8:10pm",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Calls",
+                "value": "none"
+              },
+              {
+                "label": "WiFi",
+                "value": "dining-room AP, continuous"
+              }
+            ],
+            "note": "His alibi is false, but he never touched the Chief's bowl."
+          }
+        ]
+      },
+      {
+        "id": "tool-db",
+        "name": "Tox Database",
+        "tagline": "Match the agent",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "organophosphate grain powder",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Source",
+                "value": "open-market pesticide tin"
+              },
+              {
+                "label": "Onset",
+                "value": "15-25 min"
+              }
+            ],
+            "note": "Matches pantry tin and the 20-minute collapse."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s1",
+    "keyEvidenceId": "r2",
+    "explanation": "Amina Sani poisoned her husband. The autopsy (r1) confirms organophosphate, not a heart attack, and the swabs (r2, the key report) prove the communal pot and tasting ladle were clean while only the Chief's individual bowl was positive, meaning the toxin was added at the table after plating. The steward (w1) and seating reconstruction (r3) establish that Amina alone plated and handled his bowl by the sideboard, as was her insisted custom. Her recovered, then-deleted search 'how fast does grain pesticide work' three days prior, plus her motive (the new will stripping her 40% share, per the will lookup), seal it. The cook is cleared: she tasted the same clean pot at 6pm and survived, and her prints on the tin and the accessible pantry pesticide are herrings designed to frame her. The son lied about the veranda call (his phone never left the dining-room WiFi), but he never handled the Chief's bowl, so his false alibi is a herring. The doctor's overbilling and premature 'cardiac' call mislead but don't connect to the poisoned bowl."
+  },
+  {
+    "key": "m-the-burnt-warehouse",
+    "title": "The Burnt Warehouse at Trade Fair",
+    "category": "Arson",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": [
+      "arson",
+      "insurance",
+      "lagos",
+      "warehouse"
+    ],
+    "brief": "A textile warehouse at the Lagos International Trade Fair Complex burned down overnight, destroying goods insured for ₦80 million. The fire started near the rear store, and investigators find traces of an accelerant. The night watchman was found locked out, and the owner had recently doubled the insurance cover.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Rasheed Olaniyan",
+        "age": 50,
+        "role": "the warehouse owner",
+        "motive": "stock wasn't selling; he doubled the insurance cover two weeks before the fire",
+        "alibi": "says he was at home in Lekki, phone pinged Lekki mast all night",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 14 55 690",
+        "note": "calm, almost relieved; talked about the payout before the cause was known"
+      },
+      {
+        "id": "s2",
+        "name": "Sikiru Bello",
+        "age": 33,
+        "role": "the night watchman",
+        "motive": "owed three months' salary; recently quarrelled with the owner",
+        "alibi": "found locked outside the gate; says he was shut out when the side door jammed",
+        "alibiStatus": "shaky",
+        "phone": "+234 807 66 21 304",
+        "note": "smelled faintly of smoke, agitated, kept saying he was set up"
+      },
+      {
+        "id": "s3",
+        "name": "Patience Nwankwo",
+        "age": 41,
+        "role": "a rival textile trader in the next block",
+        "motive": "long-running feud over stall allocations and undercut prices",
+        "alibi": "claims she travelled to Aba that day for stock; bus ticket produced",
+        "alibiStatus": "shaky",
+        "phone": "+234 803 99 47 712",
+        "note": "openly hostile, said the owner 'deserved' the loss"
+      },
+      {
+        "id": "s4",
+        "name": "Femi Adebayo",
+        "age": 36,
+        "role": "the warehouse's electrician and handyman",
+        "motive": "paid per call-out; recently flagged faulty wiring the owner refused to fix",
+        "alibi": "did a rewiring job in the rear store that afternoon; left at 5pm per gate log",
+        "alibiStatus": "confirmed",
+        "phone": "+234 805 30 18 226",
+        "note": "cooperative, worried the fire would be blamed on his wiring"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "forensic",
+        "title": "Fire Origin & Accelerant",
+        "subtitle": "Lagos State Fire Service / Forensics",
+        "header": [
+          {
+            "label": "Origin",
+            "value": "rear store"
+          },
+          {
+            "label": "Accelerant",
+            "value": "petrol"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Pour pattern",
+            "detail": "A deliberate petrol pour pattern runs along the rear store floor and up a stack of fabric bales. This was set, not electrical.",
+            "flag": "key"
+          },
+          {
+            "heading": "Electrical ruled out",
+            "detail": "The rear-store wiring, recently redone, was intact and de-energised at the breaker. The fire did not start at the wiring.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Side door wedged",
+            "detail": "The side fire door was wedged shut from the inside with a metal bar, which is why the watchman could not re-enter. Someone inside sealed it before lighting up.",
+            "flag": "key"
+          },
+          {
+            "heading": "Jerry can residue",
+            "detail": "A plastic jerry can with petrol residue was found in a drainage ditch outside the rear fence.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Mast & CCTV Timeline",
+        "subtitle": "Digital Forensics",
+        "header": [
+          {
+            "label": "Cameras",
+            "value": "2 working"
+          },
+          {
+            "label": "Window",
+            "value": "10pm-1am"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Owner stayed in Lekki",
+            "detail": "Rasheed's phone pinged a Lekki mast continuously from 9pm to dawn, with no movement toward the Trade Fair complex.",
+            "flag": "key"
+          },
+          {
+            "heading": "Watchman locked out at 11:50",
+            "detail": "Front-gate CCTV shows Sikiru outside the gate from 11:50pm, hammering on it, well before the fire is first seen at 12:25am.",
+            "flag": "key"
+          },
+          {
+            "heading": "Figure at rear fence",
+            "detail": "A grainy rear camera caught a person climbing out over the rear fence at 12:20am, carrying a can-shaped object, minutes before the blaze.",
+            "flag": "key"
+          },
+          {
+            "heading": "Rival's bus to Aba",
+            "detail": "Patience's phone last pinged a Mile 12 mast at 6pm, consistent with an outbound Aba trip; no Trade Fair pings overnight.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "financial",
+        "title": "Money & Insurance",
+        "subtitle": "Insurer's loss adjuster",
+        "header": [
+          {
+            "label": "Cover",
+            "value": "₦80m (doubled)"
+          },
+          {
+            "label": "Stock value",
+            "value": "~₦35m"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Cover doubled",
+            "detail": "Rasheed raised the policy from ₦40m to ₦80m two weeks before the fire, well above the actual stock value.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Cash to handyman",
+            "detail": "Rasheed transferred ₦450,000 to Femi Adebayo three days before the fire, labelled 'extra job'. The rewiring invoice was only ₦120,000.",
+            "flag": "key"
+          },
+          {
+            "heading": "Watchman unpaid",
+            "detail": "Sikiru was indeed owed three months' wages; no unusual inflows to his account.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Alhaji Musa",
+        "relation": "gateman at the adjacent block",
+        "statement": "I saw the watchman banging on the front gate before midnight, before any fire. Whoever did this was already inside and would not open for him.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Patience Nwankwo",
+        "relation": "rival trader",
+        "statement": "I was in Aba, ask the motor park. But I will not pretend to cry. Rasheed is a cheat and that fire is karma. Maybe he burned it himself for the money.",
+        "reliability": "hostile"
+      },
+      {
+        "id": "w3",
+        "name": "Chidi",
+        "relation": "okada rider near the rear fence",
+        "statement": "Around past twelve, a man jumped the back fence with a keg and ran toward the canal. Not tall, work boots, looked like one of the staff. I dropped my passenger and went, I didn't wait.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s4",
+        "title": "Interview — Femi Adebayo",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The gate log says you left at 5pm. Did you return?"
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "No. I finished the rewiring and went home."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Rasheed paid you ₦450,000 but the rewiring invoice was ₦120,000. Explain the rest."
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "He said it was advance for future jobs. He is a generous man."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "A man in work boots was seen jumping the rear fence with a petrol can at 12:20am."
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "Plenty people wear work boots. That is not me."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You know the rear fire door and where the petrol store is. You wedged that door from inside."
+          },
+          {
+            "speaker": "Femi",
+            "role": "a",
+            "text": "I... I want a lawyer now."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "5:00pm",
+        "event": "Femi logs out after rewiring the rear store",
+        "source": "gate log",
+        "conflict": true
+      },
+      {
+        "time": "11:50pm",
+        "event": "Sikiru locked outside front gate, banging",
+        "source": "front CCTV",
+        "conflict": false
+      },
+      {
+        "time": "12:15am",
+        "event": "Side fire door found later wedged from inside",
+        "source": "fire forensics",
+        "conflict": false
+      },
+      {
+        "time": "12:20am",
+        "event": "Figure climbs rear fence with a can",
+        "source": "rear CCTV / okada rider",
+        "conflict": false
+      },
+      {
+        "time": "12:25am",
+        "event": "Fire first visible at rear store",
+        "source": "fire service",
+        "conflict": false
+      },
+      {
+        "time": "12:40am",
+        "event": "Watchman still outside as fire spreads",
+        "source": "front CCTV",
+        "conflict": false
+      },
+      {
+        "time": "1:10am",
+        "event": "Owner's phone steady on Lekki mast",
+        "source": "mast log",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-tri",
+        "name": "Mast Triangulation",
+        "tagline": "Place the owner",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "Rasheed Olaniyan overnight",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Location",
+                "value": "Lekki, continuous"
+              },
+              {
+                "label": "Movement",
+                "value": "none toward Trade Fair"
+              }
+            ],
+            "note": "Owner physically absent; he didn't light it himself."
+          }
+        ]
+      },
+      {
+        "id": "tool-fin",
+        "name": "Account Trace",
+        "tagline": "Follow the payment",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "Rasheed to staff transfers",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "To Femi Adebayo",
+                "value": "₦450,000"
+              },
+              {
+                "label": "Invoice",
+                "value": "₦120,000 rewiring"
+              }
+            ],
+            "note": "₦330,000 unaccounted, 3 days pre-fire."
+          }
+        ]
+      },
+      {
+        "id": "tool-cctv",
+        "name": "CCTV Pull",
+        "tagline": "Front & rear cameras",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "rear fence 12:00-12:30am",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "Figure",
+                "value": "short, work boots, carrying can"
+              },
+              {
+                "label": "Direction",
+                "value": "toward canal"
+              }
+            ],
+            "note": "Matches handyman build and the okada rider's account."
+          }
+        ]
+      },
+      {
+        "id": "tool-id",
+        "name": "Identity Lookup",
+        "tagline": "Verify rival's trip",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Patience Nwankwo Aba ticket",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Bus",
+                "value": "6pm to Aba"
+              },
+              {
+                "label": "Mast",
+                "value": "Mile 12 outbound"
+              }
+            ],
+            "note": "Trip checks out; not at the scene."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s4",
+    "keyEvidenceId": "r1",
+    "explanation": "The handyman Femi Adebayo set the fire, paid by the owner. The fire forensics (r1) prove deliberate arson, a petrol pour pattern, and crucially that the side fire door was wedged shut from the inside, meaning the arsonist was inside the locked warehouse, which is why the watchman was stuck outside banging from 11:50pm (front CCTV, r2). The rear camera and okada rider (w3, CCTV pull) show a short figure in work boots climbing the rear fence with a petrol can at 12:20am, minutes before ignition, matching Femi, who knew the rear store, the petrol store, and the fire-door layout from his rewiring job that day. The money confirms it: Rasheed paid Femi ₦450,000 against a ₦120,000 invoice three days prior (r3/Account Trace). The owner is cleared as the lighter, his phone never left Lekki, though he financed it. The doubled insurance and intact 'electrical' wiring are herrings pointing at owner-as-arsonist and accidental cause. The hostile rival's Aba trip checks out, and the unpaid watchman, the obvious framed suspect, was demonstrably locked out before the fire."
+  },
+  {
+    "key": "m-the-cooperative-vanish",
+    "title": "The Vanishing Cooperative Funds",
+    "category": "Embezzlement",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": [
+      "embezzlement",
+      "cooperative",
+      "ibadan",
+      "fraud"
+    ],
+    "brief": "The Ireti Multipurpose Cooperative in Ibadan discovers ₦12 million missing from its members' savings account. The chairman calls it a hack; the bank insists every withdrawal used valid credentials and OTPs. Four officers held access. The money moved out in small, frequent transfers over three months.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Tijani Akande",
+        "age": 55,
+        "role": "the cooperative chairman",
+        "motive": "lifestyle beyond means; building a house in Oluyole",
+        "alibi": "says he rarely touched the online portal, left it to the treasurer",
+        "alibiStatus": "unchecked",
+        "phone": "+234 803 21 74 008",
+        "note": "loud, blamed hackers, demanded the bank refund everyone"
+      },
+      {
+        "id": "s2",
+        "name": "Folake Ogunde",
+        "age": 43,
+        "role": "the cooperative treasurer",
+        "motive": "had primary portal access; sole signatory on small transfers",
+        "alibi": "logged in daily for legitimate dues; says her password was stolen",
+        "alibiStatus": "shaky",
+        "phone": "+234 806 88 30 451",
+        "note": "tearful, kept saying she would never steal from her own people"
+      },
+      {
+        "id": "s3",
+        "name": "Kunle Bamidele",
+        "age": 38,
+        "role": "the cooperative's IT volunteer",
+        "motive": "set up the online portal; knows the security questions",
+        "alibi": "claims he only did setup once and never logged in after",
+        "alibiStatus": "broken",
+        "phone": "+234 809 12 66 793",
+        "note": "cocky, used jargon to deflect, mentioned 'phishing' unprompted"
+      },
+      {
+        "id": "s4",
+        "name": "Bisi Akande",
+        "age": 50,
+        "role": "the chairman's wife and a senior member",
+        "motive": "co-owner of the Oluyole house project; benefits from any inflow",
+        "alibi": "no portal access; was running her shop at Bodija all quarter",
+        "alibiStatus": "confirmed",
+        "phone": "+234 802 47 91 335",
+        "note": "indignant, insisted she handles no cooperative money"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "financial",
+        "title": "Transfer Audit",
+        "subtitle": "Bank fraud desk / Ibadan",
+        "header": [
+          {
+            "label": "Missing",
+            "value": "₦12,000,000"
+          },
+          {
+            "label": "Transfers",
+            "value": "47 over 90 days"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Salami pattern",
+            "detail": "Funds left in 47 transfers of ₦200,000-₦300,000 each, just under internal review thresholds, to a web of new wallets.",
+            "flag": "key"
+          },
+          {
+            "heading": "Funnel account",
+            "detail": "Every wallet eventually swept into one settlement account at a fintech, registered to a BVN belonging to the IT volunteer Kunle Bamidele.",
+            "flag": "key"
+          },
+          {
+            "heading": "Chairman's house deposits",
+            "detail": "Tijani paid a ₦3m deposit on the Oluyole house during the same period, sourced from a verifiable land sale, not the cooperative.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Valid OTPs",
+            "detail": "Every withdrawal used a valid OTP sent to the registered portal phone number.",
+            "flag": "key"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Portal Access Logs",
+        "subtitle": "Bank IT / forensic",
+        "header": [
+          {
+            "label": "Logins",
+            "value": "reviewed 90 days"
+          },
+          {
+            "label": "Devices",
+            "value": "3 distinct"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "OTP number changed",
+            "detail": "The portal's registered OTP phone number was quietly switched to a new SIM 4 days before the first theft, then switched back after the last. The change request came from the admin profile.",
+            "flag": "key"
+          },
+          {
+            "heading": "Admin profile is IT volunteer's",
+            "detail": "The admin profile that could alter the registered OTP number was Kunle's setup account, which he claimed never to use after install.",
+            "flag": "key"
+          },
+          {
+            "heading": "Treasurer's logins routine",
+            "detail": "Folake's daily logins came from her usual phone and matched legitimate dues entries; none coincided with the 47 theft transfers.",
+            "flag": "herring"
+          },
+          {
+            "heading": "One login from cyber café",
+            "detail": "A single login traced to a Dugbe cyber café used the treasurer's credentials.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "forensic",
+        "title": "SIM & Device Trace",
+        "subtitle": "Forensics",
+        "header": [
+          {
+            "label": "OTP SIM",
+            "value": "new, unregistered"
+          },
+          {
+            "label": "Funnel device",
+            "value": "1 phone"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "OTP SIM in one phone",
+            "detail": "The new OTP SIM and the fintech funnel account were accessed from the same single handset throughout the three months.",
+            "flag": "key"
+          },
+          {
+            "heading": "Handset is Kunle's",
+            "detail": "That handset's IMEI matches a phone Kunle registered to his own line for an unrelated subscription.",
+            "flag": "key"
+          },
+          {
+            "heading": "Café CCTV",
+            "detail": "Dugbe café CCTV on the date of the treasurer-credential login shows a man, not Folake, at that terminal.",
+            "flag": "none"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Mama Risi",
+        "relation": "cooperative secretary",
+        "statement": "Kunle set up everything and said only he understood it. When members complained, he talked computer-computer until everybody was confused and went home.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Kunle Bamidele",
+        "relation": "IT volunteer",
+        "statement": "I set it up once, that's all. This is clearly phishing, the treasurer's password leaked. I haven't logged in since installation. Check the treasurer, not me.",
+        "reliability": "hostile"
+      },
+      {
+        "id": "w3",
+        "name": "Dauda",
+        "relation": "Dugbe cyber café attendant",
+        "statement": "That seat? A young man used it that day, he paid cash, fast typer. Not a woman. He comes around sometimes.",
+        "reliability": "questionable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s3",
+        "title": "Interview — Kunle Bamidele",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You said you never logged in after setup. The admin profile changed the OTP number twice."
+          },
+          {
+            "speaker": "Kunle",
+            "role": "a",
+            "text": "Anyone could have used the admin profile. I shared the setup details."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The new OTP SIM and the funnel account ran from one phone. Its IMEI is yours."
+          },
+          {
+            "speaker": "Kunle",
+            "role": "a",
+            "text": "I lost that phone months ago. Someone must have used it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You reported no loss, and the fintech account is on your BVN."
+          },
+          {
+            "speaker": "Kunle",
+            "role": "a",
+            "text": "BVNs get cloned. This is a setup against the IT guy, always the IT guy."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "The café CCTV shows a man at the treasurer's login, not Folake."
+          },
+          {
+            "speaker": "Kunle",
+            "role": "a",
+            "text": "So now any man in Ibadan is me?"
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "Day -4",
+        "event": "Portal OTP number switched via admin profile",
+        "source": "access logs",
+        "conflict": false
+      },
+      {
+        "time": "Day 1",
+        "event": "First salami transfer leaves the savings account",
+        "source": "transfer audit",
+        "conflict": false
+      },
+      {
+        "time": "Day 14",
+        "event": "Single café login on treasurer's credentials",
+        "source": "access logs",
+        "conflict": true
+      },
+      {
+        "time": "Day 45",
+        "event": "Chairman pays ₦3m house deposit from land sale",
+        "source": "bank record",
+        "conflict": false
+      },
+      {
+        "time": "Day 88",
+        "event": "Last salami transfer; wallets sweep to fintech",
+        "source": "transfer audit",
+        "conflict": false
+      },
+      {
+        "time": "Day 90",
+        "event": "OTP number switched back to original",
+        "source": "access logs",
+        "conflict": false
+      },
+      {
+        "time": "Day 92",
+        "event": "Members notice shortfall; chairman cries hack",
+        "source": "complaint",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-fin",
+        "name": "Account Trace",
+        "tagline": "Follow the sweeps",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "funnel settlement account",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "BVN",
+                "value": "Kunle Bamidele"
+              },
+              {
+                "label": "Inflow",
+                "value": "₦11.6m net"
+              }
+            ],
+            "note": "All 47 transfers swept here."
+          }
+        ]
+      },
+      {
+        "id": "tool-phone",
+        "name": "Phone Records",
+        "tagline": "OTP SIM device",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "OTP SIM IMEI",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "IMEI",
+                "value": "matches Kunle's handset"
+              },
+              {
+                "label": "Co-used",
+                "value": "with funnel account login"
+              }
+            ],
+            "note": "One phone ran both SIM and theft account."
+          }
+        ]
+      },
+      {
+        "id": "tool-id",
+        "name": "Identity Lookup",
+        "tagline": "Verify chairman's deposit",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "Tijani Akande ₦3m source",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Source",
+                "value": "documented land sale"
+              },
+              {
+                "label": "Cooperative link",
+                "value": "none"
+              }
+            ],
+            "note": "House money is clean; not from the theft."
+          }
+        ]
+      },
+      {
+        "id": "tool-cctv",
+        "name": "CCTV Pull",
+        "tagline": "Dugbe café terminal",
+        "icon": "triangulation",
+        "results": [
+          {
+            "query": "café login date",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "User",
+                "value": "male, fast typist"
+              },
+              {
+                "label": "Match",
+                "value": "not the treasurer"
+              }
+            ],
+            "note": "Treasurer's credentials used by a man."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s3",
+    "keyEvidenceId": "r2",
+    "explanation": "The IT volunteer Kunle Bamidele embezzled the funds. The key is the portal access log (r2): the registered OTP phone number was quietly switched to a new SIM four days before the first theft and switched back after the last, and only the admin setup profile, which was Kunle's, could make that change, despite his claim he never logged in after install. With OTPs diverted to a SIM he controlled, every 'valid OTP' withdrawal (r1) was his. Forensics (r3) and the tools tie one handset, by IMEI, to both that OTP SIM and the fintech funnel account, which sits on Kunle's own BVN and received all 47 swept transfers. The treasurer is cleared: her logins were routine, never coincided with theft transfers, and the café login on her credentials was a man (CCTV, w3), a deliberate frame, the herring meant to pin it on her. The chairman's ₦3m house deposit looks damning but traces to a documented land sale (Identity Lookup, dead end), and his wife had no access at all."
+  },
+  {
+    "key": "m-sabotage-at-the-bottling-line",
+    "title": "Sabotage at the Bottling Line",
+    "category": "Sabotage",
+    "difficulty": 2,
+    "ratingTier": "family",
+    "tags": [
+      "sabotage",
+      "factory",
+      "port-harcourt",
+      "industrial"
+    ],
+    "brief": "At a soft-drinks plant in Port Harcourt, the main bottling line seizes mid-shift, shattering thousands of bottles and halting production for days, costing roughly ₦15 million. Engineers find a steel bolt deliberately dropped into the conveyor gearbox. Access to the gearbox is restricted, and the plant had just announced layoffs.",
+    "suspects": [
+      {
+        "id": "s1",
+        "name": "Ifeanyi Obi",
+        "age": 34,
+        "role": "line maintenance engineer",
+        "motive": "on the layoff list; bitter about being replaced by automation",
+        "alibi": "says he was on the line floor doing routine checks during the seizure",
+        "alibiStatus": "shaky",
+        "phone": "+234 803 60 22 145",
+        "note": "angry, openly resented management, said 'they had it coming'"
+      },
+      {
+        "id": "s2",
+        "name": "Tamuno West",
+        "age": 46,
+        "role": "plant production manager",
+        "motive": "missed targets; a sabotage claim could excuse his quarter and trigger insurance",
+        "alibi": "in his office on a video call with HQ during the seizure, call logged",
+        "alibiStatus": "confirmed",
+        "phone": "+234 806 39 78 510",
+        "note": "polished, quick to call it deliberate before engineers confirmed"
+      },
+      {
+        "id": "s3",
+        "name": "Blessing Amadi",
+        "age": 28,
+        "role": "quality-control inspector with gearbox access",
+        "motive": "passed over for a promotion that went to a junior; key-card to restricted zones",
+        "alibi": "says she was in the QC lab testing samples; lab has no camera",
+        "alibiStatus": "shaky",
+        "phone": "+234 809 55 14 660",
+        "note": "quiet, evasive about her movements, fidgeted with her key-card lanyard"
+      },
+      {
+        "id": "s4",
+        "name": "Sunday Eze",
+        "age": 39,
+        "role": "night-shift cleaner, recently fired",
+        "motive": "sacked two weeks earlier; held a grudge; knew the plant layout",
+        "alibi": "claims he was at home in Diobu; no longer has plant access",
+        "alibiStatus": "broken",
+        "phone": "+234 802 71 90 233",
+        "note": "resentful, said the plant 'used and dumped' him"
+      }
+    ],
+    "reports": [
+      {
+        "id": "r1",
+        "kind": "forensic",
+        "title": "Gearbox Failure Analysis",
+        "subtitle": "Plant Engineering / Forensics",
+        "header": [
+          {
+            "label": "Cause",
+            "value": "foreign object"
+          },
+          {
+            "label": "Object",
+            "value": "16mm steel bolt"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Deliberate insertion",
+            "detail": "The 16mm bolt was dropped through the gearbox inspection hatch, which is normally bolted shut and only opened for servicing. This was no stray part.",
+            "flag": "key"
+          },
+          {
+            "heading": "Hatch opened with key-card",
+            "detail": "The gearbox hatch interlock is released by a restricted key-card. Logs show one card released it at 1:42pm, 11 minutes before the seizure.",
+            "flag": "key"
+          },
+          {
+            "heading": "Bolt type not from line stock",
+            "detail": "The bolt is a 16mm type used in the QC lab's equipment mounts, not the conveyor's own 12mm fasteners.",
+            "flag": "key"
+          },
+          {
+            "heading": "Lubricant contamination",
+            "detail": "Old gearbox oil also showed metal shavings from ordinary long-term wear, unrelated to the bolt.",
+            "flag": "herring"
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "kind": "digital",
+        "title": "Access-Card & Camera Log",
+        "subtitle": "Security Systems",
+        "header": [
+          {
+            "label": "Cards reviewed",
+            "value": "all restricted"
+          },
+          {
+            "label": "Seizure",
+            "value": "1:53pm"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Card at hatch",
+            "detail": "The card that released the gearbox hatch at 1:42pm was issued to QC inspector Blessing Amadi.",
+            "flag": "key"
+          },
+          {
+            "heading": "Engineer elsewhere",
+            "detail": "Ifeanyi Obi's card pinged the far packaging dock at 1:40pm, away from the gearbox, contradicting his claim he was beside the line.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Fired cleaner not on site",
+            "detail": "Sunday Eze's deactivated card shows no entry; gate CCTV confirms he never entered the premises.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Manager on HQ call",
+            "detail": "Tamuno's office line carried a continuous video call with HQ from 1:30 to 2:15pm.",
+            "flag": "none"
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "kind": "digital",
+        "title": "Phones & Grievances",
+        "subtitle": "HR / Digital Forensics",
+        "header": [
+          {
+            "label": "Devices",
+            "value": "4"
+          },
+          {
+            "label": "HR records",
+            "value": "pulled"
+          }
+        ],
+        "findings": [
+          {
+            "heading": "Inspector's grievance",
+            "detail": "Blessing filed a written grievance days earlier after a junior got the promotion she expected, threatening to 'make them regret it'.",
+            "flag": "key"
+          },
+          {
+            "heading": "Inspector borrowed lab tools",
+            "detail": "Maintenance log shows Blessing signed out a 16mm bolt set from the QC lab the morning of the incident, never returned.",
+            "flag": "key"
+          },
+          {
+            "heading": "Engineer's union texts",
+            "detail": "Ifeanyi sent texts urging colleagues to protest the layoffs, but nothing about sabotage.",
+            "flag": "herring"
+          },
+          {
+            "heading": "Cleaner's threats",
+            "detail": "Sunday sent two angry texts to a former supervisor saying the plant would 'pay', but had no means of access.",
+            "flag": "herring"
+          }
+        ]
+      }
+    ],
+    "witnesses": [
+      {
+        "id": "w1",
+        "name": "Engr. Dele",
+        "relation": "senior plant engineer",
+        "statement": "Only QC and senior maintenance carry the card that opens that hatch. And that bolt is a lab bolt, not ours. Someone with lab access dropped it.",
+        "reliability": "reliable"
+      },
+      {
+        "id": "w2",
+        "name": "Ifeanyi Obi",
+        "relation": "maintenance engineer",
+        "statement": "Yes I'm angry, they're sacking us for robots. But I was at the packaging dock, check my card. I'd strike, not sabotage. Look at the cleaner they fired, he's the bitter one.",
+        "reliability": "questionable"
+      },
+      {
+        "id": "w3",
+        "name": "Chioma",
+        "relation": "QC lab assistant",
+        "statement": "Blessing told me to cover for her if anyone asked, that she was in the lab all afternoon. But she left for a while around half past one and came back flustered.",
+        "reliability": "reliable"
+      }
+    ],
+    "transcripts": [
+      {
+        "id": "t1",
+        "suspectId": "s3",
+        "title": "Interview — Blessing Amadi",
+        "lines": [
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Where were you at 1:42pm?"
+          },
+          {
+            "speaker": "Blessing",
+            "role": "a",
+            "text": "In the QC lab, testing samples. All afternoon."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Your key-card released the gearbox hatch at exactly 1:42."
+          },
+          {
+            "speaker": "Blessing",
+            "role": "a",
+            "text": "My card? It must have been cloned, or someone took it."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "You signed out a 16mm bolt set from the lab that morning. The bolt in the gearbox is a 16mm lab bolt."
+          },
+          {
+            "speaker": "Blessing",
+            "role": "a",
+            "text": "We sign tools out all the time. That means nothing."
+          },
+          {
+            "speaker": "Det.",
+            "role": "q",
+            "text": "Your colleague says you asked her to cover for you and left the lab around 1:30."
+          },
+          {
+            "speaker": "Blessing",
+            "role": "a",
+            "text": "She's lying. They all want to blame the woman."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "time": "8:30am",
+        "event": "Blessing signs out a 16mm bolt set from QC lab",
+        "source": "tool log",
+        "conflict": false
+      },
+      {
+        "time": "1:30pm",
+        "event": "Blessing leaves the QC lab, asks colleague to cover",
+        "source": "lab assistant",
+        "conflict": true
+      },
+      {
+        "time": "1:40pm",
+        "event": "Ifeanyi's card pings the packaging dock",
+        "source": "access log",
+        "conflict": false
+      },
+      {
+        "time": "1:42pm",
+        "event": "Blessing's card releases the gearbox hatch",
+        "source": "access log",
+        "conflict": true
+      },
+      {
+        "time": "1:53pm",
+        "event": "Bottling line seizes; bottles shatter",
+        "source": "line SCADA",
+        "conflict": false
+      },
+      {
+        "time": "1:55pm",
+        "event": "Blessing returns to lab, flustered",
+        "source": "lab assistant",
+        "conflict": false
+      },
+      {
+        "time": "2:15pm",
+        "event": "Manager ends HQ video call",
+        "source": "call log",
+        "conflict": false
+      }
+    ],
+    "tools": [
+      {
+        "id": "tool-card",
+        "name": "Access-Card Log",
+        "tagline": "Who opened the hatch",
+        "icon": "identity",
+        "results": [
+          {
+            "query": "gearbox hatch 1:42pm",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Card holder",
+                "value": "Blessing Amadi"
+              },
+              {
+                "label": "Action",
+                "value": "hatch interlock released"
+              }
+            ],
+            "note": "11 minutes before the seizure."
+          }
+        ]
+      },
+      {
+        "id": "tool-db",
+        "name": "Parts Database",
+        "tagline": "Trace the bolt",
+        "icon": "crime_db",
+        "results": [
+          {
+            "query": "16mm bolt origin",
+            "outcome": "hit",
+            "rows": [
+              {
+                "label": "Type",
+                "value": "QC lab mount bolt"
+              },
+              {
+                "label": "Line fastener",
+                "value": "12mm, different"
+              }
+            ],
+            "note": "Bolt is not from conveyor stock; it's a lab part."
+          }
+        ]
+      },
+      {
+        "id": "tool-card2",
+        "name": "Gate CCTV",
+        "tagline": "Was the cleaner on site",
+        "icon": "phone_records",
+        "results": [
+          {
+            "query": "Sunday Eze entry",
+            "outcome": "dead_end",
+            "rows": [
+              {
+                "label": "Card",
+                "value": "deactivated"
+              },
+              {
+                "label": "Gate footage",
+                "value": "no entry"
+              }
+            ],
+            "note": "Fired cleaner never came onto the premises."
+          }
+        ]
+      },
+      {
+        "id": "tool-call",
+        "name": "Call Log",
+        "tagline": "Verify manager's call",
+        "icon": "call_log",
+        "results": [
+          {
+            "query": "Tamuno West 1:30-2:15pm",
+            "outcome": "partial",
+            "rows": [
+              {
+                "label": "HQ video call",
+                "value": "continuous"
+              },
+              {
+                "label": "Left office",
+                "value": "no"
+              }
+            ],
+            "note": "Manager accounted for throughout the seizure."
+          }
+        ]
+      }
+    ],
+    "solutionSuspectId": "s3",
+    "keyEvidenceId": "r1",
+    "explanation": "QC inspector Blessing Amadi sabotaged the line. The gearbox failure analysis (r1, key report) establishes the bolt was deliberately dropped through a hatch that only a restricted key-card opens, and that the bolt is a 16mm QC-lab part, not a 12mm conveyor fastener. The access log (r2) shows her card released that hatch at 1:42pm, eleven minutes before the seizure, while she claimed to be in the lab; the parts database confirms the bolt's lab origin, and the tool log shows she signed out a 16mm bolt set that very morning and never returned it. Her colleague (w3) says Blessing asked her to lie and left the lab flustered at 1:30, contradicting her alibi. Motive: a written grievance over the lost promotion with a 'make them regret it' threat (r3). The obvious suspects are herrings: the bitter engineer Ifeanyi was at the packaging dock per his card and only talked of striking; the fired cleaner Sunday sent angry threats but gate CCTV proves he never entered (dead-end lookup); and the manager was on a continuous HQ video call. Old gearbox wear-shavings were an unrelated red herring."
+  }
+]

@@ -19,6 +19,7 @@ import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missin
 import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
 import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
 import { MpAudience as InvAudience, MpGameId as InvGameId, MpInvestigationScreen } from '../../games/investigation/multiplayer/index.ts';
+import { MpAudience as GtwAudience, MpGameId as GtwGameId, MpGuessTheWordScreen } from '../../games/guess-the-word/multiplayer/index.ts';
 
 // §5.1 — display in-game. LIVE by default: a display socket renders server.view patches.
 // `?mock=<catalogueId>` opts into the static registry (the 13 non-backed games + the gallery).
@@ -80,6 +81,9 @@ function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: str
   }
   if (backendId === InvGameId.INVESTIGATION && !isFinal) {
     return <MpInvestigationScreen audience={InvAudience.SPECTATOR} code={code} />;
+  }
+  if (backendId === GtwGameId.GUESS_THE_WORD && !isFinal) {
+    return <MpGuessTheWordScreen audience={GtwAudience.SPECTATOR} code={code} />;
   }
 
   return (

@@ -20,7 +20,7 @@ export const installGuessTheWordContent = (): void => {
     const config = input.config as GuessTheWordConfig;
     const pack = await contentService.resolveGuessTheWordPack({
       filter: input.ratingFilter,
-      category: config.category,
+      ...(config.category !== undefined ? { category: config.category } : {}),
     });
     if (!pack) return FALLBACK;
     return {

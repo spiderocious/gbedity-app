@@ -118,7 +118,7 @@ export const ViewPatch = z
     solutionSuspectId: z.string().optional(),
     accusations: z.array(z.object({ playerId: z.string().optional(), suspectId: z.string().optional() }).passthrough()).optional(),
     yourAccusation: z.string().nullable().optional(),
-    // guess_the_word fields
+    // guess_the_word fields (questionCount reused from millionaire section above)
     wordLength: z.number().optional(),    // guesser: character count of the secret word (no ? chars)
     word: z.string().nullable().optional(), // audience + display + guesser at reveal
     guesserId: z.string().optional(),
@@ -127,8 +127,6 @@ export const ViewPatch = z
     isGuesser: z.boolean().optional(),
     guessText: z.string().nullable().optional(),
     guessSeconds: z.number().optional(),
-    startingQuestionCount: z.number().optional(),
-    questionCount: z.number().optional(),
     correct: z.boolean().nullable().optional(),
     turnIdx: z.number().optional(),
     // missing_letters / word games with a masked answer + countdown
