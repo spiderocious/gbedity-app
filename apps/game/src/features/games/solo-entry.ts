@@ -11,6 +11,7 @@ import { ROUTES } from '../../shared/constants/routes.ts';
 const CLIENT_DRIVEN_SOLO: Record<string, string> = {
   missing_letters: ROUTES.MISSING_LETTERS_SOLO,
   wordshot: ROUTES.WORDSHOT_SOLO,
+  millionaire: ROUTES.WWTBAM_SOLO,
 };
 
 /** The dedicated client-driven solo route for a backend gameId, or null if it uses the room path. */

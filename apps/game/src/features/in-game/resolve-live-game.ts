@@ -15,6 +15,7 @@ import type { ViewPatch } from '../../shared/types/view.ts';
 export const LiveGameId = {
   PLEAD_YOUR_CASE: 'plead_your_case',
   HOT_TAKE_COURT: 'hot_take_court',
+  MILLIONAIRE: 'millionaire',
   WORD_BOMB: 'word_bomb',
   QUIZZES: 'quizzes',
   WORDSHOT: 'wordshot',
@@ -37,6 +38,8 @@ export function detectLiveGame(patch: ViewPatch | null): string | undefined {
   if (patch === null) return undefined;
   if (patch.scenario !== undefined) return LiveGameId.PLEAD_YOUR_CASE;
   if (patch.defences !== undefined) return LiveGameId.HOT_TAKE_COURT;
+  // Millionaire BEFORE word_bomb: both broadcast holderId, but millionaire also carries rung + ladder.
+  if (patch.rung !== undefined || patch.ladder !== undefined) return LiveGameId.MILLIONAIRE;
   if (patch.holderId !== undefined || patch.used !== undefined) return LiveGameId.WORD_BOMB;
   if (patch.options !== undefined || patch.qIndex !== undefined) return LiveGameId.QUIZZES;
   if (patch.letter !== undefined || patch.ranked !== undefined) return LiveGameId.WORDSHOT;

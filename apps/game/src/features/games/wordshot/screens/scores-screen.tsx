@@ -20,6 +20,10 @@ interface ScoresScreenProps {
   readonly suggestion?: string;
   readonly onContinue: () => void;
   readonly onExit: () => void;
+  // MP additive: hide the Continue/Exit buttons when the engine paces the reveal.
+  readonly actions?: boolean;
+  // MP additive: timed caption shown instead of buttons ("Next round coming up…").
+  readonly caption?: string;
 }
 
 export function ScoresScreen({
@@ -33,6 +37,8 @@ export function ScoresScreen({
   suggestion,
   onContinue,
   onExit,
+  actions = true,
+  caption,
 }: ScoresScreenProps) {
   const { play } = useSound();
 
@@ -94,15 +100,19 @@ export function ScoresScreen({
           Round {roundIndex + 1} of {rounds}
         </span>
 
-        {/* Actions */}
-        <div className="mt-2 flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Button variant={correct ? 'secondary' : 'primary'} size="lg" className="w-full sm:w-auto" onClick={onContinue}>
-            Continue playing
-          </Button>
-          <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={onExit}>
-            Exit
-          </Button>
-        </div>
+        {/* Actions — hidden in MP (engine paces reveal → next) */}
+        {actions ? (
+          <div className="mt-2 flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button variant={correct ? 'secondary' : 'primary'} size="lg" className="w-full sm:w-auto" onClick={onContinue}>
+              Continue playing
+            </Button>
+            <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={onExit}>
+              Exit
+            </Button>
+          </div>
+        ) : caption ? (
+          <p className={`font-sans text-[14px] font-semibold ${label}`}>{caption}</p>
+        ) : null}
       </div>
     </SlideFrame>
   );

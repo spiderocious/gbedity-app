@@ -114,14 +114,78 @@ const presentationTopic = z.object({
   tags,
 });
 
+// Rich case file (matches the plugin contentSchema). Enums are authored as strings; keep them in
+// lock-step with investigation.plugin.ts. solutionSuspectId / keyEvidenceId are top-level so the
+// admin authoring `selfRef` (top-level only) can validate them.
+const iAlibiStatus = z.enum(['confirmed', 'shaky', 'broken', 'unchecked']);
+const iReportKind = z.enum(['autopsy', 'forensic', 'financial', 'digital']);
+const iFindingFlag = z.enum(['key', 'herring', 'none']);
+const iReliability = z.enum(['reliable', 'questionable', 'hostile']);
+const iLineRole = z.enum(['q', 'a']);
+const iToolOutcome = z.enum(['hit', 'partial', 'dead_end']);
+const iToolIcon = z.enum(['identity', 'phone_records', 'call_log', 'triangulation', 'crime_db']);
+const iKeyValue = z.object({ label: z.string().min(1), value: z.string().min(1) });
+
 const investigationCase = z.object({
   key: z.string().min(1),
   title: z.string().min(1),
-  brief: z.string().min(1), // the case setup shown on the display
-  suspects: z.array(z.object({ id: z.string().min(1), name: z.string().min(1), profile: z.string().min(1) })).min(2),
-  evidence: z.array(z.object({ id: z.string().min(1), label: z.string().min(1), detail: z.string().min(1) })).min(1),
-  timeline: z.array(z.string().min(1)).default([]),
+  category: z.string().min(1).default('Investigation'),
+  brief: z.string().min(1), // the case setup
+  suspects: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+        age: z.number().int().nonnegative().default(0),
+        role: z.string().min(1),
+        motive: z.string().min(1),
+        alibi: z.string().min(1),
+        alibiStatus: iAlibiStatus.default('unchecked'),
+        phone: z.string().default(''),
+        note: z.string().default(''),
+      }),
+    )
+    .min(2),
+  reports: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        kind: iReportKind,
+        title: z.string().min(1),
+        subtitle: z.string().default(''),
+        header: z.array(iKeyValue).default([]),
+        findings: z.array(z.object({ heading: z.string().min(1), detail: z.string().min(1), flag: iFindingFlag.default('none') })).default([]),
+      }),
+    )
+    .default([]),
+  witnesses: z
+    .array(z.object({ id: z.string().min(1), name: z.string().min(1), relation: z.string().min(1), statement: z.string().min(1), reliability: iReliability.default('reliable') }))
+    .default([]),
+  transcripts: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        suspectId: z.string().min(1), // references a suspects[].id (plain field — nested refs aren't validated by admin)
+        title: z.string().min(1),
+        lines: z.array(z.object({ speaker: z.string().min(1), role: iLineRole, text: z.string().min(1) })).default([]),
+      }),
+    )
+    .default([]),
+  timeline: z.array(z.object({ time: z.string().min(1), event: z.string().min(1), source: z.string().default(''), conflict: z.boolean().default(false) })).default([]),
+  tools: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+        tagline: z.string().default(''),
+        icon: iToolIcon,
+        results: z.array(z.object({ query: z.string().min(1), outcome: iToolOutcome, rows: z.array(iKeyValue).default([]), note: z.string().default('') })).default([]),
+      }),
+    )
+    .default([]),
   solutionSuspectId: z.string().min(1), // the guilty suspect (server-only until reveal)
+  keyEvidenceId: z.string().default(''), // the report id that proves it (bonus on accuse)
+  explanation: z.string().default(''), // the reveal narrative
   difficulty: z.number().int().min(1).max(3).default(1),
   ratingTier,
   tags,

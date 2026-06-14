@@ -22,6 +22,8 @@ import '../flow/register-flows.ts';
 import { resolveMockGame, useLatchedLiveGame } from '../resolve-live-game.ts';
 import { WaitingForRound } from '../widgets/waiting-for-round.tsx';
 import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
+import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
+import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
 
 // §5.3 — player in-game. LIVE by default: connects the room socket, renders the player patch,
 // sends client.action. `?mock=<catalogueId>` opts into the static preview registry (the 13
@@ -59,7 +61,7 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
   const backendId = useLatchedLiveGame(patch, hint);
   // New self-contained slices own their whole surface (incl. game-over nav). Until every game is
   // migrated, the generic screen branches to the new slice by backend id and skips its own flow path.
-  const isNewSlice = backendId === MpGameId.MISSING_LETTERS;
+  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE;
 
   // Game ended → leave the play surface for the result screen (the room stays open / back to lobby).
   // New-slice games handle their own game-over navigation, so skip it here for them.
@@ -85,12 +87,26 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
     if (amSpectator) navigate(pathWith(ROUTES.DISPLAY_GAME, { code }));
   }, [amSpectator, code, navigate]);
 
-  // New self-contained slice (Missing Letters): render its multiplayer surface instead of the old
-  // flow. It consumes the same useRoomSocket() this provider supplies — just a different renderer.
-  if (isNewSlice && !amSpectator) {
+  // New self-contained slices: render the game's own multiplayer surface instead of the old flow.
+  // Each consumes the same useRoomSocket() this provider supplies — just a different renderer.
+  if (backendId === MpGameId.MISSING_LETTERS && !amSpectator) {
     return (
       <div className="min-h-screen bg-canvas">
         <MpMissingLettersScreen audience={MpAudience.PLAYER} code={code} />
+      </div>
+    );
+  }
+  if (backendId === WsGameId.WORDSHOT && !amSpectator) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <MpWordshotScreen audience={WsAudience.PLAYER} code={code} />
+      </div>
+    );
+  }
+  if (backendId === MmGameId.MILLIONAIRE && !amSpectator) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <MpMillionaireScreen audience={MmAudience.PLAYER} code={code} />
       </div>
     );
   }

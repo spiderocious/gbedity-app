@@ -70,6 +70,9 @@ export const ROUTES = {
 
   // Client-driven solo WWTBAM — self-contained slice (no socket).
   WWTBAM_SOLO: '/games/millionaire/solo',
+
+  // Investigation bare-UI design surface (kinetic preview) — preview-first redesign.
+  INVESTIGATION_PREVIEW: '/investigation-preview',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

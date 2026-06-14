@@ -15,6 +15,9 @@ import { LiveResult } from '../live/live-result.tsx';
 import { getGameFlow } from '../flow/flow-registry.tsx';
 import '../flow/register-flows.ts';
 import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-live-game.ts';
+import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
+import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
+import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
 
 // §5.1 — display in-game. LIVE by default: a display socket renders server.view patches.
 // `?mock=<catalogueId>` opts into the static registry (the 13 non-backed games + the gallery).
@@ -61,6 +64,19 @@ function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: str
   // sequence players see, sized for the shared screen. Resolved from the registry by backend gameId.
   // While holding the final result we don't hand the patch to the flow (it would re-run its intro).
   const Flow = getGameFlow(backendId);
+
+  // New self-contained slices: render the game's spectator surface during live play. The display
+  // keeps its hands-free loop — when the game ends we still hold the final board via LiveResult
+  // (isFinal), and the next game's first live patch resumes the slice.
+  if (backendId === MpGameId.MISSING_LETTERS && !isFinal) {
+    return <MpMissingLettersScreen audience={MpAudience.SPECTATOR} code={code} />;
+  }
+  if (backendId === WsGameId.WORDSHOT && !isFinal) {
+    return <MpWordshotScreen audience={WsAudience.SPECTATOR} code={code} />;
+  }
+  if (backendId === MmGameId.MILLIONAIRE && !isFinal) {
+    return <MpMillionaireScreen audience={MmAudience.SPECTATOR} code={code} />;
+  }
 
   return (
     <Shell

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-// Tick `secondsLeft` down from an absolute epoch-ms deadline. Multiplayer round timing is driven by
-// the backend's shared `deadline`, NOT a client clock — so every device stays in lockstep. Returns 0
-// when expired or when there's no deadline. Recomputes when the deadline changes (new round).
+// Tick `secondsLeft` from an absolute epoch-ms deadline. MP round timing is driven by the backend's
+// shared `deadline` so all devices stay in lockstep — never a client clock. Returns 0 when expired
+// or when deadline is null. Recomputes when the deadline changes (new question / phase).
 export function useDeadline(deadline: number | null): number {
   const compute = (): number => (deadline === null ? 0 : Math.max(0, (deadline - Date.now()) / 1000));
   const [secondsLeft, setSecondsLeft] = useState<number>(compute);

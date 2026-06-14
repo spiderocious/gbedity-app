@@ -17,11 +17,14 @@ import type {
 
 import { projectBoard, projectTiming } from '../shared/view-helpers';
 
-// Investigation (PRD §6.4 #17) — OPEN_PHASE mode. A case is shown; players freely explore the case
-// materials (brief, suspects, evidence, timeline) on their phones at their own pace within a time
-// window, then privately submit an accusation (a suspect id). When the window closes the truth is
-// revealed; correct accusers score, bonus for the fastest correct. The guilty suspect is
-// SERVER-ONLY until reveal.
+// Investigation (PRD §6.4 #17) — OPEN_PHASE. A rich case file (suspects, forensic reports, witness
+// statements, interview transcripts, a timeline, and investigative tools whose lookups sometimes
+// dead-end) is served to every device. Players work the case at their own pace within a time window,
+// then submit a REASONED accusation: the culprit, the piece of evidence that proves it, and a
+// confidence level. When the window closes (or everyone has locked in) the truth is revealed and
+// scored. The solution, key evidence, and explanation are SERVER-ONLY until reveal.
+//
+// Backend phases are just investigate → reveal → done; the client adds its own briefing/accuse beats.
 
 const Phase = { INVESTIGATE: 'investigate', REVEAL: 'reveal', DONE: 'done' } as const;
 type Phase = (typeof Phase)[keyof typeof Phase];
@@ -29,26 +32,101 @@ const ActionType = { ACCUSE: 'investigation.accuse' } as const;
 const TimerKey = { INVESTIGATE: 'investigate', REVEAL: 'reveal' } as const;
 const EventType = { ACCUSE: 'investigation.accuse' } as const;
 
+// Reasoned-accusation inputs.
+const AlibiStatus = { CONFIRMED: 'confirmed', SHAKY: 'shaky', BROKEN: 'broken', UNCHECKED: 'unchecked' } as const;
+const ReportKind = { AUTOPSY: 'autopsy', FORENSIC: 'forensic', FINANCIAL: 'financial', DIGITAL: 'digital' } as const;
+const FindingFlag = { KEY: 'key', HERRING: 'herring', NONE: 'none' } as const;
+const Reliability = { RELIABLE: 'reliable', QUESTIONABLE: 'questionable', HOSTILE: 'hostile' } as const;
+const LineRole = { Q: 'q', A: 'a' } as const;
+const ToolOutcome = { HIT: 'hit', PARTIAL: 'partial', DEAD_END: 'dead_end' } as const;
+const ToolIcon = { IDENTITY: 'identity', PHONE_RECORDS: 'phone_records', CALL_LOG: 'call_log', TRIANGULATION: 'triangulation', CRIME_DB: 'crime_db' } as const;
+const Confidence = { HUNCH: 'hunch', SOLID: 'solid', CERTAIN: 'certain' } as const;
+type Confidence = (typeof Confidence)[keyof typeof Confidence];
+
 const configSchema = z.object({
   investigateSeconds: z.number().int().positive().default(300), // 5 min default (PRD: 15/30/45/60)
-  revealSeconds: z.number().int().positive().default(10),
+  revealSeconds: z.number().int().positive().default(12),
 });
 type Config = z.infer<typeof configSchema>;
 
-const suspect = z.object({ id: z.string(), name: z.string(), profile: z.string() });
-const evidence = z.object({ id: z.string(), label: z.string(), detail: z.string() });
+// ── Rich case content ─────────────────────────────────────────────────────────
+const suspect = z.object({
+  id: z.string(),
+  name: z.string(),
+  age: z.number().int().nonnegative(),
+  role: z.string(),
+  motive: z.string(),
+  alibi: z.string(),
+  alibiStatus: z.nativeEnum(AlibiStatus).default(AlibiStatus.UNCHECKED),
+  phone: z.string().default(''),
+  note: z.string().default(''),
+});
+const reportField = z.object({ label: z.string(), value: z.string() });
+const finding = z.object({ heading: z.string(), detail: z.string(), flag: z.nativeEnum(FindingFlag).default(FindingFlag.NONE) });
+const report = z.object({
+  id: z.string(),
+  kind: z.nativeEnum(ReportKind),
+  title: z.string(),
+  subtitle: z.string().default(''),
+  header: z.array(reportField).default([]),
+  findings: z.array(finding).default([]),
+});
+const witness = z.object({
+  id: z.string(),
+  name: z.string(),
+  relation: z.string(),
+  statement: z.string(),
+  reliability: z.nativeEnum(Reliability).default(Reliability.RELIABLE),
+});
+const transcriptLine = z.object({ speaker: z.string(), role: z.nativeEnum(LineRole), text: z.string() });
+const transcript = z.object({ id: z.string(), suspectId: z.string(), title: z.string(), lines: z.array(transcriptLine).default([]) });
+const timelineEvent = z.object({ time: z.string(), event: z.string(), source: z.string().default(''), conflict: z.boolean().default(false) });
+const lookupRow = z.object({ label: z.string(), value: z.string() });
+const lookupResult = z.object({
+  query: z.string(),
+  outcome: z.nativeEnum(ToolOutcome),
+  rows: z.array(lookupRow).default([]),
+  note: z.string().default(''),
+});
+const tool = z.object({
+  id: z.string(),
+  name: z.string(),
+  tagline: z.string().default(''),
+  icon: z.nativeEnum(ToolIcon),
+  results: z.array(lookupResult).default([]),
+});
+
 const contentSchema = z.object({
   title: z.string(),
+  category: z.string().default('Investigation'),
   brief: z.string(),
   suspects: z.array(suspect).min(2),
-  evidence: z.array(evidence).min(1),
-  timeline: z.array(z.string()).default([]),
+  reports: z.array(report).default([]),
+  witnesses: z.array(witness).default([]),
+  transcripts: z.array(transcript).default([]),
+  timeline: z.array(timelineEvent).default([]),
+  tools: z.array(tool).default([]),
   solutionSuspectId: z.string(),
+  keyEvidenceId: z.string().default(''),
+  explanation: z.string().default(''),
 });
 type Content = z.infer<typeof contentSchema>;
 
-const actionSchema = z.object({ type: z.literal(ActionType.ACCUSE), suspectId: z.string() });
+const actionSchema = z.object({
+  type: z.literal(ActionType.ACCUSE),
+  suspectId: z.string(),
+  evidenceId: z.string().default(''),
+  confidence: z.nativeEnum(Confidence).default(Confidence.SOLID),
+});
 type Action = z.infer<typeof actionSchema>;
+
+interface Accusation {
+  playerId: string;
+  suspectId: string;
+  evidenceId: string;
+  confidence: Confidence;
+  at: EpochMs;
+}
 
 interface State {
   phase: Phase;
@@ -57,19 +135,40 @@ interface State {
   deadline: EpochMs;
   startedAt: EpochMs;
   investigateSeconds: number;
-  accusations: { playerId: string; suspectId: string; at: EpochMs }[];
+  rosterSize: number; // total players at start — drives early-advance when everyone has locked in
+  accusations: Accusation[];
 }
 
-// Final points per player — correct accusers score, fastest gets a bonus. Single source for the
-// reveal board AND scoreRound.
+// ── Reasoned scoring ──────────────────────────────────────────────────────────
+// Right SUSPECT scores a speed-graded base (faster correct accusers rank higher). Naming the right
+// KEY EVIDENCE adds a flat bonus. CONFIDENCE scales the suspect base (a confident-and-right call is
+// worth more). Wrong suspect = 0 (confidence can't lose points — solo-friendly, no negative scores).
+const SUSPECT_MAX = 800;
+const SUSPECT_MIN = 400;
+const EVIDENCE_BONUS = 200;
+const CONFIDENCE_MULT: Record<Confidence, number> = { [Confidence.HUNCH]: 0.8, [Confidence.SOLID]: 1, [Confidence.CERTAIN]: 1.15 };
+
 const scoreMap = (state: State): Record<string, number> => {
   const solution = state.case.solutionSuspectId;
+  const keyEvidence = state.case.keyEvidenceId;
   const correct = state.accusations.filter((a) => a.suspectId === solution).sort((a, b) => a.at - b.at);
   const out: Record<string, number> = {};
   correct.forEach((a, rank) => {
-    out[a.playerId] = rank === 0 ? 1000 : 600;
+    // Rank-graded base: fastest gets SUSPECT_MAX, each later correct steps down toward SUSPECT_MIN.
+    const base = Math.max(SUSPECT_MIN, SUSPECT_MAX - rank * 100);
+    const withConfidence = base * CONFIDENCE_MULT[a.confidence];
+    const bonus = keyEvidence !== '' && a.evidenceId === keyEvidence ? EVIDENCE_BONUS : 0;
+    out[a.playerId] = Math.round(withConfidence + bonus);
   });
   return out;
+};
+
+const MAX_POINTS = Math.round(SUSPECT_MAX * CONFIDENCE_MULT[Confidence.CERTAIN]) + EVIDENCE_BONUS;
+
+// Strip the answer (and any secret) from the case for the pre-reveal projection.
+const publicCase = (c: Content): Omit<Content, 'solutionSuspectId' | 'keyEvidenceId' | 'explanation'> => {
+  const { solutionSuspectId: _s, keyEvidenceId: _k, explanation: _e, ...rest } = c;
+  return rest;
 };
 
 export const investigationGame: GamePlugin<Config, State, Action, Content> = {
@@ -81,7 +180,7 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
     players: { min: 2, max: 8, recommendedMax: 8 },
     capabilities: {},
     // Solo-able: each player investigates + accuses independently and is scored against the
-    // revealed truth — no peer dependency (SP-4: was excluded only by oversight).
+    // revealed truth — no peer dependency.
     solo: { supported: true },
   },
   configSchema,
@@ -98,6 +197,7 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
         deadline: d,
         startedAt: input.startedAt,
         investigateSeconds: input.config.investigateSeconds,
+        rosterSize: input.players.length,
         accusations: [],
       },
       effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.INVESTIGATE, fireAt: d }, { kind: EffectKind.BROADCAST }],
@@ -107,12 +207,45 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
   onAction(state: State, action: Action | ServiceResultAction, ctx: ActionCtx): StepResult<State> {
     if (action.type === SystemActionType.SERVICE_RESULT) return { state, effects: [] };
     if (state.phase !== Phase.INVESTIGATE) return { state, effects: [] };
-    // a player may change their accusation until the window closes (latest wins)
+    // The accusation must name a real suspect; a player may revise it until the window closes.
     if (!state.case.suspects.some((s) => s.id === action.suspectId)) return { state, effects: [] };
-    const accusations = [...state.accusations.filter((a) => a.playerId !== ctx.actor.id), { playerId: ctx.actor.id, suspectId: action.suspectId, at: ctx.now }];
+
+    const accusation: Accusation = {
+      playerId: ctx.actor.id,
+      suspectId: action.suspectId,
+      evidenceId: action.evidenceId,
+      confidence: action.confidence,
+      at: ctx.now,
+    };
+    const accusations = [...state.accusations.filter((a) => a.playerId !== ctx.actor.id), accusation];
+    const next: State = { ...state, accusations };
+
+    // Persist a real audit trail of who accused whom (the old plugin persisted an empty payload).
+    const persist = {
+      kind: EffectKind.PERSIST_EVENT,
+      event: { type: EventType.ACCUSE, data: { suspectId: action.suspectId, evidenceId: action.evidenceId, confidence: action.confidence } },
+    } as const;
+
+    // EARLY ADVANCE: once every player at the table has locked in, jump straight to reveal instead of
+    // making the room wait out the clock. (Solo: rosterSize is 1, so the single accusation ends it.)
+    const distinctAccusers = new Set(accusations.map((a) => a.playerId)).size;
+    if (distinctAccusers >= state.rosterSize) {
+      const d = ctx.now + state.revealSeconds * 1000;
+      return {
+        state: { ...next, phase: Phase.REVEAL, deadline: d },
+        effects: [
+          { kind: EffectKind.CLEAR_TIMER, key: TimerKey.INVESTIGATE },
+          persist,
+          { kind: EffectKind.BROADCAST },
+          { kind: EffectKind.ROUND_ENDED },
+          { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d },
+        ],
+      };
+    }
+
     return {
-      state: { ...state, accusations },
-      effects: [{ kind: EffectKind.TO_PLAYER, playerId: ctx.actor.id }, { kind: EffectKind.PERSIST_EVENT, event: { type: EventType.ACCUSE, data: {} } }],
+      state: next,
+      effects: [{ kind: EffectKind.TO_PLAYER, playerId: ctx.actor.id }, persist],
     };
   },
 
@@ -132,35 +265,46 @@ export const investigationGame: GamePlugin<Config, State, Action, Content> = {
 
   view(state: State, audience: Audience): ViewPatch {
     const c = state.case;
-    // Case materials are served to everyone (the players explore them); the SOLUTION is withheld
-    // until reveal.
+    const reveal = state.phase === Phase.REVEAL || state.phase === Phase.DONE;
+    // The full case file (minus the answer) is served to everyone — players explore it. The solution,
+    // key evidence, and explanation are withheld until reveal.
+    const pub = publicCase(c);
     const base: ViewPatch = {
       phase: state.phase,
-      title: c.title,
-      brief: c.brief,
-      suspects: c.suspects,
-      evidence: c.evidence,
-      timeline: c.timeline,
+      title: pub.title,
+      category: pub.category,
+      brief: pub.brief,
+      suspects: pub.suspects,
+      reports: pub.reports,
+      witnesses: pub.witnesses,
+      transcripts: pub.transcripts,
+      timeline: pub.timeline,
+      tools: pub.tools,
       revealSeconds: state.revealSeconds,
-      ...projectTiming(state.deadline, state.phase === Phase.REVEAL ? state.revealSeconds : state.investigateSeconds),
+      ...projectTiming(state.deadline, reveal ? state.revealSeconds : state.investigateSeconds),
     };
-    if (state.phase === Phase.REVEAL) {
+    if (reveal) {
       base.solutionSuspectId = c.solutionSuspectId;
-      base.accusations = state.accusations.map((a) => ({ playerId: a.playerId, suspectId: a.suspectId }));
-      // The board only becomes meaningful once the truth is out (correct accusers score).
+      base.keyEvidenceId = c.keyEvidenceId;
+      base.explanation = c.explanation;
+      base.accusations = state.accusations.map((a) => ({ playerId: a.playerId, suspectId: a.suspectId, evidenceId: a.evidenceId }));
       const final = scoreMap(state);
       base.board = projectBoard(final, final);
     }
     if (audience.kind === AudienceKind.PLAYER) {
-      base.yourAccusation = state.accusations.find((a) => a.playerId === audience.playerId)?.suspectId ?? null;
-      if (state.phase === Phase.REVEAL) base.yourScore = scoreMap(state)[audience.playerId] ?? 0;
+      const mine = state.accusations.find((a) => a.playerId === audience.playerId);
+      base.yourAccusation = mine?.suspectId ?? null;
+      base.yourEvidence = mine?.evidenceId ?? null;
+      base.yourConfidence = mine?.confidence ?? null;
+      base.locked = mine !== undefined;
+      if (reveal) base.yourScore = scoreMap(state)[audience.playerId] ?? 0;
     }
     return base;
   },
 
   scoreRound(state: State): RoundScore {
     const deltas = Object.entries(scoreMap(state)).map(([playerId, points]) => ({ playerId, points, reason: MESSAGE_KEYS.common.OK }));
-    return { deltas, maxPoints: 1000 };
+    return { deltas, maxPoints: MAX_POINTS };
   },
 
   isOver(state: State): boolean {

@@ -106,6 +106,16 @@ const WwtbamPreviewScreen = lazyDefault(
   "PreviewUiScreen",
 );
 
+const WwtbamSoloRoute = lazyDefault(
+  () => import("./features/games/millionaire/solo/routes.tsx"),
+  "WwtbamSoloRoute",
+);
+
+const InvestigationPreviewScreen = lazyDefault(
+  () => import("./features/games/investigation/preview/preview-ui-screen.tsx"),
+  "InvestigationPreviewScreen",
+);
+
 const DisplayGameScreen = lazyDefault(
   () => import("./features/in-game/screen/display-game-screen.tsx"),
   "DisplayGameScreen",
@@ -158,6 +168,8 @@ const routes: RouteObject[] = [
   { path: ROUTES.WORDSHOT_PREVIEW, Component: WordshotPreviewUiScreen },
   { path: ROUTES.WORDSHOT_SOLO, Component: WordshotSoloRoute },
   { path: ROUTES.WWTBAM_PREVIEW, Component: WwtbamPreviewScreen },
+  { path: ROUTES.WWTBAM_SOLO, Component: WwtbamSoloRoute },
+  { path: ROUTES.INVESTIGATION_PREVIEW, Component: InvestigationPreviewScreen },
 
   { path: ROUTES.JOIN, Component: JoinCodeScreen },
   // Backend's join_url is /join/:code — the QR target. Reuses the code-entry screen, which

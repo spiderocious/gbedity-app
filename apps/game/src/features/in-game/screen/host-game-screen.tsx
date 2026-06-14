@@ -22,6 +22,9 @@ import { hostControlsFor } from '../host-controls.ts';
 import { resolveMockGame, useLatchedLiveGame } from '../resolve-live-game.ts';
 import { HostAction } from '../../../shared/services/socket.ts';
 import { HostControlStrip } from '../widgets/host-control-strip.tsx';
+import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
+import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
+import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
 
 // §5.2 — host in-game. LIVE by default: the host joins as role=host (its seat is also a
 // player), plays off the PLAYER-audience projection, AND drives host controls. `?mock=<id>`
@@ -55,11 +58,6 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
   const navigate = useNavigate();
   const { patches, status, sendAction, gameOver } = useRoomSocket();
 
-  // Game ended (natural finish OR the host's End game) → leave the play surface for the result
-  // screen. The room itself stays open (back to lobby); this is the fix for "End game did nothing".
-  useEffect(() => {
-    if (gameOver) navigate(pathWith(ROUTES.HOST_RESULT, { code }));
-  }, [gameOver, code, navigate]);
   // The host plays off its PLAYER-audience projection ONLY (it's a player seat). It must NOT fall
   // back to the host-/display-audience patch for the play surface: those carry a different view of
   // the round (e.g. the host-audience word), which is what made the host briefly flash a different
@@ -68,12 +66,46 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
   const playPatch = patches[Audience.PLAYER] ?? null;
   // Latched: a board-only / transitional patch must not drop the id and remount the flow mid-game.
   const backendId = useLatchedLiveGame(playPatch, hint);
+  // New self-contained slices own their surface, game-over nav, and host control strip.
+  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE;
+
+  // Game ended (natural finish OR the host's End game) → leave the play surface for the result
+  // screen. New-slice games handle their own game-over navigation, so skip it here for them.
+  useEffect(() => {
+    if (gameOver && !isNewSlice) navigate(pathWith(ROUTES.HOST_RESULT, { code }));
+  }, [gameOver, isNewSlice, code, navigate]);
   const renderer = backendId ? getLiveRenderer(backendId) : undefined;
   const controls = hostControlsFor(backendId);
   const score = typeof playPatch?.yourScore === 'number' ? playPatch.yourScore : 0;
   const isBoard =
     playPatch !== null &&
     (playPatch.phase === Phase.REVEAL || playPatch.phase === Phase.LEADERBOARD || playPatch.phase === Phase.DONE);
+
+  // New self-contained slices: each carries its own play screens AND host control strip.
+  if (backendId === MpGameId.MISSING_LETTERS) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
+        <MpMissingLettersScreen audience={MpAudience.HOST} code={code} />
+      </div>
+    );
+  }
+  if (backendId === WsGameId.WORDSHOT) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
+        <MpWordshotScreen audience={WsAudience.HOST} code={code} />
+      </div>
+    );
+  }
+  if (backendId === MmGameId.MILLIONAIRE) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
+        <MpMillionaireScreen audience={MmAudience.HOST} code={code} />
+      </div>
+    );
+  }
 
   // Games with a dedicated animated flow own the WHOLE play surface (intro → countdown → rounds →
   // reveal → scores → done). The host plays through the flow as a player AND keeps the control strip.

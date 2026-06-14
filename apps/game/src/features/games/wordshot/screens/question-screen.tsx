@@ -23,6 +23,8 @@ interface QuestionScreenProps {
   readonly onGuessChange: (value: string) => void;
   readonly onSubmit: () => void;
   readonly locked: boolean;
+  // MP additive: spectator sees the prompt but no input.
+  readonly readOnly?: boolean;
 }
 
 export function QuestionScreen({
@@ -37,6 +39,7 @@ export function QuestionScreen({
   onGuessChange,
   onSubmit,
   locked,
+  readOnly = false,
 }: QuestionScreenProps) {
   const progress = secondsPerRound > 0 ? secondsLeft / secondsPerRound : 0;
 
@@ -69,7 +72,11 @@ export function QuestionScreen({
         {/* Timer + input */}
         <Card size="lg" className="flex w-full flex-col gap-4">
           <RoundClock progress={progress} secondsLeft={secondsLeft} />
-          <WordInput value={guess} onChange={onGuessChange} onSubmit={onSubmit} letter={letter} locked={locked} />
+          {readOnly ? (
+            <p className="text-center font-sans text-[14px] text-ink-3">Players are racing…</p>
+          ) : (
+            <WordInput value={guess} onChange={onGuessChange} onSubmit={onSubmit} letter={letter} locked={locked} />
+          )}
         </Card>
 
         {/* Facts strip */}

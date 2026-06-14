@@ -24,6 +24,7 @@ interface QuestionScreenProps {
   readonly onSelect: (idx: number) => void;
   readonly onFiftyFifty: () => void;
   readonly locked: boolean; // true once an answer has been submitted
+  readonly readOnly?: boolean; // spectator / non-holder: no input, no lifeline button
 }
 
 export function QuestionScreen({
@@ -40,6 +41,7 @@ export function QuestionScreen({
   onSelect,
   onFiftyFifty,
   locked,
+  readOnly = false,
 }: QuestionScreenProps) {
   const progress = secondsPerQuestion > 0 ? secondsLeft / secondsPerQuestion : 0;
 
@@ -71,7 +73,7 @@ export function QuestionScreen({
               <span className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink-3">
                 For {formatRung(rung)}
               </span>
-              {fiftyFiftyAvailable && !locked ? (
+              {!readOnly && (fiftyFiftyAvailable && !locked ? (
                 <button
                   type="button"
                   onClick={onFiftyFifty}
@@ -82,7 +84,7 @@ export function QuestionScreen({
                 </button>
               ) : (
                 <span className="font-sans text-[12px] font-bold text-ink-4 line-through opacity-50">50/50</span>
-              )}
+              ))}
             </div>
 
             <p className="py-4 font-sans text-[17px] font-semibold leading-[1.5] text-ink sm:text-[19px]">
@@ -102,7 +104,7 @@ export function QuestionScreen({
                 index={idx as 0 | 1 | 2 | 3}
                 text={text}
                 state={optionState(idx)}
-                onClick={!locked && !hiddenOptions.includes(idx) ? () => onSelect(idx) : undefined}
+                onClick={!readOnly && !locked && !hiddenOptions.includes(idx) ? () => onSelect(idx) : undefined}
               />
             ))}
           </div>

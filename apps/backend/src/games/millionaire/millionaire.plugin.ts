@@ -24,7 +24,7 @@ import { projectBoard, projectTiming } from '../shared/view-helpers';
 // of the other players, tally shown), Phone-a-Friend (defer to a chosen playing friend whose
 // suggested answer is shown to the holder as advice — the holder still answers).
 
-const Phase = { QUESTION: 'question', AUDIENCE_POLL: 'audience_poll', PHONE_WAIT: 'phone_wait', REVEAL: 'reveal', DONE: 'done' } as const;
+const Phase = { TURN_INTRO: 'turn_intro', QUESTION: 'question', AUDIENCE_POLL: 'audience_poll', PHONE_WAIT: 'phone_wait', REVEAL: 'reveal', DONE: 'done' } as const;
 type Phase = (typeof Phase)[keyof typeof Phase];
 
 const ActionType = {
@@ -35,7 +35,7 @@ const ActionType = {
 } as const;
 const Lifeline = { FIFTY_FIFTY: 'fifty_fifty', ASK_AUDIENCE: 'ask_audience', PHONE_FRIEND: 'phone_friend' } as const;
 type Lifeline = (typeof Lifeline)[keyof typeof Lifeline];
-const TimerKey = { QUESTION: 'question', POLL: 'poll', PHONE: 'phone', REVEAL: 'reveal' } as const;
+const TimerKey = { TURN_INTRO: 'turn_intro', QUESTION: 'question', POLL: 'poll', PHONE: 'phone', REVEAL: 'reveal' } as const;
 const EventType = { ANSWER: 'millionaire.answer', LIFELINE: 'millionaire.lifeline' } as const;
 
 const LADDER = [100, 200, 500, 1000, 2000, 5000, 10000, 25000, 50000, 100000];
@@ -114,10 +114,10 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
 
   init(input: InitInput<Config, Content>): StepResult<State> {
     const order = input.players.map((p: PlayerRef) => p.id);
-    const d = input.startedAt + input.config.timePerQuestion * 1000;
+    const d = input.startedAt + 4000;
     return {
       state: {
-        phase: Phase.QUESTION,
+        phase: Phase.TURN_INTRO,
         order,
         turnIdx: 0,
         eliminated: [],
@@ -138,7 +138,7 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
         banked: Object.fromEntries(order.map((id) => [id, 0])),
         lastCorrect: null,
       },
-      effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: d }, { kind: EffectKind.BROADCAST }],
+      effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.TURN_INTRO, fireAt: d }, { kind: EffectKind.BROADCAST }],
     };
   },
 
@@ -194,21 +194,23 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
     if (!q) return { state, effects: [] };
     const correct = action.choiceIdx === q.answerIdx;
     const banked = { ...state.banked };
-    const eliminated = [...state.eliminated];
     if (correct) banked[ctx.actor.id] = (banked[ctx.actor.id] ?? 0) + rungValue(state.qIndex);
-    else eliminated.push(ctx.actor.id);
     const d = ctx.now + state.revealSeconds * 1000;
     return {
-      state: { ...state, phase: Phase.REVEAL, banked, eliminated, lastCorrect: correct, deadline: d },
+      state: { ...state, phase: Phase.REVEAL, banked, lastCorrect: correct, deadline: d },
       effects: [{ kind: EffectKind.CLEAR_TIMER, key: TimerKey.QUESTION }, { kind: EffectKind.BROADCAST }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }, { kind: EffectKind.PERSIST_EVENT, event: { type: EventType.ANSWER, data: { qIndex: state.qIndex, correct } } }],
     };
   },
 
   onTick(state: State, nowMs: EpochMs, _ctx: TickCtx): StepResult<State> {
+    if (state.phase === Phase.TURN_INTRO) {
+      const d = nowMs + state.timePerQuestion * 1000;
+      return { state: { ...state, phase: Phase.QUESTION, deadline: d }, effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: d }, { kind: EffectKind.BROADCAST }] };
+    }
     if (state.phase === Phase.QUESTION) {
-      // timed out → treat as wrong, eliminate, reveal.
+      // timed out → treat as wrong, reveal (no elimination in MP).
       const d = nowMs + state.revealSeconds * 1000;
-      const eliminated = holder(state) ? [...state.eliminated, holder(state)!] : state.eliminated;
+      const eliminated = state.eliminated;
       return { state: { ...state, phase: Phase.REVEAL, eliminated, lastCorrect: false, deadline: d }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.START_TIMER, key: TimerKey.REVEAL, fireAt: d }] };
     }
     if (state.phase === Phase.AUDIENCE_POLL) {
@@ -222,17 +224,16 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
       return { state: { ...state, phase: Phase.QUESTION, deadline: d }, effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: d }, { kind: EffectKind.BROADCAST }] };
     }
     if (state.phase === Phase.REVEAL) {
-      // advance the ladder + rotate to the next active player; end when out of questions/players.
+      // advance the ladder + rotate to the next active player; end when out of questions.
       const nextQ = state.qIndex + 1;
       const nextTurn = nextActive(state);
-      const allOut = nextTurn === -1;
-      if (allOut || nextQ >= state.questionCount) {
+      if (nextQ >= state.questionCount) {
         return { state: { ...state, phase: Phase.DONE }, effects: [{ kind: EffectKind.BROADCAST }, { kind: EffectKind.ROUND_ENDED }, { kind: EffectKind.GAME_ENDED }] };
       }
-      const d = nowMs + state.timePerQuestion * 1000;
+      const d = nowMs + 4000;
       return {
-        state: { ...state, phase: Phase.QUESTION, qIndex: nextQ, turnIdx: nextTurn, hiddenOptions: [], audienceVotes: [], phoneFriendId: null, phoneSuggestion: null, lastCorrect: null, deadline: d },
-        effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.QUESTION, fireAt: d }, { kind: EffectKind.BROADCAST }],
+        state: { ...state, phase: Phase.TURN_INTRO, qIndex: nextQ, turnIdx: nextTurn === -1 ? 0 : nextTurn, hiddenOptions: [], audienceVotes: [], phoneFriendId: null, phoneSuggestion: null, lastCorrect: null, deadline: d },
+        effects: [{ kind: EffectKind.START_TIMER, key: TimerKey.TURN_INTRO, fireAt: d }, { kind: EffectKind.BROADCAST }],
       };
     }
     return { state, effects: [] };
@@ -252,6 +253,8 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
       eliminated: state.eliminated,
       banked: state.banked,
       revealSeconds: state.revealSeconds,
+      questionCount: state.questionCount,
+      order: state.order,
       ...projectTiming(state.deadline, state.timePerQuestion),
       board: projectBoard(state.banked),
     };
@@ -263,7 +266,7 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
     }
     if (state.phase === Phase.REVEAL && q) base.answerIdx = q.answerIdx;
     if (audience.kind === AudienceKind.PLAYER) {
-      base.yourTurn = holder(state) === audience.playerId && state.phase === Phase.QUESTION;
+      base.yourTurn = holder(state) === audience.playerId && (state.phase === Phase.QUESTION || state.phase === Phase.TURN_INTRO);
       base.canVoteAudience = state.phase === Phase.AUDIENCE_POLL && holder(state) !== audience.playerId;
       base.youArePhoned = state.phase === Phase.PHONE_WAIT && state.phoneFriendId === audience.playerId;
       base.lifelinesUsed = state.usedLifelines[audience.playerId] ?? [];

@@ -14,7 +14,7 @@ export const ContentKind = {
   BIBLE_QUIZ_DECK: 'bible_quiz_deck', // { translation, testament, questions[] }
   TYPING_PASSAGE: 'typing_passage', // { text, length, source }
   PRESENTATION_TOPIC: 'presentation_topic', // { topic }
-  INVESTIGATION_CASE: 'investigation_case', // { title, brief, suspects[], evidence[], solution }
+  INVESTIGATION_CASE: 'investigation_case', // rich case: suspects[], reports[], witnesses[], transcripts[], timeline[], tools[], solution + keyEvidence + explanation
 } as const;
 export type ContentKind = (typeof ContentKind)[keyof typeof ContentKind];
 

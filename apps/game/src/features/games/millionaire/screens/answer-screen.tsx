@@ -24,6 +24,8 @@ interface AnswerScreenProps {
   readonly eliminated: boolean;
   readonly onContinue: () => void;
   readonly onExit: () => void;
+  readonly autoAdvance?: boolean; // MP: engine times the reveal → next; hide CTAs
+  readonly caption?: string;      // MP: "Next question coming up…"
 }
 
 export function AnswerScreen({
@@ -38,6 +40,8 @@ export function AnswerScreen({
   eliminated,
   onContinue,
   onExit,
+  autoAdvance = false,
+  caption,
 }: AnswerScreenProps) {
   const { play } = useSound();
 
@@ -99,17 +103,23 @@ export function AnswerScreen({
           Question {questionIdx + 1} of {questionCount}
         </span>
 
-        {/* Actions */}
-        <div className="mt-2 flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          {!eliminated ? (
-            <Button variant={correct ? 'secondary' : 'primary'} size="lg" className="w-full sm:w-auto" onClick={onContinue}>
-              Continue playing
+        {/* Actions — hidden in MP (engine times the reveal → next) */}
+        {autoAdvance ? (
+          caption !== undefined ? (
+            <span className={`font-sans text-[13px] font-semibold ${label}`}>{caption}</span>
+          ) : null
+        ) : (
+          <div className="mt-2 flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            {!eliminated ? (
+              <Button variant={correct ? 'secondary' : 'primary'} size="lg" className="w-full sm:w-auto" onClick={onContinue}>
+                Continue playing
+              </Button>
+            ) : null}
+            <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={onExit}>
+              {eliminated ? 'See final score' : 'Exit'}
             </Button>
-          ) : null}
-          <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={onExit}>
-            {eliminated ? 'See final score' : 'Exit'}
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
     </SlideFrame>
   );

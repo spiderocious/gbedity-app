@@ -71,6 +71,8 @@ export const ViewPatch = z
     youArePhoned: z.boolean().optional(),
     lifelinesUsed: z.array(z.string()).optional(),
     phoneSuggestion: z.number().nullable().optional(),
+    questionCount: z.number().optional(),
+    order: z.array(z.string()).optional(),
     // hot_take_court
     defences: z.array(Defence).optional(),
     submitted: z.boolean().optional(),
