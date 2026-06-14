@@ -34,6 +34,8 @@ import { millionaireGame } from './millionaire/millionaire.plugin';
 import { installMillionaireContent } from './millionaire/millionaire.content';
 import { investigationGame } from './investigation/investigation.plugin';
 import { installInvestigationContent } from './investigation/investigation.content';
+import { guessTheWordGame } from './guess-the-word/guess-the-word.plugin';
+import { installGuessTheWordContent } from './guess-the-word/guess-the-word.content';
 
 // Registers every real catalogue game plugin + its server-side content resolver. The remaining
 // games slot in here the same way.
@@ -81,6 +83,8 @@ export const registerGames = (): void => {
   installMillionaireContent();
   registerPlugin(investigationGame);
   installInvestigationContent();
+  registerPlugin(guessTheWordGame);
+  installGuessTheWordContent();
 
   registered = true;
 };

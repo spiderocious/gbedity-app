@@ -15,6 +15,7 @@ export const ContentKind = {
   TYPING_PASSAGE: 'typing_passage', // { text, length, source }
   PRESENTATION_TOPIC: 'presentation_topic', // { topic }
   INVESTIGATION_CASE: 'investigation_case', // rich case: suspects[], reports[], witnesses[], transcripts[], timeline[], tools[], solution + keyEvidence + explanation
+  GUESS_THE_WORD_PACK: 'guess_the_word_pack', // { title, words: string[] } — admin-curated word packs for Guess The Word
 } as const;
 export type ContentKind = (typeof ContentKind)[keyof typeof ContentKind];
 
@@ -58,6 +59,7 @@ export const ContentCollection = {
   TYPING_PASSAGES: 'typing_passages',
   PRESENTATION_TOPICS: 'presentation_topics',
   INVESTIGATION_CASES: 'investigation_cases',
+  GUESS_THE_WORD_PACKS: 'guess_the_word_packs',
 } as const;
 
 // The host's content filter (PRD §8): which tiers are allowed + which tags to exclude.

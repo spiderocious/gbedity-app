@@ -176,27 +176,60 @@ export function MpMillionaireScreen({ audience, code }: MpMillionaireScreenProps
       );
 
     case MmPhase.REVEAL: {
-      const myRow = myId !== undefined ? view.board.find((r) => r.playerId === myId) : undefined;
-      const earnedThisQ = myRow?.roundDelta ?? 0;
-      const wasCorrect = isSpectator ? (view.answerIdx !== null) : earnedThisQ > 0;
-      const selectedGuess = view.answerIdx ?? 0;
       const isLastQ = view.qIndex + 1 >= view.ladder.length;
+      const caption = isLastQ ? 'Final scores coming up…' : 'Next question coming up…';
+      const holderCorrect = view.lastCorrect;
+      const amHolder = view.holderId === myId;
+
+      // The holder (and only the holder) sees the full AnswerScreen with their result.
+      if (amHolder || (isSpectator && view.holderId === null)) {
+        const myRow = myId !== undefined ? view.board.find((r) => r.playerId === myId) : undefined;
+        const earnedThisQ = myRow?.roundDelta ?? 0;
+        return withHostControls(
+          <AnswerScreen
+            correct={holderCorrect ?? earnedThisQ > 0}
+            selectedIdx={view.answerIdx ?? 0}
+            answerIdx={view.answerIdx ?? 0}
+            options={view.options}
+            rung={view.rung}
+            bankedThisQuestion={earnedThisQ}
+            questionIdx={view.qIndex}
+            questionCount={view.ladder.length}
+            eliminated={false}
+            onContinue={() => undefined}
+            onExit={() => undefined}
+            autoAdvance
+            caption={caption}
+          />,
+        );
+      }
+
+      // Everyone else (watching players + spectator display): observer reveal panel.
+      const currentHolderName = view.holderId !== null ? nameOf(view.holderId) : 'Someone';
+      const outcome = holderCorrect === true ? 'got it right' : holderCorrect === false ? 'missed this one' : '…';
+      const correctOption = view.answerIdx !== null ? view.options[view.answerIdx] : null;
       return withHostControls(
-        <AnswerScreen
-          correct={wasCorrect}
-          selectedIdx={selectedGuess}
-          answerIdx={view.answerIdx ?? 0}
-          options={view.options}
-          rung={view.rung}
-          bankedThisQuestion={earnedThisQ}
-          questionIdx={view.qIndex}
-          questionCount={view.ladder.length}
-          eliminated={amEliminated}
-          onContinue={() => undefined}
-          onExit={() => undefined}
-          autoAdvance
-          caption={isLastQ ? 'Final scores coming up…' : 'Next question coming up…'}
-        />,
+        <SlideFrame tone={holderCorrect ? SlideTone.ACTION : SlideTone.CANVAS} compact animateKey={`reveal-obs-${view.qIndex}`}>
+          <div className="flex flex-col items-center gap-5 text-center">
+            <span className="font-sans text-[12px] font-extrabold uppercase tracking-[0.18em] text-surface/70 dark:text-ink-3">
+              Question {view.qIndex + 1} · Reveal
+            </span>
+            <p className={`font-serif text-[32px] font-semibold leading-tight ${holderCorrect ? 'text-surface' : 'text-ink'}`}>
+              {currentHolderName} {outcome}
+            </p>
+            {correctOption !== null ? (
+              <div className={`flex flex-col items-center gap-1 ${holderCorrect ? 'text-surface/80' : 'text-ink-3'}`}>
+                <span className="font-sans text-[11px] font-extrabold uppercase tracking-[0.14em]">
+                  Correct answer
+                </span>
+                <span className="font-sans text-[16px] font-semibold">{correctOption}</span>
+              </div>
+            ) : null}
+            <span className={`font-sans text-[13px] font-semibold ${holderCorrect ? 'text-surface/70' : 'text-ink-3'}`}>
+              {caption}
+            </span>
+          </div>
+        </SlideFrame>,
       );
     }
 

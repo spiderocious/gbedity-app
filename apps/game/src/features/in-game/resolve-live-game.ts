@@ -20,6 +20,8 @@ export const LiveGameId = {
   QUIZZES: 'quizzes',
   WORDSHOT: 'wordshot',
   MISSING_LETTERS: 'missing_letters',
+  INVESTIGATION: 'investigation',
+  GUESS_THE_WORD: 'guess_the_word',
 } as const;
 export type LiveGameId = (typeof LiveGameId)[keyof typeof LiveGameId];
 
@@ -38,6 +40,8 @@ export function detectLiveGame(patch: ViewPatch | null): string | undefined {
   if (patch === null) return undefined;
   if (patch.scenario !== undefined) return LiveGameId.PLEAD_YOUR_CASE;
   if (patch.defences !== undefined) return LiveGameId.HOT_TAKE_COURT;
+  // Investigation: a case file — suspects + brief, no scenario/defences.
+  if (patch.suspects !== undefined || patch.brief !== undefined) return LiveGameId.INVESTIGATION;
   // Millionaire BEFORE word_bomb: both broadcast holderId, but millionaire also carries rung + ladder.
   if (patch.rung !== undefined || patch.ladder !== undefined) return LiveGameId.MILLIONAIRE;
   if (patch.holderId !== undefined || patch.used !== undefined) return LiveGameId.WORD_BOMB;
@@ -45,6 +49,8 @@ export function detectLiveGame(patch: ViewPatch | null): string | undefined {
   if (patch.letter !== undefined || patch.ranked !== undefined) return LiveGameId.WORDSHOT;
   // Missing Letters: a masked word + per-round index, no letter/options/holder.
   if (patch.masked !== undefined || patch.length !== undefined) return LiveGameId.MISSING_LETTERS;
+  // Guess The Word: guesser sees wordLength (char count of the secret word) — unique field.
+  if (patch.wordLength !== undefined || patch.guesserId !== undefined) return LiveGameId.GUESS_THE_WORD;
   return undefined;
 }
 

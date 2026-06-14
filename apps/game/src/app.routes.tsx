@@ -116,6 +116,11 @@ const InvestigationPreviewScreen = lazyDefault(
   "InvestigationPreviewScreen",
 );
 
+const InvestigationSoloRoute = lazyDefault(
+  () => import("./features/games/investigation/solo/routes.tsx"),
+  "InvestigationSoloRoute",
+);
+
 const DisplayGameScreen = lazyDefault(
   () => import("./features/in-game/screen/display-game-screen.tsx"),
   "DisplayGameScreen",
@@ -170,6 +175,7 @@ const routes: RouteObject[] = [
   { path: ROUTES.WWTBAM_PREVIEW, Component: WwtbamPreviewScreen },
   { path: ROUTES.WWTBAM_SOLO, Component: WwtbamSoloRoute },
   { path: ROUTES.INVESTIGATION_PREVIEW, Component: InvestigationPreviewScreen },
+  { path: ROUTES.INVESTIGATION_SOLO, Component: InvestigationSoloRoute },
 
   { path: ROUTES.JOIN, Component: JoinCodeScreen },
   // Backend's join_url is /join/:code — the QR target. Reuses the code-entry screen, which

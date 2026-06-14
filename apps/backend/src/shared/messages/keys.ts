@@ -39,6 +39,10 @@ export const MESSAGE_KEYS = {
     OVER: 'solo_ws.over',
     ALREADY_ANSWERED: 'solo_ws.already_answered',
   },
+  soloInv: {
+    NO_CASE: 'solo_inv.no_case',
+    ALREADY_ACCUSED: 'solo_inv.already_accused',
+  },
   soloWwtbam: {
     OVER: 'solo_wwtbam.over',
     ALREADY_ANSWERED: 'solo_wwtbam.already_answered',

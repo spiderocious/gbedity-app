@@ -191,6 +191,17 @@ const investigationCase = z.object({
   tags,
 });
 
+// Guess The Word — admin-curated word packs. Each pack is a themed set of words (one word per turn).
+// `words` supports `?` as a wildcard/blank character (e.g. "b?nana" has a gap the guesser must fill).
+const guessTheWordPack = z.object({
+  key: z.string().min(1),
+  title: z.string().min(1),
+  category: z.string().min(1),
+  words: z.array(z.string().min(1)).min(1),
+  ratingTier,
+  tags,
+});
+
 // Full schema (create) and a partial variant (PATCH).
 const SCHEMAS: Record<string, z.ZodTypeAny> = {
   quiz_deck: quizDeck,
@@ -204,6 +215,7 @@ const SCHEMAS: Record<string, z.ZodTypeAny> = {
   typing_passage: typingPassage,
   presentation_topic: presentationTopic,
   investigation_case: investigationCase,
+  guess_the_word_pack: guessTheWordPack,
 };
 
 export const contentSchemaFor = (kind: string): z.ZodTypeAny | undefined => SCHEMAS[kind];

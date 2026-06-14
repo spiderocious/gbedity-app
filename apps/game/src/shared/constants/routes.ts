@@ -73,6 +73,9 @@ export const ROUTES = {
 
   // Investigation bare-UI design surface (kinetic preview) — preview-first redesign.
   INVESTIGATION_PREVIEW: '/investigation-preview',
+
+  // Client-driven solo Investigation — self-contained slice (no socket). Self-starts via REST.
+  INVESTIGATION_SOLO: '/games/investigation/solo',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

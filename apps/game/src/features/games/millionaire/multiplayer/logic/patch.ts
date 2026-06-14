@@ -34,8 +34,9 @@ export interface MmView {
   readonly deadline: number | null;
   readonly secondsPerRound: number;
   readonly revealSeconds: number;
-  readonly answerIdx: number | null; // REVEAL only
-  readonly audienceTally: number[];  // [0,0,0,0]; AUDIENCE_POLL + REVEAL only
+  readonly answerIdx: number | null;      // REVEAL only
+  readonly lastCorrect: boolean | null;   // REVEAL only — the holder's outcome
+  readonly audienceTally: number[];       // [0,0,0,0]; AUDIENCE_POLL + REVEAL only
   readonly board: MmBoardRow[];
   readonly questionCount: number;
   readonly order: string[];
@@ -98,6 +99,7 @@ export function toMmView(patch: ViewPatch): MmView {
     secondsPerRound: num(patch.secondsPerRound, 30),
     revealSeconds: num(patch.revealSeconds, 4),
     answerIdx: typeof patch.answerIdx === 'number' ? patch.answerIdx : null,
+    lastCorrect: typeof patch.lastCorrect === 'boolean' ? patch.lastCorrect : null,
     audienceTally: parseNumArr(patch.audienceTally).length === 4 ? parseNumArr(patch.audienceTally) : [0, 0, 0, 0],
     board: parseBoard(patch.board),
     questionCount: num(patch.questionCount, 0),

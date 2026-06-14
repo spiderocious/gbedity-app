@@ -1,6 +1,10 @@
-// Generates 20 hand-templated investigation cases → writes data/investigation-cases.json.
-// Each case: a premise, 3–4 suspects, 2–3 evidence items, a timeline, and a fixed guilty suspect.
-// Deterministic (no randomness) so the set is stable. Run: node src/seeds/gen-investigation.mjs
+// Generates the RICH investigation cases → writes data/investigation-cases.json.
+// Each case is a full detective file: suspects with dossiers, forensic reports (with header fields +
+// flagged findings), witness statements, interview transcripts, a structured timeline, investigative
+// tools whose lookups sometimes DEAD-END (the twist), and the solution + key evidence + explanation.
+// Authored as complete objects (too rich to template from tuples). Deterministic. Mirrors the backend
+// content-schemas.ts `investigationCase` schema + the plugin contentSchema.
+// Run: node src/seeds/gen-investigation.mjs
 
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -10,140 +14,272 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 const CASES = [
   {
-    title: 'The Missing Trophy', brief: 'The community trophy vanished from the locked hall overnight. Three people held keys.',
-    suspects: [['Caretaker', 'Holds the master key; claims he was home all night.'], ['Captain', 'Wanted the trophy relocated; alibi is a phone call.'], ['Treasurer', 'Last to leave; signed out at 9pm.']],
-    evidence: [['Door log', 'Keycard entry at 11:42pm under the caretaker’s card.'], ['Phone records', 'The captain’s call ended at 10:30pm, not midnight.']],
-    timeline: ['9:00pm treasurer signs out', '10:30pm captain’s call ends', '11:42pm keycard entry'], guilty: 0,
+    key: 'the-last-pour',
+    title: 'The Last Pour',
+    category: 'Suspected Homicide',
+    difficulty: 3,
+    ratingTier: 'family',
+    tags: [],
+    brief:
+      'Chief Adewale Bankole, 58, founder of Bankole & Sons Distillery, was found dead in his locked study at the family compound in Ikoyi the morning after his retirement dinner. A glass of his signature aged brandy sat half-finished on the desk. The coroner suspects poisoning. Four people had access to the study that night. Work the case and name who is responsible.',
+    suspects: [
+      { id: 's1', name: 'Tunde Bankole', age: 34, role: 'Son · heir to the distillery', motive: 'The new will, signed that week, cut his stake from 60% to 20%. He found out at dinner.', alibi: 'Says he left at 11:40pm and drove straight home. Gate log shows his car leaving at 11:43pm.', alibiStatus: 'shaky', phone: '+234 802 551 0098', note: 'Calm, almost rehearsed. Asked twice when the will would be read.' },
+      { id: 's2', name: 'Mrs. Folake Bankole', age: 51, role: 'Wife', motive: 'A ₦400m insurance policy names her sole beneficiary. The marriage was cold.', alibi: 'Retired to the master bedroom at 11:15pm. The housekeeper confirms bringing her tea at 11:30pm.', alibiStatus: 'confirmed', phone: '+234 805 200 7741', note: 'Composed. Grief reads as relief to two witnesses.' },
+      { id: 's3', name: 'Emeka Obi', age: 47, role: 'Business partner · co-founder', motive: 'Owed the Chief ₦120m on a loan called in last month. A buy-out clause erases the debt on the Chief’s death.', alibi: 'Claims he was on a call with a Dubai supplier until past midnight. Has not produced the number.', alibiStatus: 'unchecked', phone: '+234 803 419 6620', note: 'Sweated through the interview. Volunteered an alibi before being asked.' },
+      { id: 's4', name: 'Grace Aniekwe', age: 29, role: 'Live-in housekeeper', motive: 'Quietly dismissed two weeks ago after a missing-cash accusation she denies. Still on the compound.', alibi: 'Served drinks all evening; last seen carrying the brandy decanter to the study at 11:20pm.', alibiStatus: 'broken', phone: '+234 701 884 3052', note: 'Nervous but cooperative. The only person who touched the decanter.' },
+    ],
+    reports: [
+      {
+        id: 'r1', kind: 'autopsy', title: 'Autopsy Report — A. Bankole', subtitle: 'Lagos State Forensic Pathology Unit · Ref AP-2231',
+        header: [{ label: 'Cause of death', value: 'Cardiac arrest secondary to poisoning' }, { label: 'Time of death', value: '00:10 – 00:50 (est.)' }, { label: 'Toxin', value: 'Oleander glycoside (plant-derived)' }],
+        findings: [
+          { heading: 'Toxicology', detail: 'Lethal concentration of oleandrin in blood and gastric contents. Oleander is not pharmaceutical — it is brewed from crushed leaves of the ornamental shrub. Onset 30–60 minutes after ingestion. Consistent with the brandy as the vehicle.', flag: 'key' },
+          { heading: 'Stomach contents', detail: 'Brandy, trace canapé. No tablets, capsules, or pharmaceutical residue.', flag: 'none' },
+          { heading: 'Note', detail: 'A faint bruise on the right forearm, 2–3 days old, unrelated to time of death. Likely incidental.', flag: 'herring' },
+        ],
+      },
+      {
+        id: 'r2', kind: 'forensic', title: 'Scene Report — The Study', subtitle: 'Crime Scene Unit · 14 Glover Road, Ikoyi',
+        header: [{ label: 'Scene secured', value: '07:55' }, { label: 'Door', value: 'Locked from inside · key on desk' }, { label: 'Items logged', value: '6' }],
+        findings: [
+          { heading: 'Item 1 — Brandy glass', detail: 'Oleandrin detected in residue. ONE set of prints: the victim’s. The glass was poured and handed to him, or he poured it himself from the decanter.', flag: 'key' },
+          { heading: 'Item 2 — Brandy decanter', detail: 'NO oleandrin in the decanter. The poison was in the glass only — not the bottle. Prints: victim, and a partial smudged set, gloved.', flag: 'key' },
+          { heading: 'Item 3 — Pruned oleander shrub', detail: 'Garden behind the kitchen. Fresh cuttings, leaves stripped. Secateurs found wiped clean and returned to the garden shed.', flag: 'key' },
+          { heading: 'Item 4 — Torn betting slip', detail: 'In the waste bin. Lagos racing, dated three weeks ago. Belongs to the gardener, off-duty that night.', flag: 'herring' },
+          { heading: 'Item 5 — Window', detail: 'Latched from inside. No tampering. Drop to the courtyard is 4 metres.', flag: 'none' },
+          { heading: 'Item 6 — Wall safe', detail: 'Closed, undisturbed. ₦2.1m and the new will inside, intact.', flag: 'none' },
+        ],
+      },
+      {
+        id: 'r3', kind: 'financial', title: 'Financial Review', subtitle: 'Forensic Accounting · 90-day window',
+        header: [{ label: 'Flag count', value: '2' }, { label: 'Window', value: 'Last 90 days' }],
+        findings: [
+          { heading: 'Emeka Obi', detail: 'Loan of ₦120m called in 31 days ago. Buy-out clause in the partnership deed voids the debt on a partner’s death. Strong financial motive — but a motive is not a method.', flag: 'none' },
+          { heading: 'Mrs. Folake Bankole', detail: '₦400m life policy, named beneficiary, premiums current. No unusual recent account activity.', flag: 'none' },
+        ],
+      },
+    ],
+    witnesses: [
+      { id: 'w1', name: 'Dr. Ifeoma Nwosu', relation: 'Family physician · dinner guest', statement: '"Adewale toasted with the brandy at the table around 11pm and seemed perfectly well. He took a second glass into the study. He never drank with anyone watching after that."', reliability: 'reliable' },
+      { id: 'w2', name: 'Sergeant Bello', relation: 'Gate security', statement: '"Tunde’s car left at 11:43. But the pedestrian side-gate by the generator house isn’t on the log — anyone on the compound could come and go on foot and I’d never see it."', reliability: 'reliable' },
+      { id: 'w3', name: 'Aunty Comfort', relation: 'Neighbour', statement: '"I heard shouting near midnight. A man’s voice. Could have been the TV. I went back to sleep."', reliability: 'questionable' },
+    ],
+    transcripts: [
+      {
+        id: 't1', suspectId: 's4', title: 'Interview — Grace Aniekwe',
+        lines: [
+          { speaker: 'Det.', role: 'q', text: 'You carried the decanter to the study at 11:20. Did you pour the Chief’s glass?' },
+          { speaker: 'Grace', role: 'a', text: 'I set the decanter down and left. He liked to pour his own. I swear I never touched his glass.' },
+          { speaker: 'Det.', role: 'q', text: 'You were dismissed two weeks ago. Over money.' },
+          { speaker: 'Grace', role: 'a', text: 'I did not take that money. Madam knows it. But yes — I was angry. Angry is not the same as this.' },
+          { speaker: 'Det.', role: 'q', text: 'Do you know what oleander is?' },
+          { speaker: 'Grace', role: 'a', text: 'The flower by the kitchen? It is poison, everyone in the house knows not to burn it. Why are you asking me this?' },
+        ],
+      },
+      {
+        id: 't2', suspectId: 's3', title: 'Interview — Emeka Obi',
+        lines: [
+          { speaker: 'Det.', role: 'q', text: 'You say you were on a call with Dubai until after midnight. Whose number?' },
+          { speaker: 'Emeka', role: 'a', text: 'A supplier. I... I will have to find the contact. It was on WhatsApp, the call may not show.' },
+          { speaker: 'Det.', role: 'q', text: 'The loan he called in. ₦120m. That clears on his death.' },
+          { speaker: 'Emeka', role: 'a', text: 'You think I would kill my partner of thirty years over money? I built that company with him.' },
+          { speaker: 'Det.', role: 'q', text: 'Were you in the study at any point that night?' },
+          { speaker: 'Emeka', role: 'a', text: 'To say goodnight. Briefly. He was alive. He was pouring himself a drink. That is the truth.' },
+        ],
+      },
+    ],
+    timeline: [
+      { time: '10:55', event: 'Chief toasts with brandy at the table — visibly well.', source: 'Dr. Nwosu', conflict: false },
+      { time: '11:15', event: 'Mrs. Bankole retires to the master bedroom.', source: 'Statement', conflict: false },
+      { time: '11:20', event: 'Grace carries the brandy decanter to the study, then leaves.', source: 'Statement', conflict: false },
+      { time: '11:30', event: 'Housekeeper brings Mrs. Bankole tea — confirms she is in her room.', source: 'Housekeeper', conflict: false },
+      { time: '11:43', event: 'Tunde’s car leaves through the main gate.', source: 'Gate log', conflict: false },
+      { time: '~11:50', event: 'Emeka says goodnight in the study; Chief is alive, pouring a drink.', source: 'Emeka (unverified)', conflict: true },
+      { time: '~00:00', event: 'Neighbour hears a man shouting near midnight.', source: 'Aunty Comfort (questionable)', conflict: false },
+      { time: '00:10–00:50', event: 'Estimated time of death.', source: 'Autopsy', conflict: false },
+    ],
+    tools: [
+      { id: 'tool-id', name: 'Identity Lookup', tagline: 'Pull a person’s record from the national registry.', icon: 'identity', results: [
+        { query: 'Emeka Obi', outcome: 'hit', rows: [{ label: 'Full name', value: 'Emeka Chukwuemeka Obi' }, { label: 'Known address', value: '8 Raymond Njoku, Ikoyi' }, { label: 'Horticulture permit', value: 'Active — ornamental nursery, Epe' }], note: 'A nursery permit. He grows ornamentals — oleander among them.' },
+        { query: 'Grace Aniekwe', outcome: 'dead_end', rows: [{ label: 'Result', value: 'No record found' }], note: 'No criminal record, no flags. The cash accusation was never filed.' },
+      ] },
+      { id: 'tool-phone', name: 'Phone Records', tagline: 'Subscriber and SIM registration for a number.', icon: 'phone_records', results: [
+        { query: '+234 803 419 6620 (Emeka)', outcome: 'partial', rows: [{ label: 'Registered to', value: 'Emeka C. Obi' }, { label: 'Last activity', value: '11:02pm — outgoing SMS' }, { label: 'Dubai call', value: 'No international call after 9pm' }], note: 'No Dubai call exists. His alibi has no record behind it.' },
+      ] },
+      { id: 'tool-calllog', name: 'Call Log', tagline: 'Inbound/outbound calls for a number on the night.', icon: 'call_log', results: [
+        { query: 'Tunde Bankole — 11pm to 1am', outcome: 'hit', rows: [{ label: '11:47pm', value: 'Outgoing → "Femi (lawyer)" · 6 min' }, { label: '12:31am', value: 'Outgoing → "Femi (lawyer)" · 11 min' }], note: 'Two calls to his lawyer about the will — AFTER he left. Awake and anxious, not at the scene.' },
+      ] },
+      { id: 'tool-triangulation', name: 'Cell Triangulation', tagline: 'Approximate a handset’s location from tower pings.', icon: 'triangulation', results: [
+        { query: 'Emeka Obi — 11pm to 1am', outcome: 'hit', rows: [{ label: '11:00–11:40', value: 'Ikoyi · Glover Rd cell (the compound)' }, { label: '11:55', value: 'Ikoyi · Glover Rd cell — still on-site' }, { label: '00:35', value: 'Ikoyi · Glover Rd cell — left after est. time of death' }], note: 'He never left. On the compound through the time of death — long after his "goodnight."' },
+        { query: 'Tunde Bankole — 11pm to 1am', outcome: 'hit', rows: [{ label: '11:50 onward', value: 'Lekki Phase 1 cell (his home)' }], note: 'Tunde’s handset is in Lekki from 11:50. He really did go home.' },
+      ] },
+      { id: 'tool-crimedb', name: 'Crime Database', tagline: 'Prior records, known associates, open flags.', icon: 'crime_db', results: [
+        { query: 'Whole household', outcome: 'dead_end', rows: [{ label: 'Result', value: 'No priors on any named party' }], note: 'Nobody here is a known offender. This crime was personal, not professional.' },
+      ] },
+    ],
+    solutionSuspectId: 's3',
+    keyEvidenceId: 'r2',
+    explanation:
+      'It was Emeka Obi. The poison was oleander — brewed, not bought — and the Identity Lookup puts an ornamental nursery permit in his name. Phone Records show the Dubai alibi never happened, and Cell Triangulation places his handset on the compound straight through the time of death, long after the "goodnight" he claimed was brief. He poured the dosed glass himself, wiped the decanter (gloved partial print), and let the Chief drink alone. Grace carried the decanter but never touched the glass; the poison was in the glass only. Tunde’s call log and triangulation prove he truly went home. The ₦120m debt died with the Chief.',
   },
+
   {
-    title: 'The Spoiled Soup', brief: 'The wedding soup was ruined with too much salt minutes before serving.',
-    suspects: [['Head Cook', 'Tasted it last and approved it.'], ['Rival Caterer', 'Lost the contract to the couple.'], ['New Helper', 'Was alone with the pot during the toast.']],
-    evidence: [['Salt sack', 'A half-empty sack found behind the rival caterer’s van.'], ['CCTV', 'Shows the rival entering the kitchen at 2pm.']],
-    timeline: ['1:30pm cook approves the soup', '2:00pm rival enters kitchen', '2:15pm soup served and rejected'], guilty: 1,
+    key: 'the-silent-ledger',
+    title: 'The Silent Ledger',
+    category: 'Corporate Fraud',
+    difficulty: 2,
+    ratingTier: 'family',
+    tags: [],
+    brief:
+      '₦68m vanished from the escrow account of Olumide & Partners over six months, siphoned in amounts just under the audit threshold. The firm’s three signatories all had access. No outsider could have moved the money. One of them is the thief — find the trail.',
+    suspects: [
+      { id: 's1', name: 'Kunle Adeyemi', age: 41, role: 'Managing Partner', motive: 'Deeply in debt to a private lender; his house is mortgaged twice.', alibi: 'Was travelling for two of the six transfer dates — abroad, verifiable.', alibiStatus: 'confirmed', phone: '+234 806 220 1190', note: 'Forthcoming. Volunteered his own bank statements.' },
+      { id: 's2', name: 'Ngozi Eze', age: 36, role: 'Finance Lead', motive: 'Passed over for partner twice. Knows the audit thresholds better than anyone.', alibi: 'In the office on every transfer date. Says she never initiated the transfers.', alibiStatus: 'unchecked', phone: '+234 807 551 4420', note: 'Precise, guarded. Corrected the detective’s figures twice.' },
+      { id: 's3', name: 'Bashir Lawal', age: 52, role: 'Senior Partner', motive: 'Quietly funding a second family; his declared income doesn’t cover it.', alibi: 'Claims he never uses the online portal — "I sign on paper."', alibiStatus: 'broken', phone: '+234 803 909 7781', note: 'Affable. Insisted the IT logs would clear him.' },
+    ],
+    reports: [
+      {
+        id: 'r1', kind: 'financial', title: 'Escrow Transfer Analysis', subtitle: 'Forensic Accounting · 6-month trace',
+        header: [{ label: 'Total siphoned', value: '₦68,400,000' }, { label: 'Transfers', value: '6 · all under ₦12m' }, { label: 'Destination', value: 'One shell account (later closed)' }],
+        findings: [
+          { heading: 'Pattern', detail: 'Every transfer is ₦11.4m–₦11.9m — deliberately under the ₦12m amount that triggers a second-signatory review. Whoever did this knew the exact threshold.', flag: 'key' },
+          { heading: 'Shell account', detail: 'Opened with a forged utility bill in the name "B. Lawal Holdings." Closed the week the audit began.', flag: 'herring' },
+          { heading: 'Timing', detail: 'All six transfers initiated between 1:00am and 2:00am — outside office hours, from the firm’s portal.', flag: 'key' },
+        ],
+      },
+      {
+        id: 'r2', kind: 'digital', title: 'Portal Access Log', subtitle: 'IT Security · transfer dates only',
+        header: [{ label: 'Logins on transfer nights', value: '6' }, { label: 'Account used', value: 'See findings' }, { label: 'Location', value: 'Office Wi-Fi' }],
+        findings: [
+          { heading: 'Credentials', detail: 'All six 1am logins used BASHIR LAWAL’s username and password — the partner who swears he "never uses the portal."', flag: 'key' },
+          { heading: 'But the device', detail: 'The logins came from a workstation on the FINANCE floor, not Bashir’s office. Bashir’s own laptop was offline on four of the six nights.', flag: 'key' },
+          { heading: 'Password note', detail: 'Bashir’s password was "Lagos1971" — written on a sticky note under his desk blotter, per the cleaner. Anyone on the finance floor could have lifted it.', flag: 'key' },
+        ],
+      },
+    ],
+    witnesses: [
+      { id: 'w1', name: 'Mr. Okafor', relation: 'Night security', statement: '"Only one person ever worked past midnight on those nights — the finance lead. The partners were long gone. She said she liked the quiet."', reliability: 'reliable' },
+      { id: 'w2', name: 'Cleaner (Tessy)', relation: 'Office cleaner', statement: '"Oga Bashir keeps his password on a paper under the desk. Everybody on that floor knows. I have told him to stop."', reliability: 'reliable' },
+    ],
+    transcripts: [
+      {
+        id: 't1', suspectId: 's2', title: 'Interview — Ngozi Eze',
+        lines: [
+          { speaker: 'Det.', role: 'q', text: 'You were the only person in the office past midnight on every transfer date.' },
+          { speaker: 'Ngozi', role: 'a', text: 'I work late. That is not a crime. Check the logins — they are not mine.' },
+          { speaker: 'Det.', role: 'q', text: 'They used Bashir’s credentials. From a finance-floor workstation. Your floor.' },
+          { speaker: 'Ngozi', role: 'a', text: 'Then talk to Bashir. I cannot help that he leaves his password lying around.' },
+          { speaker: 'Det.', role: 'q', text: 'You know the ₦12m threshold to the naira. Who else here does?' },
+          { speaker: 'Ngozi', role: 'a', text: '...That is my job. Knowing the rules is not the same as breaking them.' },
+        ],
+      },
+    ],
+    timeline: [
+      { time: 'Months 1–6', event: 'Six transfers, each just under ₦12m, all initiated near 1am.', source: 'Escrow analysis', conflict: false },
+      { time: 'Every transfer night', event: 'Bashir’s credentials log in — but from a finance-floor workstation.', source: 'Portal log', conflict: true },
+      { time: 'Every transfer night', event: 'Ngozi is the only person in the office past midnight.', source: 'Security (Okafor)', conflict: false },
+      { time: 'Audit week', event: 'The shell account is closed.', source: 'Bank', conflict: false },
+    ],
+    tools: [
+      { id: 'tool-id', name: 'Identity Lookup', tagline: 'Registry record for a person.', icon: 'identity', results: [
+        { query: 'B. Lawal Holdings', outcome: 'dead_end', rows: [{ label: 'Result', value: 'No such registered entity' }], note: 'The shell company was never really registered — the name was forged to point at Bashir.' },
+      ] },
+      { id: 'tool-calllog', name: 'Call Log', tagline: 'Calls around the transfer times.', icon: 'call_log', results: [
+        { query: 'Bashir Lawal — transfer nights', outcome: 'hit', rows: [{ label: 'All six nights', value: 'At home — calls placed from his home line after 10pm' }], note: 'Bashir was home, on his landline, on the nights his credentials were used at the office. He couldn’t have been at the workstation.' },
+      ] },
+      { id: 'tool-crimedb', name: 'Crime Database', tagline: 'Priors and flags.', icon: 'crime_db', results: [
+        { query: 'All three signatories', outcome: 'dead_end', rows: [{ label: 'Result', value: 'No priors' }], note: 'Clean records all round — a first-time, inside job.' },
+      ] },
+    ],
+    solutionSuspectId: 's2',
+    keyEvidenceId: 'r2',
+    explanation:
+      'It was Ngozi Eze. The Portal Access Log is decisive: the 1am transfers used Bashir’s credentials but came from a FINANCE-floor workstation — her floor — and Bashir’s own laptop was offline on four of those nights, with his call log placing him at home. Bashir’s password sat on a sticky note anyone on the finance floor could lift. Ngozi was the only person in the office past midnight on every transfer date, and she alone knew the ₦12m threshold to the naira. The "B. Lawal Holdings" shell was a forged red herring to frame the senior partner.',
   },
+
   {
-    title: 'The Vanished Painting', brief: 'A valuable painting disappeared from the gallery during a power cut.',
-    suspects: [['Night Guard', 'Reported the outage; was on duty alone.'], ['Curator', 'Had insured the painting heavily last week.'], ['Electrician', 'Serviced the fuse box that morning.']],
-    evidence: [['Insurance form', 'Curator doubled the coverage six days prior.'], ['Fuse box', 'Tampered manually, not a fault, per the inspector.']],
-    timeline: ['Morning: electrician services fuse box', '8pm power cut', '8:05pm painting gone'], guilty: 1,
+    key: 'the-locked-gallery',
+    title: 'The Locked Gallery',
+    category: 'Art Theft',
+    difficulty: 2,
+    ratingTier: 'family',
+    tags: [],
+    brief:
+      'A ₦90m Ben Enwonwu painting was lifted from the Ido Island gallery during a private viewing. The room was sealed, the alarm never tripped, and the painting’s frame was left hanging — empty — on the wall. Three people had the run of the gallery that night. The canvas hasn’t left the building. Find the thief.',
+    suspects: [
+      { id: 's1', name: 'Lara Bankole', age: 38, role: 'Gallery curator', motive: 'Her contract wasn’t renewed; she leaves at month’s end.', alibi: 'Was greeting guests at the entrance, on camera, during the viewing window.', alibiStatus: 'confirmed', phone: '+234 802 110 4567', note: 'Devastated. Knows the collection intimately.' },
+      { id: 's2', name: 'Victor Eze', age: 44, role: 'Private collector · guest', motive: 'Bid ₦70m for the piece last year and was refused.', alibi: 'Says he stepped out for "a long phone call" during the viewing.', alibiStatus: 'shaky', phone: '+234 805 778 2231', note: 'Smooth. Asked about the gallery’s insurance, not the painting.' },
+      { id: 's3', name: 'Sunday Musa', age: 31, role: 'Security technician', motive: 'Gambling debts; recently asked the curator for an advance.', alibi: 'Was in the control room "the whole time," he says, watching the feeds.', alibiStatus: 'broken', phone: '+234 701 443 9087', note: 'Helpful to a fault. Volunteered to walk us through the alarm system.' },
+    ],
+    reports: [
+      {
+        id: 'r1', kind: 'forensic', title: 'Scene Report — Gallery Floor', subtitle: 'CSU · Room 2 (sealed)',
+        header: [{ label: 'Alarm', value: 'Armed · never tripped' }, { label: 'Frame', value: 'Left hanging, canvas cut out' }, { label: 'Exits', value: '1 (monitored)' }],
+        findings: [
+          { heading: 'The cut', detail: 'The canvas was cut from the frame with a fresh, precise blade — done by someone unhurried, who knew the alarm wouldn’t sound. A panicked outsider doesn’t cut clean.', flag: 'key' },
+          { heading: 'Alarm', detail: 'The motion sensor for Room 2 was DISABLED in software for an 18-minute window during the viewing, then re-enabled. No physical tampering.', flag: 'key' },
+          { heading: 'Glove fibre', detail: 'Black nitrile fibre on the frame edge — the kind issued to gallery handling staff AND the security technician.', flag: 'none' },
+          { heading: 'Spilled wine', detail: 'A guest knocked over red wine near the entrance at 8:10pm. Cleaned up. Unrelated to the theft.', flag: 'herring' },
+        ],
+      },
+      {
+        id: 'r2', kind: 'digital', title: 'Alarm & Camera Log', subtitle: 'Security Systems · viewing window',
+        header: [{ label: 'Sensor disabled', value: '8:31pm – 8:49pm' }, { label: 'Disabled by', value: 'Control-room terminal' }, { label: 'Cameras', value: 'Room 2 feed looped' }],
+        findings: [
+          { heading: 'Who disabled it', detail: 'The Room 2 motion sensor was switched off from the CONTROL-ROOM terminal at 8:31pm — a terminal only the security technician operates during a viewing.', flag: 'key' },
+          { heading: 'The loop', detail: 'During the same 18 minutes, the Room 2 camera played an 18-minute loop of empty floor. The looping requires control-room access and the feed password.', flag: 'key' },
+          { heading: 'Curator’s tablet', detail: 'Lara’s tablet pinged the gallery Wi-Fi from the ENTRANCE the entire window — she never went near Room 2 or the control room.', flag: 'key' },
+        ],
+      },
+    ],
+    witnesses: [
+      { id: 'w1', name: 'Mrs. Adeyinka', relation: 'Guest', statement: '"The collector — Victor — was on his phone by the courtyard for a good while. I could see him through the glass the whole time. He never came back inside through Room 2."', reliability: 'reliable' },
+      { id: 'w2', name: 'Door steward', relation: 'Entrance staff', statement: '"Madam Lara was with us at the door, welcoming people, the whole viewing. She did not leave the entrance once."', reliability: 'reliable' },
+    ],
+    transcripts: [
+      {
+        id: 't1', suspectId: 's3', title: 'Interview — Sunday Musa',
+        lines: [
+          { speaker: 'Det.', role: 'q', text: 'The Room 2 sensor went dark for eighteen minutes. From the control room. Where you were.' },
+          { speaker: 'Sunday', role: 'a', text: 'It must have glitched. The system does that. I re-armed it as soon as I saw.' },
+          { speaker: 'Det.', role: 'q', text: 'And the camera played a loop for exactly those eighteen minutes?' },
+          { speaker: 'Sunday', role: 'a', text: 'A loop? I... maybe a buffer error. I am not a software person.' },
+          { speaker: 'Det.', role: 'q', text: 'You asked the curator for an advance last week. Money trouble?' },
+          { speaker: 'Sunday', role: 'a', text: 'Everybody has money trouble. That does not make me a thief.' },
+        ],
+      },
+    ],
+    timeline: [
+      { time: '8:10pm', event: 'A guest spills wine at the entrance; cleaned up.', source: 'Staff', conflict: false },
+      { time: '8:25pm', event: 'Victor steps out to the courtyard for a phone call — visible through the glass.', source: 'Guest (Mrs. Adeyinka)', conflict: false },
+      { time: '8:31pm', event: 'Room 2 motion sensor disabled from the control-room terminal; camera begins an 18-min loop.', source: 'Alarm log', conflict: true },
+      { time: '8:49pm', event: 'Sensor re-armed; loop ends.', source: 'Alarm log', conflict: false },
+      { time: '9:05pm', event: 'Empty frame discovered.', source: 'Curator', conflict: false },
+    ],
+    tools: [
+      { id: 'tool-triangulation', name: 'Cell Triangulation', tagline: 'Handset location from tower pings.', icon: 'triangulation', results: [
+        { query: 'Victor Eze — 8:20pm to 8:55pm', outcome: 'hit', rows: [{ label: '8:25–8:50pm', value: 'Gallery courtyard cell — stationary' }], note: 'Victor’s handset stayed in the courtyard through the whole theft window. The "long phone call" checks out — he wasn’t in Room 2.' },
+      ] },
+      { id: 'tool-id', name: 'Identity Lookup', tagline: 'Registry record.', icon: 'identity', results: [
+        { query: 'Sunday Musa', outcome: 'partial', rows: [{ label: 'Prior employment', value: 'Dismissed from a casino security role' }, { label: 'Certifications', value: 'Alarm & CCTV systems — advanced' }], note: 'He has the exact technical skill to disable a sensor and loop a camera from the control room.' },
+      ] },
+      { id: 'tool-crimedb', name: 'Crime Database', tagline: 'Priors and flags.', icon: 'crime_db', results: [
+        { query: 'Lara Bankole', outcome: 'dead_end', rows: [{ label: 'Result', value: 'No record' }], note: 'The curator is clean — and the camera/Wi-Fi place her at the entrance throughout.' },
+      ] },
+    ],
+    solutionSuspectId: 's3',
+    keyEvidenceId: 'r2',
+    explanation:
+      'It was Sunday Musa, the security technician. The Alarm & Camera Log is conclusive: the Room 2 sensor was disabled and the camera looped from the CONTROL-ROOM terminal he alone operated, during an 18-minute window — and only someone with his alarm/CCTV expertise (per the Identity Lookup) could do both. The clean cut shows an unhurried thief who knew the alarm was off. Lara was at the entrance the whole time (Wi-Fi + the door steward), and Victor’s triangulation keeps him in the courtyard. The wine spill and the handling-glove fibre were noise. Sunday’s gambling debts gave him the motive; the control room gave him the means. The canvas is still hidden in the building.',
   },
-  {
-    title: 'The Broken Window', brief: 'A shop window was smashed and the till emptied after closing.',
-    suspects: [['Ex-Employee', 'Fired last month; still had a uniform.'], ['Neighbour', 'Complained about noise for weeks.'], ['Delivery Driver', 'Made a late drop-off that evening.']],
-    evidence: [['Footprints', 'Match work boots issued to staff.'], ['Receipt', 'Driver’s drop logged at 6pm, store shut at 7pm.']],
-    timeline: ['6:00pm delivery', '7:00pm store closes', '7:40pm alarm triggers'], guilty: 0,
-  },
-  {
-    title: 'The Tampered Scoreboard', brief: 'The quiz final scoreboard was altered to crown the wrong winner.',
-    suspects: [['Scorekeeper', 'Had sole access to the laptop.'], ['Runner-up', 'Argued about a ruling earlier.'], ['Sponsor', 'Wanted a local team to win.']],
-    evidence: [['Login log', 'One login at 9:50pm — the scorekeeper’s.'], ['Edit history', 'A score changed at 9:52pm.']],
-    timeline: ['9:45pm quiz ends', '9:50pm scorekeeper login', '9:52pm score edited'], guilty: 0,
-  },
-  {
-    title: 'The Empty Fuel Tank', brief: 'The generator ran dry overnight though it was filled at dusk.',
-    suspects: [['Watchman', 'Filled it and kept the key.'], ['Tenant', 'Complained about the fuel cost.'], ['Mechanic', 'Serviced the generator that day.']],
-    evidence: [['Siphon hose', 'Found hidden near the tenant’s unit.'], ['Fuel log', 'Tank was full at 7pm per the watchman.']],
-    timeline: ['7:00pm tank filled', 'Midnight generator stops', 'Hose found at dawn'], guilty: 1,
-  },
-  {
-    title: 'The Switched Cake', brief: 'The birthday cake was swapped for a cheaper one before the cut.',
-    suspects: [['Baker', 'Delivered both cakes that day.'], ['Cousin', 'Was upset about the budget.'], ['Planner', 'Handled the dessert table alone.']],
-    evidence: [['Delivery note', 'Only one premium cake was paid for.'], ['Table photo', 'Planner rearranged the table at 4pm.']],
-    timeline: ['2pm cakes delivered', '4pm planner at the table', '5pm cake cut'], guilty: 2,
-  },
-  {
-    title: 'The Leaked Question', brief: 'An exam question leaked to one class the night before.',
-    suspects: [['Printer', 'Printed the papers after hours.'], ['Teacher', 'Has a relative in the class.'], ['Clerk', 'Filed the master copy.']],
-    evidence: [['Phone forward', 'A photo sent from the teacher’s number at 9pm.'], ['Print log', 'Printing finished at 6pm, before the leak.']],
-    timeline: ['6pm printing done', '9pm photo forwarded', 'Next morning exam'], guilty: 1,
-  },
-  {
-    title: 'The Missing Donations', brief: 'Cash donations from the fundraiser came up short by half.',
-    suspects: [['Treasurer', 'Counted the cash alone.'], ['Volunteer', 'Held the box during the event.'], ['Auditor', 'Reviewed the totals afterward.']],
-    evidence: [['Count sheet', 'Treasurer’s figure differs from the ticket count.'], ['Box seal', 'Reopened and resealed, per the auditor.']],
-    timeline: ['Event ends', 'Treasurer counts alone', 'Auditor flags mismatch'], guilty: 0,
-  },
-  {
-    title: 'The Sabotaged Drone', brief: 'A racing drone crashed mid-final after a tampered battery.',
-    suspects: [['Pilot', 'Owns the drone and the spare battery.'], ['Rival Pilot', 'Was seen near the pit before the race.'], ['Judge', 'Inspected the drone last.']],
-    evidence: [['Battery cap', 'Loosened by hand, not flight damage.'], ['Pit camera', 'Rival lingered at the bench at 3pm.']],
-    timeline: ['3pm rival at the pit', '3:30pm inspection', '4pm crash'], guilty: 1,
-  },
-  {
-    title: 'The Phantom Order', brief: 'A huge fake catering order nearly bankrupted a small kitchen.',
-    suspects: [['Manager', 'Took the order by phone.'], ['Competitor', 'Opened a rival kitchen nearby.'], ['Supplier', 'Was paid up front for ingredients.']],
-    evidence: [['Caller ID', 'Traced to a burner near the competitor’s shop.'], ['Deposit', 'Supplier received and kept the deposit.']],
-    timeline: ['Call placed', 'Ingredients bought', 'Order never collected'], guilty: 1,
-  },
-  {
-    title: 'The Altered Will', brief: 'A family will was changed days before it was read.',
-    suspects: [['Lawyer', 'Drafted and stored the will.'], ['Heir', 'Visited the office that week.'], ['Witness', 'Signed both versions.']],
-    evidence: [['Ink test', 'A clause added in newer ink.'], ['Visitor log', 'Heir signed in the day before the change.']],
-    timeline: ['Heir visits', 'Clause added', 'Will read'], guilty: 1,
-  },
-  {
-    title: 'The Cut Power Line', brief: 'A street lost power right as the night market opened.',
-    suspects: [['Vendor', 'Argued over a stall location.'], ['Linesman', 'Was working the pole that afternoon.'], ['Shopowner', 'Wanted the market shut down.']],
-    evidence: [['Cut marks', 'Clean cut from a tool, not weather.'], ['Toolbox', 'A bolt cutter found in the shopowner’s store.']],
-    timeline: ['Afternoon line work', 'Market opens', 'Power cut'], guilty: 2,
-  },
-  {
-    title: 'The Stolen Recipe', brief: 'A secret stew recipe appeared on a rival’s menu overnight.',
-    suspects: [['Sous Chef', 'Knows the recipe by heart.'], ['Waiter', 'Serves both restaurants part-time.'], ['Critic', 'Reviewed the dish last week.']],
-    evidence: [['Note photo', 'A snap of the recipe card on the waiter’s phone.'], ['Shift log', 'Waiter worked the rival’s kitchen that night.']],
-    timeline: ['Recipe photographed', 'Waiter’s rival shift', 'Menu appears'], guilty: 1,
-  },
-  {
-    title: 'The False Alarm', brief: 'A fire alarm emptied the office right before a big presentation.',
-    suspects: [['Intern', 'Stood near the alarm panel.'], ['Presenter', 'Was unprepared and nervous.'], ['Rival', 'Wanted the slot rescheduled.']],
-    evidence: [['Panel print', 'Manual pull at booth three.'], ['Seat map', 'Rival sat beside booth three.']],
-    timeline: ['Presentation due', 'Alarm pulled', 'Office cleared'], guilty: 2,
-  },
-  {
-    title: 'The Swapped Keys', brief: 'A car went missing after keys were swapped at a valet stand.',
-    suspects: [['Valet', 'Parked all the cars.'], ['Guest', 'Lost their ticket earlier.'], ['Owner', 'Reported it for insurance.']],
-    evidence: [['Ticket stub', 'Owner’s stub matched a different car.'], ['Claim form', 'Owner filed a claim within the hour.']],
-    timeline: ['Cars parked', 'Keys swapped', 'Insurance claim filed'], guilty: 2,
-  },
-  {
-    title: 'The Muddy Footprint', brief: 'A garden shed was raided and the prize seeds taken.',
-    suspects: [['Gardener', 'Has the only spare key.'], ['Neighbour', 'Competes in the same flower show.'], ['Child', 'Plays near the shed daily.']],
-    evidence: [['Footprint', 'Adult size, treaded boot near the show.'], ['Glove', 'A gardening glove dropped by the fence.']],
-    timeline: ['Evening raid', 'Footprint found', 'Show next week'], guilty: 1,
-  },
-  {
-    title: 'The Deleted Files', brief: 'Project files were wiped the night before a deadline.',
-    suspects: [['Developer', 'Had admin access.'], ['Manager', 'Was over budget on the project.'], ['Client', 'Disputed the final invoice.']],
-    evidence: [['Access log', 'A delete command at 11pm from an office IP.'], ['Badge swipe', 'Manager swiped in at 10:50pm.']],
-    timeline: ['10:50pm badge swipe', '11pm delete', 'Morning deadline'], guilty: 1,
-  },
-  {
-    title: 'The Counterfeit Ticket', brief: 'Two guests arrived with the same VIP ticket number.',
-    suspects: [['Printer', 'Produced the ticket batch.'], ['Reseller', 'Sold the second ticket online.'], ['Usher', 'Scanned both at the door.']],
-    evidence: [['Serial scan', 'The duplicate was a photocopy, scanned second.'], ['Listing', 'Reseller posted the number for sale.']],
-    timeline: ['Tickets printed', 'Number listed online', 'Both scanned'], guilty: 1,
-  },
-  {
-    title: 'The Overflowing Tap', brief: 'An office flooded overnight from a tap left running.',
-    suspects: [['Cleaner', 'Was last to leave the kitchen.'], ['Plumber', 'Fixed the tap that day.'], ['Worker', 'Filled a kettle before leaving.']],
-    evidence: [['Work order', 'Plumber left the washer loose, per the report.'], ['Sign-out', 'Cleaner signed out before the worker.']],
-    timeline: ['Plumber repairs tap', 'Worker fills kettle', 'Cleaner leaves'], guilty: 1,
-  }
 ];
 
-const toCase = (c, i) => ({
-  key: `case-${String(i + 1).padStart(2, '0')}`,
-  title: c.title,
-  brief: c.brief,
-  suspects: c.suspects.map(([name, profile], si) => ({ id: `s${si + 1}`, name, profile })),
-  evidence: c.evidence.map(([label, detail], ei) => ({ id: `e${ei + 1}`, label, detail })),
-  timeline: c.timeline,
-  solutionSuspectId: `s${c.guilty + 1}`,
-  difficulty: 1 + (i % 3),
-  ratingTier: 'family',
-  tags: [],
-});
+// Light validation so a malformed case fails the generator, not the seed POST.
+for (const c of CASES) {
+  const ids = new Set(c.suspects.map((s) => s.id));
+  if (!ids.has(c.solutionSuspectId)) throw new Error(`${c.key}: solutionSuspectId ${c.solutionSuspectId} not in suspects`);
+  if (c.keyEvidenceId && !c.reports.some((r) => r.id === c.keyEvidenceId)) throw new Error(`${c.key}: keyEvidenceId ${c.keyEvidenceId} not in reports`);
+}
 
-const out = CASES.map(toCase);
-await writeFile(join(here, 'data', 'investigation-cases.json'), JSON.stringify(out, null, 2));
-console.error(`wrote ${out.length} investigation cases`);
+await writeFile(join(here, 'data', 'investigation-cases.json'), JSON.stringify(CASES, null, 2));
+console.error(`wrote ${CASES.length} rich investigation cases`);

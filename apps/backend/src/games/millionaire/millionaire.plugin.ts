@@ -264,7 +264,10 @@ export const millionaireGame: GamePlugin<Config, State, Action, Content> = {
       for (const v of state.audienceVotes) tally[v.choiceIdx] = (tally[v.choiceIdx] ?? 0) + 1;
       base.audienceTally = tally;
     }
-    if (state.phase === Phase.REVEAL && q) base.answerIdx = q.answerIdx;
+    if (state.phase === Phase.REVEAL && q) {
+      base.answerIdx = q.answerIdx;
+      base.lastCorrect = state.lastCorrect;
+    }
     if (audience.kind === AudienceKind.PLAYER) {
       base.yourTurn = holder(state) === audience.playerId && (state.phase === Phase.QUESTION || state.phase === Phase.TURN_INTRO);
       base.canVoteAudience = state.phase === Phase.AUDIENCE_POLL && holder(state) !== audience.playerId;

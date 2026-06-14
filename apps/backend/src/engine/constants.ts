@@ -93,6 +93,7 @@ export const GameId = {
   INVESTIGATION: 'investigation',
   PLEAD_YOUR_CASE: 'plead_your_case',
   PRESENTATION: 'presentation',
+  GUESS_THE_WORD: 'guess_the_word',
   // test games used to close the engine contract (game-engine.md §8)
   TEST_SIMULTANEOUS: 'test_simultaneous',
   TEST_ROUND_ROBIN: 'test_round_robin',

@@ -25,6 +25,7 @@ import { HostControlStrip } from '../widgets/host-control-strip.tsx';
 import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
 import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
 import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
+import { MpAudience as InvAudience, MpGameId as InvGameId, MpInvestigationScreen } from '../../games/investigation/multiplayer/index.ts';
 
 // §5.2 — host in-game. LIVE by default: the host joins as role=host (its seat is also a
 // player), plays off the PLAYER-audience projection, AND drives host controls. `?mock=<id>`
@@ -67,7 +68,7 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
   // Latched: a board-only / transitional patch must not drop the id and remount the flow mid-game.
   const backendId = useLatchedLiveGame(playPatch, hint);
   // New self-contained slices own their surface, game-over nav, and host control strip.
-  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE;
+  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE || backendId === InvGameId.INVESTIGATION;
 
   // Game ended (natural finish OR the host's End game) → leave the play surface for the result
   // screen. New-slice games handle their own game-over navigation, so skip it here for them.
@@ -103,6 +104,14 @@ function LiveHost({ code, hint }: { readonly code: string; readonly hint: string
       <div className="min-h-screen bg-canvas">
         <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
         <MpMillionaireScreen audience={MmAudience.HOST} code={code} />
+      </div>
+    );
+  }
+  if (backendId === InvGameId.INVESTIGATION) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <AppHeader roomCode={code} right={<Pill tone="action">You: {score} pts</Pill>} />
+        <MpInvestigationScreen audience={InvAudience.HOST} code={code} />
       </div>
     );
   }

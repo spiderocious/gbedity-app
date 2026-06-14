@@ -24,6 +24,7 @@ import { WaitingForRound } from '../widgets/waiting-for-round.tsx';
 import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
 import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
 import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
+import { MpAudience as InvAudience, MpGameId as InvGameId, MpInvestigationScreen } from '../../games/investigation/multiplayer/index.ts';
 
 // §5.3 — player in-game. LIVE by default: connects the room socket, renders the player patch,
 // sends client.action. `?mock=<catalogueId>` opts into the static preview registry (the 13
@@ -61,7 +62,7 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
   const backendId = useLatchedLiveGame(patch, hint);
   // New self-contained slices own their whole surface (incl. game-over nav). Until every game is
   // migrated, the generic screen branches to the new slice by backend id and skips its own flow path.
-  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE;
+  const isNewSlice = backendId === MpGameId.MISSING_LETTERS || backendId === WsGameId.WORDSHOT || backendId === MmGameId.MILLIONAIRE || backendId === InvGameId.INVESTIGATION;
 
   // Game ended → leave the play surface for the result screen (the room stays open / back to lobby).
   // New-slice games handle their own game-over navigation, so skip it here for them.
@@ -107,6 +108,13 @@ function LivePlayer({ code, hint }: { readonly code: string; readonly hint: stri
     return (
       <div className="min-h-screen bg-canvas">
         <MpMillionaireScreen audience={MmAudience.PLAYER} code={code} />
+      </div>
+    );
+  }
+  if (backendId === InvGameId.INVESTIGATION && !amSpectator) {
+    return (
+      <div className="min-h-screen bg-canvas">
+        <MpInvestigationScreen audience={InvAudience.PLAYER} code={code} />
       </div>
     );
   }

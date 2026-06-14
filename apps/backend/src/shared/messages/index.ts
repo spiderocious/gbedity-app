@@ -34,6 +34,8 @@ const catalog: Record<MessageKey, string> = {
   [MESSAGE_KEYS.soloWwtbam.ALREADY_ANSWERED]: "You've already answered this question.",
   [MESSAGE_KEYS.soloWwtbam.LIFELINE_USED]: "You've already used that lifeline.",
   [MESSAGE_KEYS.soloWwtbam.NO_LIFELINE]: "That lifeline isn't available.",
+  [MESSAGE_KEYS.soloInv.NO_CASE]: 'No case available right now.',
+  [MESSAGE_KEYS.soloInv.ALREADY_ACCUSED]: 'You have already made your accusation.',
 
   [MESSAGE_KEYS.admin.SEEDED]: 'Admin created. Save this password — it is shown once.',
   [MESSAGE_KEYS.admin.SEED_DISABLED]: 'Admin seeding is disabled.',

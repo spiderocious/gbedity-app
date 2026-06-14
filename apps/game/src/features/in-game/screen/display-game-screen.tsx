@@ -18,6 +18,7 @@ import { detectLiveGame, resolveLiveHint, resolveMockGame } from '../resolve-liv
 import { MpAudience, MpGameId, MpMissingLettersScreen } from '../../games/missing-letters/multiplayer/index.ts';
 import { MpAudience as WsAudience, MpGameId as WsGameId, MpWordshotScreen } from '../../games/wordshot/multiplayer/index.ts';
 import { MpAudience as MmAudience, MpGameId as MmGameId, MpMillionaireScreen } from '../../games/millionaire/multiplayer/index.ts';
+import { MpAudience as InvAudience, MpGameId as InvGameId, MpInvestigationScreen } from '../../games/investigation/multiplayer/index.ts';
 
 // §5.1 — display in-game. LIVE by default: a display socket renders server.view patches.
 // `?mock=<catalogueId>` opts into the static registry (the 13 non-backed games + the gallery).
@@ -76,6 +77,9 @@ function LiveDisplay({ code, hint }: { readonly code: string; readonly hint: str
   }
   if (backendId === MmGameId.MILLIONAIRE && !isFinal) {
     return <MpMillionaireScreen audience={MmAudience.SPECTATOR} code={code} />;
+  }
+  if (backendId === InvGameId.INVESTIGATION && !isFinal) {
+    return <MpInvestigationScreen audience={InvAudience.SPECTATOR} code={code} />;
   }
 
   return (

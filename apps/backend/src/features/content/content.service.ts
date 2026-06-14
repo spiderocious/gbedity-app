@@ -189,6 +189,20 @@ export class ContentService {
       .toArray();
     return rows as Record<string, unknown>[];
   }
+
+  // Guess The Word: pick one pack (title + words[]) from the admin-curated collection.
+  async resolveGuessTheWordPack(opts: { filter?: RatingFilterShape; category?: string }): Promise<{ title: string; category: string; words: string[] } | null> {
+    const filter = opts.filter ?? DEFAULT_RATING_FILTER;
+    const match: Filter<Document> = { ...ratingClause(filter) };
+    if (opts.category) match['category'] = opts.category;
+    const rows = await getDb()
+      .collection(ContentCollection.GUESS_THE_WORD_PACKS)
+      .aggregate([{ $match: match }, { $sample: { size: 1 } }, { $project: { _id: 0, title: 1, category: 1, words: 1 } }])
+      .toArray();
+    const row = rows[0];
+    if (!row) return null;
+    return { title: String(row['title'] ?? ''), category: String(row['category'] ?? ''), words: Array.isArray(row['words']) ? (row['words'] as string[]) : [] };
+  }
 }
 
 export const contentService = new ContentService();
